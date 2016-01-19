@@ -1,0 +1,81 @@
+.form-validate input[type='text'], .form-validate input[type='password'] {
+    display: block;
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+
+.form-horizontal .has-feedback .checkbox .form-control-feedback ,
+.form-horizontal .has-feedback .radio .form-control-feedback {
+	right: 0;
+}
+.form-validate .has-success input {
+    border-color: #3c763d;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+}
+.form-validate .has-error input {
+    border-color: #a94442;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+}
+.form-validate .help-block {
+	padding: 0;
+    font-weight: bold;
+}
+/*иконки*/
+.icon-container {
+	position: relative;
+}
+.icon-container.has-success input,
+.icon-container.has-error input {
+    padding-right: 32px;
+}
+.checkbox label, .radio label {
+	padding-right: 25px;
+}
+.red {
+	color: #a94442;
+}
+.icon-container.has-success input[type='checkbox'],
+.icon-container.has-success input[type='radio'],
+.icon-container.has-error input[type='checkbox'],
+.icon-container.has-error input[type='radio'] {
+	padding-right: 0;
+}
+
+.icon-container.has-success:after, .icon-container.has-error:after {
+    font-family: 'Glyphicons Halflings'; 
+    position: absolute;
+    top: 0;
+    right: 15px;       
+    font-style: normal;
+    font-weight: 400;
+    z-index: 2;
+    display: block;
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+    text-align: center;
+    pointer-events: none;
+}
+.icon-container.has-success:after {
+    content: "\e013";
+    color: #3c763d;     
+}
+.icon-container.has-error:after {
+    content: "\e014";
+    color: #a94442;
+}
