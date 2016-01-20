@@ -1,18 +1,24 @@
 $(function() {
-	window.form1 = new citrusValidate($(".form-validate"));
+	window.form1 = new citrusValidate($(".form-validate"), {
+		onFieldError: function(field, error){
 
+		},
+		onFieldSuccess: function(field){
+
+		}
+	});
+	
 });
 
-function citrusValidate(form){
-	$this = this;
+function citrusValidate(form, params){
+	validator = this;
 	$form = form;
 	
 	var rules = {
   		"required": function(field){
   			return !!field.val();
   		}
-  	};
-
+  	};  	
   	var errorMessages = {
   		required: "Это поле необходимо заполнить.",
 		remote: "Пожалуйста, введите правильное значение.",
@@ -39,7 +45,8 @@ function citrusValidate(form){
 		ogrn: "Введите корректный ОГРН.",
 		kpp: "Введите корректный КПП."
   	}
-  	$this.fieldValidate = function(field){
+
+  	validator.fieldValidate = function(field){
   		//делаем массив из названий правил валидации
 		var validArray = field.data("valid").split(" ");
 
@@ -53,21 +60,47 @@ function citrusValidate(form){
 			//если есть запускаем валидацию			
 			if(!rules[rule_name](field)){
 				field.addClass('invalid');
-				$form.addClass('invalid');
+				field.parent().addClass('has-error');
+				field.parent().removeClass('has-success');
+				field.after('<div class="error help-block">'+errorMessages[rule_name]+'</div>');
 				return false;
+			}else {
+				field.removeClass('invalid');
+				field.parent().removeClass('has-error');
+				field.parent().addClass('has-success');
+				field.next(".error").remove();
+				return true;
 			}
 		});
   	};
-  	$this.formValidate = function(){
+  	validator.formValidate = function(){  		
   		//сбор полей для валидации
-	    var validFields = $form.find("[data-valid]");     
+	    var validFields = $form.find("[data-valid]");
 	    if( validFields.length == 0 ) return;
 
+	    var form_valid = true; // по началу форма валидна
 	    //перебираем поля для валидации
 		validFields.each(function(index, el) {
-			$this.fieldValidate($(this));			
+			if( !validator.fieldValidate($(this)) ) form_valid = false;
 		});
+		//если хоть одно поле не прошло валидацию добавляем класс к форме
+		if(!form_valid) {
+			$form.addClass('invalid');
+			return false;
+		}
+		return true;
   	}
+// 	validator.formValidate();
 
-  	$this.formValidate();
+  	//добавим проверку на change для каждого поля	
+  	;(function init(){
+  		$(document)
+	  		.on('change', '[data-valid]', function(event) {	  			
+				validator.fieldValidate($(this));
+			});
+  	}());	
 }
+
+
+
+
