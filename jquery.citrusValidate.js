@@ -1,18 +1,18 @@
 $(function() {
-	window.form1 = new citrusValidate($(".form-validate"), {
+	/*window.form1 = new citrusValidate($(".form-validate"), {
 		onFieldError: function(field, error){
 
 		},
 		onFieldSuccess: function(field){
 
 		}
-	});
+	});*/
+	
 	
 });
 
-function citrusValidate(form, params){
+var validator = new function citrusValidate(){	
 	validator = this;
-	$form = form;
 	
 	var rules = {
   		"required": function(field){
@@ -73,7 +73,7 @@ function citrusValidate(form, params){
 			}
 		});
   	};
-  	validator.formValidate = function(){  		
+  	validator.formValidate = function($form){  		
   		//сбор полей для валидации
 	    var validFields = $form.find("[data-valid]");
 	    if( validFields.length == 0 ) return;
