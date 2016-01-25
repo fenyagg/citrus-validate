@@ -5,8 +5,11 @@ var citrusValidator = new function() {
 	validator = this;
 
 	var rules = {
-  		"required": function(field){
+  		"required" : function(field) {
   			return field.is("[type='checkbox']") ? field.is(":checked") : !!field.val();
+  		},
+  		"important" : function(filed) {
+  			return true;
   		}
   	};
   	var errorMessages = {
@@ -53,9 +56,11 @@ var citrusValidator = new function() {
   	validator.disabledForm = function(form){
   		form.find("[type='submit']").attr("disabled", "disabled");
   	}
+  	validator.enabledForm = function(form){
+  		form.find("[type='submit']").removeAttr("disabled");
+  	}
   	validator.validateField = function(field, action){  		
   		var action = (typeof action === 'undefined') ? true : action;//если true то добавляются обработчики ошибок  		
-  		console.log(action);
   		//делаем массив из названий правил валидации
 		var validArray = field.data("valid").split(" ");			
 
@@ -83,7 +88,6 @@ var citrusValidator = new function() {
 	    if( validFields.length == 0 ) return;
 
 	    var form_valid = true; // по началу форма валидна
-	    //перебираем поля для валидации
 		validFields.each(function(index, el) {
 			if( !validator.validateField($(this)) ) form_valid = false;
 		});
