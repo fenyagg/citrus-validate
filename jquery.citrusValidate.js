@@ -50,6 +50,9 @@ var citrusValidator = new function() {
 					  					 .addClass('has-success')
 					  					 .find(".error").remove();
   	}
+  	validator.disabledForm = function(form){
+  		form.find("[type='submit']").attr("disabled", "disabled");
+  	}
   	validator.validateField = function(field, action){  		
   		var action = (typeof action === 'undefined') ? true : action;//если true то добавляются обработчики ошибок  		
   		console.log(action);
@@ -98,18 +101,25 @@ var citrusValidator = new function() {
 ;(function( $ ){
   $.fn.citrusValidate = function() {  		
   		$(this).each(function(index, el) { //в каждой форме
-	  		$(this).on('change', '[data-valid]', function(event) { // каждое поле при изменении
+  			var form = $(this);
+	  		form.on('change', '[data-valid]', function(event) { // каждое поле при изменении
 				citrusValidator.validateField($(this));	// отправляется в валидатор
 			});
-			$(this).on('submit', function(event) {
+			form.on('submit', function(event) {
 				event.preventDefault();
 				citrusValidator.validateForm($(this));
 			});
 			//проверяем поля important
-			$(this).find("[data-valid*='important']").each(function(index, el) {
+			var important_fields = form.find("[data-valid*='important']");
+			if(important_fields.length > 0) {
+				var important_valid = true;
+				important_fields.each(function(index, el) {
+					if(!citrusValidator.validateField($(this), false)) important_valid = false;
+				});
 
-				console.log(citrusValidator.validateField($(this), false));
-			});
+				if(!important_valid) citrusValidator.disabledForm(form);
+			}
+			
 			
 			
   		});
