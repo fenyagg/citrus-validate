@@ -8,7 +8,7 @@ var citrusValidator = new function() {
   		"required" : function(field) {
   			return field.is("[type='checkbox']") ? field.is(":checked") : !!field.val();
   		},
-  		"important" : function(filed) {
+  		"important" : function(field) {  			
   			return true;
   		}
   	};
@@ -53,50 +53,69 @@ var citrusValidator = new function() {
 					  					 .addClass('has-success')
 					  					 .find(".error").remove();
   	}
-  	validator.disabledForm = function(form){
+  	validator.lockForm = function(form){
   		form.find("[type='submit']").attr("disabled", "disabled");
   	}
-  	validator.enabledForm = function(form){
+  	validator.unlockForm = function(form){
   		form.find("[type='submit']").removeAttr("disabled");
   	}
-  	validator.validateField = function(field, action){  		
-  		var action = (typeof action === 'undefined') ? true : action;//если true то добавляются обработчики ошибок  		
-  		//делаем массив из названий правил валидации
-		var validArray = field.data("valid").split(" ");			
+  	validator.validateFields = function(fields, action){  		
+  		var action = (typeof action === 'undefined') ? true : action;//если true то добавляются обработчики ошибок 
+  		fields.each(function(index, el) {
+  			var field = $(this);
 
-		//перебираем все правила валидации
-		validArray.forEach(function(rule_name, i, arr) {
-			//если нет такого правила пишем ошибку
-			if(!rules.hasOwnProperty(rule_name)) {
-				console.log("citrusValidate: Нет правила для "+rule_name);
-				return true;
-			}
-			//запускаем валидацию			
-			if(!rules[rule_name](field)) {
-				if(action) validator.addFieldError(field, errorMessages[rule_name]);
+  			//делаем массив из названий правил валидации
+			var validArray = field.data("valid").split(" ");			
+
+			//перебираем все правила валидации и собираем ошибки
+			var errors = Array();
+			validArray.forEach(function(rule_name, i, arr) {
+				//если нет такого правила пишем ошибку
+				if(!rules.hasOwnProperty(rule_name)) {
+					console.log("citrusValidate: Нет правила для "+rule_name);
+					return true;
+				}
+				//запускаем валидацию				
+				if(!rules[rule_name](field)) errors.push(errorMessages[rule_name]);
+			});
+			//если есть ошибки то плохо
+			if (errors.length > 0 ) {
+				if(action) validator.addFieldError(field, errors);
 				return false;
 			} else {
 				if(action) validator.removeFieldError(field);
 				return true;
 			}
-		});
-  	  	 		
+  		});	  	  	 		
   	};  	
-  	validator.validateForm = function($form){  		
+  	validator.validateForm = function(form){  		
   		//сбор полей для валидации
-	    var validFields = $form.find("[data-valid]");
+	    var validFields = form.find("[data-valid]");
 	    if( validFields.length == 0 ) return;
 
 	    var form_valid = true; // по началу форма валидна
 		validFields.each(function(index, el) {
-			if( !validator.validateField($(this)) ) form_valid = false;
+			if( !validator.validateFields($(this)) ) form_valid = false;
 		});
 		//если хоть одно поле не прошло валидацию добавляем класс к форме
 		if(!form_valid) {
-			$form.addClass('invalid');
+			form.addClass('not-valid');
 			return false;
 		}
 		return true;
+  	}
+  	validator.checkImportant = function(form){
+  		//проверяем поля important
+		var important_fields = form.find("[data-valid*='important']");
+		var important_valid = true;
+
+		if(important_fields.length > 0) {			
+			important_fields.each(function(index, el) {
+				if(!validator.validateFields($(this), false)) important_valid = false;
+			});
+
+			return important_valid;
+		}
   	}
 // 	validator.formValidate();
 }
@@ -106,26 +125,17 @@ var citrusValidator = new function() {
   $.fn.citrusValidate = function() {  		
   		$(this).each(function(index, el) { //в каждой форме
   			var form = $(this);
+  			//обрабатываем каждое событие изменения элемента
 	  		form.on('change', '[data-valid]', function(event) { // каждое поле при изменении
-				citrusValidator.validateField($(this));	// отправляется в валидатор
+				citrusValidator.validateFields($(this));	// отправляется в валидатор
 			});
+			//обрабаываем сабмит
 			form.on('submit', function(event) {
 				event.preventDefault();
 				citrusValidator.validateForm($(this));
 			});
-			//проверяем поля important
-			var important_fields = form.find("[data-valid*='important']");
-			if(important_fields.length > 0) {
-				var important_valid = true;
-				important_fields.each(function(index, el) {
-					if(!citrusValidator.validateField($(this), false)) important_valid = false;
-				});
-
-				if(!important_valid) citrusValidator.disabledForm(form);
-			}
-			
-			
-			
+			//проверка полей important
+			if(!citrusValidator.checkImportant(form)) citrusValidator.lockForm(form);
   		});
   };
 })( jQuery );
