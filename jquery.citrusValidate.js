@@ -59,34 +59,31 @@ var citrusValidator = new function() {
   	validator.unlockForm = function(form){
   		form.find("[type='submit']").removeAttr("disabled");
   	}
-  	validator.validateFields = function(fields, action){  		
-  		var action = (typeof action === 'undefined') ? true : action;//если true то добавляются обработчики ошибок 
-  		fields.each(function(index, el) {
-  			var field = $(this);
+  	validator.validateField = function(field, action){  		
+  		var action = (typeof action === 'undefined') ? true : action;//если true то добавляются обработчики ошибок  
+		//делаем массив из названий правил валидации
+		var validArray = field.data("valid").split(" ");			
 
-  			//делаем массив из названий правил валидации
-			var validArray = field.data("valid").split(" ");			
-
-			//перебираем все правила валидации и собираем ошибки
-			var errors = Array();
-			validArray.forEach(function(rule_name, i, arr) {
-				//если нет такого правила пишем ошибку
-				if(!rules.hasOwnProperty(rule_name)) {
-					console.log("citrusValidate: Нет правила для "+rule_name);
-					return true;
-				}
-				//запускаем валидацию				
-				if(!rules[rule_name](field)) errors.push(errorMessages[rule_name]);
-			});
-			//если есть ошибки то плохо
-			if (errors.length > 0 ) {
-				if(action) validator.addFieldError(field, errors);
-				return false;
-			} else {
-				if(action) validator.removeFieldError(field);
+		//перебираем все правила валидации и собираем ошибки
+		var errors = Array();
+		validArray.forEach(function(rule_name, i, arr) {
+			//если нет такого правила пишем ошибку
+			if(!rules.hasOwnProperty(rule_name)) {
+				console.log("citrusValidate: Нет правила для "+rule_name);
 				return true;
 			}
-  		});	  	  	 		
+			//запускаем валидацию				
+			if(!rules[rule_name](field)) errors.push(errorMessages[rule_name]);
+		});
+		//если есть ошибки то плохо
+		if (errors.length > 0 ) {
+			if(action) validator.addFieldError(field, errors);
+			return false;
+		} else {
+			if(action) validator.removeFieldError(field);
+			return true;
+		}
+  		  	  	 		
   	};  	
   	validator.validateForm = function(form){  		
   		//сбор полей для валидации
@@ -95,13 +92,14 @@ var citrusValidator = new function() {
 
 	    var form_valid = true; // по началу форма валидна
 		validFields.each(function(index, el) {
-			if( !validator.validateFields($(this)) ) form_valid = false;
+			if( !validator.validateField($(this)) ) form_valid = false;
 		});
 		//если хоть одно поле не прошло валидацию добавляем класс к форме
 		if(!form_valid) {
 			form.addClass('not-valid');
 			return false;
 		}
+		form.removeClass('not-valid');
 		return true;
   	}
   	validator.checkImportant = function(form){
@@ -111,11 +109,10 @@ var citrusValidator = new function() {
 
 		if(important_fields.length > 0) {			
 			important_fields.each(function(index, el) {
-				if(!validator.validateFields($(this), false)) important_valid = false;
+				if(!validator.validateField($(this), false)) important_valid = false;
 			});
-
-			return important_valid;
 		}
+		return important_valid;
   	}
 // 	validator.formValidate();
 }
@@ -127,7 +124,7 @@ var citrusValidator = new function() {
   			var form = $(this);
   			//обрабатываем каждое событие изменения элемента
 	  		form.on('change', '[data-valid]', function(event) { // каждое поле при изменении
-				citrusValidator.validateFields($(this));	// отправляется в валидатор
+				citrusValidator.validateField($(this));	// отправляется в валидатор
 			});
 			//обрабаываем сабмит
 			form.on('submit', function(event) {
@@ -136,6 +133,13 @@ var citrusValidator = new function() {
 			});
 			//проверка полей important
 			if(!citrusValidator.checkImportant(form)) citrusValidator.lockForm(form);
+			form.on('change', "[data-valid*='important']", function(event) { // каждое поле при изменении
+				if(!citrusValidator.checkImportant(form)) {
+					citrusValidator.lockForm(form);
+				} else {
+					citrusValidator.unlockForm(form);
+				}
+			});
   		});
   };
 })( jQuery );
@@ -143,7 +147,7 @@ var citrusValidator = new function() {
 
 
 $(function() {
-	//возможно добавлю эти параметры колбэками
+	//возможно добавлю эти параметры
 	/*window.form1 = new citrusValidate($(".form-validate"), {
 		onFieldError: function(field, error){
 
