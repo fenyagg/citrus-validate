@@ -1,5 +1,5 @@
 /*
- * CitrusValidator jQuery Plugin v0.4
+ * CitrusValidator jQuery Plugin v0.5
  */
 var citrusValidator = new function() {
 	validator = this;
