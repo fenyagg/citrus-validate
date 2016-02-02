@@ -1,51 +1,56 @@
-//позаимствуем с яндекса
-/*<div class="password-indicator"><div class="password-indicator__i" style="width: 0%; background: red;">&nbsp;</div></div>*/
-
-//выводим сколько символов
-i18n.tanker.dynamic.plural: function(){
-	return function(t) {
-            var e = isNaN(parseInt(t.count)) ? 0 : t.count
-              , i = e % 10
-              , s = e % 100;
-            return 1 == i && 11 != s ? t.one : i > 1 && 5 > i && (10 > s || s > 20) ? t.some : t.many
-        }(t)
-}
-updatePasswordLegends = function(t) {
-	this.passwordLegends.html(", " + t + "&#160;" + i18n.tanker.dynamic.plural({
-	    count: t,
-	    one: "символ",
-	    some: "символа",
-	    many: "символов"
-	}))
-},
-
-onPasswordUpdate: function() {
-    var t = this.$ctrl.val().length;
-    this.updateIndicator(t),
-    this.updatePasswordLegends(t)
-},
-//устанавливаем ширину полоски
-updateIndicator = function(t) {
-    this.strengthIndicator.css({
-        width: Math.min(Math.log((t || 0) + 1) / Math.log(255) * 100, 100) + "%"
-    })
-},
-//устанавливаем цвет
-onPasswordValidation: function(t, e, i) {
-    e ? i ? (this.strengthIndicator.css({
-        background: "orange"
-    }),
-    this.getErrorByCode("weak").css({
-        color: "orange"
-    }).removeClass("g-hidden"),
-    this.passwordAcceptableMsg.addClass("g-hidden")) : (this.strengthIndicator.css({
-        background: "green"
-    }),
-    this.passwordAcceptableMsg.removeClass("g-hidden")) : (this.strengthIndicator.css({
-        background: "red"
-    }),
-    this.getErrorByCode("weak").css({
-        color: "#BB0000"
-    }),
-    this.passwordAcceptableMsg.addClass("g-hidden"))
-},
+this.passwordMeter = new PasswordMeter(
+    this.inputFields.password.input,
+    this.inputFields.password.input.parentElement
+    ,this.inputFields.unencryptedUsername.input
+);
+var PasswordMeter = function(h) {
+    return function(f, g, j) {
+        var d = h.createElement("div");
+        d.setAttribute("class", "meter");
+        var e = h.createElement("div");
+        d.appendChild(e);
+        g ? g.appendChild(d) : f.parentElement.appendChild(d);
+        var k = function(b, c) {
+            var a = 0;
+            if ("" === c && "" === b)
+                return 0;
+            if (b === c)
+                return 1;
+            "" !== c && -1 !== c.indexOf(b) && (a -= 15);
+            "" != c && -1 !== b.indexOf(c) && (a -= c.length);
+            a += b.length;
+            0 < b.length && 4 >= b.length ? a += b.length : 5 <= b.length && 7 >= b.length ? a += 6 : 8 <= b.length && 15 >= b.length ? a += 12 : 16 <= b.length && (a += 18);
+            b.match(/[a-z]/) && 
+            (a += 1);
+            b.match(/[A-Z]/) && (a += 5);
+            b.match(/\d/) && (a += 5);
+            b.match(/.*\d.*\d.*\d/) && (a += 5);
+            b.match(/[!,@,#,$,%,^,&,*,?,_,~]/) && (a += 5);
+            b.match(/.*[!,@,#,$,%,^,&,*,?,_,~].*[!,@,#,$,%,^,&,*,?,_,~]/) && (a += 5);
+            b.match(/(?=.*[a-z])(?=.*[A-Z])/) && (a += 2);
+            b.match(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])/) && (a += 2);
+            b.match(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!,@,#,$,%,^,&,*,?,_,~])/) && (a += 2);
+            for (var d = {}, f = 0, e = 0, h = b.length; e < h; ++e) {
+                var g = b.charAt(e);
+                void 0 === d[g] && (d[g] = 1,
+                ++f)
+            }
+            if (1 === f)
+                return 2;
+            a *= 2;
+            0 > a ? a = 0 : 100 < a && (a = 100);
+            return a
+        }
+        ;
+        this.updateMeter = function() {
+            var b = k(f.value, j ? j.value : "")
+              , c = "poor";
+            17 > b || (c = 34 > b ? "bad" : 51 > b ? "ok" : 68 > b ? "good" : 85 > b ? "great" : "best");
+            e.setAttribute("class", c);
+            $(e).css("width", b + "%")
+        }
+        ;
+        LPPlatform.addEventListener(f, "keyup", this.updateMeter);
+        this.updateMeter()
+    }
+}(document);
