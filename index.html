@@ -26,13 +26,6 @@
 						<form id="signupForm1" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
 
 							<div class="form-group">
-								<label class="col-sm-4 control-label" for="firstname1">Обязательное поле:<span class="red">*</span></label>
-								<div class="col-sm-6 icon-container input-container">
-									<input data-valid="required phone_full" type="text" class="form-control" name="еуые" placeholder="" />
-								</div>
-							</div>
-
-							<div class="form-group">
 								<label class="col-sm-4 control-label" for="firstname1">Имя:<span class="red">*</span></label>
 								<div class="col-sm-6 icon-container input-container">
 									<input data-valid="ajax required" data-ajax-url="ajax.php" type="text" class="form-control" name="firstname" placeholder="Аякс проверка"  id="ajax"/>
@@ -46,16 +39,16 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" for="firstname1">Мобильный телефон:<span class="red">*</span></label>
+								<label class="col-sm-4 control-label" for="firstname1">Федеральный номер телефона:<span class="red">*</span></label>
 								<div class="col-sm-6 icon-container input-container">
-									<input data-valid="mobile_rus required" type="text" class="form-control"  name="phone1" placeholder="+7 (999) 999-99-99"/>
+									<input data-valid="phone_full required" type="text" class="form-control"  name="phone1" placeholder="+7 (999) 999-99-99"/>
 								</div>
 							</div>
 
 							<div class="form-group">
 								<label class="col-sm-4 control-label" for="firstname1">Число (не менее 100 и не более 1000):<span class="red">*</span> </label>
 								<div class="col-sm-6 icon-container input-container">
-									<input type="number" class="form-control" name="number1" min="100" max="1000" placeholder="Число" />
+									<input data-valid="number" type="text" class="form-control" name="number1" min="100" max="1000" placeholder="Число" />
 								</div>
 							</div>
 							<div class="form-group">
