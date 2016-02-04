@@ -131,6 +131,11 @@
 			}			
 			callback(field, errors);
 		},
+		"main_password": function(field, action, callback){
+			var target = field.parents("form").find("[data-valid*='confirm_password']");			
+			if(!!target.val() && !!field.val() ) $.citrusValidator.validateField(target);
+			callback(field);
+		},
 		"confirm_password": function(field, action, callback){
 			if(!field.val()) {callback(field); return true;};
 			var target = field.parents("form").find("[data-valid*='main_password']");
@@ -155,7 +160,7 @@ $.citrusValidator = new function() {
   	validator.addFieldError = function(field){
   		var input_container = field.parents(".input-container");
   		if(!field.hasClass('error-field')) {
-			field.addClass('error-field first-validated');
+			field.addClass('error-field');
 			input_container.addClass('has-error')
 							.removeClass('has-success');
 		}
@@ -169,8 +174,7 @@ $.citrusValidator = new function() {
 		}						
   	}
   	validator.removeFieldError = function(field){
-  		field.removeClass('error-field')
-  			 .addClass('first-validated');
+  		field.removeClass('error-field');
 		field.parents(".input-container").removeClass('has-error')
 					  					 .addClass('has-success')
 					  					 .find(".error").remove();
@@ -319,9 +323,10 @@ $.citrusValidator = new function() {
 					}
 	  			}
 				$.citrusValidator.validateField(field);	
+				field.addClass('was-validated');
 			});
 			//если поле было первый раз провенено обрабатываем каждое введение буквы
-	  		form.on('keyup', ".first-validated[data-valid]:not([data-valid*='ajax'])", function(event) { 
+	  		form.on('keyup', ".was-validated[data-valid]:not([data-valid*='ajax'])", function(event) { 
 				$.citrusValidator.validateField($(this));	
 			});
 			//обрабаываем сабмит
