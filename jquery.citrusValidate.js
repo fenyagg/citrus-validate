@@ -15,7 +15,7 @@
 		number: "Пожалуйста, введите число.",
 		digits: "Пожалуйста, вводите только цифры.",
 		creditcard: "Пожалуйста, введите правильный номер кредитной карты.",
-		equalTo: "Пароли не совпадают.",
+		confirm_password: "Пароли не совпадают.",
 		extension: "Пожалуйста, выберите файл с правильным расширением.",
 		maxlength: "Пожалуйста, введите не больше символов.",
 		minlength: "Пожалуйста, введите не меньше символов.",
@@ -100,7 +100,7 @@
 			}
 		},
 		"email" : function(field, action, callback){	
-			if(!field.val()) {callback(field); return true;};			
+			if(!field.val()) {callback(field); return true;};
 			var value = $.trim(field.val());
 			var isValid = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(value);
 
@@ -131,6 +131,13 @@
 			}			
 			callback(field, errors);
 		},
+		"confirm_password": function(field, action, callback){
+			if(!field.val()) {callback(field); return true;};
+			var target = field.parents("form").find("[data-valid*='main_password']");
+			var isValid = (field.val() === target.val());
+			var errors = isValid ? "" : errorMessages["confirm_password"];
+			callback(field, errors);	
+		}
 	};
 
 
