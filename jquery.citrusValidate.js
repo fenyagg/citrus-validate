@@ -227,7 +227,14 @@ $.citrusValidator = new function() {
 						if(action) validator.addFieldError(field);
 						field.isValid = false;
 					} else {
-						if(action) validator.removeFieldError(field);
+						var inputType = field.attr("type");
+						if(action) {
+							if(inputType !== "checkbox" && inputType !== "radio" &&  !field.val()) {
+								validator.clearField(field);
+							}else {
+								validator.removeFieldError(field);
+							}
+						}						
 						field.isValid = true;
 					}
 					callback(field);
