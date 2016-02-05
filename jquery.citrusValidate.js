@@ -262,37 +262,29 @@ window.citrusValidator = function (form) {
   	* @action = если false не выводит никаких сообщений, только срабатывает callback(form) 
   	*/
   	validator.validateForm = function( action, callback){
-  		var action = action || true;
+  		var action = (typeof action === 'undefined') ? true : action;
   		var callback = callback || function(){};
   		//сбор полей для валидации
 	    var validFields = $form.find("[data-valid]");
 	    countFields = validFields.length;
 	    if( countFields == 0 ) {$form.isValid = true; callback($form); return true};
 
-	    var form_valid = true;
+	    $form.isValid = true;
 		validFields.each(function(index, el) {
-			 validator.validateField($(this), action, function(field, isValid){
-			 	if(!isValid) form_valid = false;			 	
+			 validator.validateField($(this), action, function(field){
+			 	if(!field.isValid) $form.isValid = false;
 			 	if(!(--countFields)) {
-			 		$form.isValid = form_valid ? true : false;
 			 		callback($form);
-			 		if(action) {			 			
-			 			if(form_valid) {
-			 				$form.removeClass('not-valid');
-			 			} else {
-			 				$form.addClass('not-valid');
-			 			}
-			 		}
+		 			if($form.isValid) {
+		 				if(action) $form.removeClass('not-valid');
+		 				$form.removeClass('not-valid');
+		 			} else {
+		 				$form.addClass('not-valid');
+		 				if(action) $form.addClass('not-valid');
+		 			}			 		
 			 	}
 			 });			 
 		});
-		//если хоть одно поле не прошло валидацию добавляем класс к форме
-		if(!form_valid) {
-			$form.addClass('not-valid');
-			return false;
-		}
-		$form.removeClass('not-valid');
-		return true;
   	}
   	validator.checkImportant = function(){
   		//проверяем поля important

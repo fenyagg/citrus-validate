@@ -1,6 +1,6 @@
-<?sleep(2); echo (rand(0,1) ? 'Такое имя уже существует' : "")?>
+<?//sleep(2); echo (rand(0,1) ? 'Такое имя уже существует' : "")?>
 <?
-/*if(isset($_POST['value'])){
+if(isset($_POST['value'])){
 	$names = array(
 		'дима',
 		'оля',		
@@ -24,5 +24,5 @@ $test = 1;
 for ($i=0; $i < 30000000; $i++) { 
 	$test = $test*$i;
 }
-echo $error;*/
+echo $error;
 ?>
