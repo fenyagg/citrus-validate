@@ -1,10 +1,20 @@
 /*
  * CitrusValidator jQuery Plugin v0.6
+ * Пример использования citrusValidator
+ * var form = new citrusValidator($(form));
  */
 ;(function( $ ){
 /*
-	Вспомогательные функции и объекты
+* Конструктор валидатора. Для каждой формы будет свой объект.
+* 
 */	
+window.citrusValidator = function (form) {
+	if(!form || !form.length) return {};
+
+	var validator = this,
+		$form = form;
+
+	//ошибки
 	var errorMessages = {
 		required: "Это поле необходимо заполнить.",
 		remote: "Пожалуйста, введите правильное значение.",
@@ -35,6 +45,7 @@
 	function clearString(string){
 		return string.replace(/\(|\)|\s+|-/g, "");
 	}
+	//форматирует строку message: меняет каждый {i} на параметр из массива arParams
 	function formatMessage(message, arParams){
 		if(message.length > 0 && arParams.length > 0) {			
 			arParams.forEach(function(param, i){
@@ -43,7 +54,7 @@
 		}
 		return message;
 	}
-	//основной объект с правилами валидации
+	// Правила валидации
 	var rules = {
 		"required" : function(field, action, callback) {
 			var fieldNode = field.get(0);
@@ -80,7 +91,7 @@
 			if(!field.val()) {callback(field); return true;};
 
 			var parthToAjax = $.trim(field.data("ajax-url"));	
-			if(action) $.citrusValidator.lockField(field);
+			if(action) validator.lockField(field);
 			if(parthToAjax.length > 0) {
 				$.ajax({
 					url: parthToAjax,
@@ -89,7 +100,7 @@
 					data: {name: field.attr("name"), value: field.val()},
 				})
 				.done(function(error) {
-					if(action) $.citrusValidator.unlockField(field);
+					if(action) validator.unlockField(field);
 					if(error.length > 0) {callback(field, error); return;};
 					callback(field);
 				})
@@ -107,6 +118,7 @@
 			var errors = isValid ? "" : errorMessages["email"];				
 			callback(field, errors);
 		},
+		//число + проверяет max, min параметры
 		"number" : function(field, action, callback){	
 			if(!field.val()) {callback(field); return true;};
 			var isNumber = /^(?:-?\d+|-?\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test( field.val() );
@@ -133,7 +145,7 @@
 		},
 		"main_password": function(field, action, callback){
 			var target = field.parents("form").find("[data-valid*='confirm_password']");			
-			if(!!target.val() && !!field.val() ) $.citrusValidator.validateField(target);
+			if(!!target.val() && !!field.val() ) validator.validateField(target);
 			callback(field);
 		},
 		"confirm_password": function(field, action, callback){
@@ -145,14 +157,6 @@
 		}
 	};
 
-
-	
-/*
-* Основной объект валидатора
-* Пример использования $.citrusValidator.validateForm($("form"))
-*/	
-$.citrusValidator = new function() {
-	validator = this;
 
 /*
 *====================	Изменяемые функции через опции (в будущем) ====================
@@ -194,11 +198,11 @@ $.citrusValidator = new function() {
   		field.removeAttr("readonly")
 			 .closest('.input-container').removeClass('ajax-loading');
   	}
-  	validator.lockForm = function(form){
-  		form.find("[type='submit']").attr("disabled", "disabled");
+  	validator.lockForm = function(){
+  		$form.find("[type='submit']").attr("disabled", "disabled");
   	}
-  	validator.unlockForm = function(form){
-  		form.find("[type='submit']").removeAttr("disabled");
+  	validator.unlockForm = function(){
+  		$form.find("[type='submit']").removeAttr("disabled");
   	}
 
 /**
@@ -255,29 +259,28 @@ $.citrusValidator = new function() {
   	};
   	/**
   	* каждое поле с атрибутом data-valid отправляет в валидацию поля. По окончанию callback(form)
-  	* @form = jquery объект формы
   	* @action = если false не выводит никаких сообщений, только срабатывает callback(form) 
   	*/
-  	validator.validateForm = function(form, action, callback){
+  	validator.validateForm = function( action, callback){
   		var action = action || true;
   		var callback = callback || function(){};
   		//сбор полей для валидации
-	    var validFields = form.find("[data-valid]");
+	    var validFields = $form.find("[data-valid]");
 	    countFields = validFields.length;
-	    if( countFields == 0 ) {form.isValid = true; callback(form); return true};
+	    if( countFields == 0 ) {$form.isValid = true; callback($form); return true};
 
 	    var form_valid = true;
 		validFields.each(function(index, el) {
 			 validator.validateField($(this), action, function(field, isValid){
 			 	if(!isValid) form_valid = false;			 	
 			 	if(!(--countFields)) {
-			 		form.isValid = form_valid ? true : false;
-			 		callback(form);
+			 		$form.isValid = form_valid ? true : false;
+			 		callback($form);
 			 		if(action) {			 			
 			 			if(form_valid) {
-			 				form.removeClass('not-valid');
+			 				$form.removeClass('not-valid');
 			 			} else {
-			 				form.addClass('not-valid');
+			 				$form.addClass('not-valid');
 			 			}
 			 		}
 			 	}
@@ -285,15 +288,15 @@ $.citrusValidator = new function() {
 		});
 		//если хоть одно поле не прошло валидацию добавляем класс к форме
 		if(!form_valid) {
-			form.addClass('not-valid');
+			$form.addClass('not-valid');
 			return false;
 		}
-		form.removeClass('not-valid');
+		$form.removeClass('not-valid');
 		return true;
   	}
-  	validator.checkImportant = function(form){
+  	validator.checkImportant = function(){
   		//проверяем поля important
-		var important_fields = form.find("[data-valid*='important']");
+		var important_fields = $form.find("[data-valid*='important']");
 
 		var important_valid = true;
 		if(important_fields.length > 0) {			
@@ -305,11 +308,38 @@ $.citrusValidator = new function() {
 		}
 		return important_valid;
   	}
+  	//init
+  	;(function(){
+  		//обрабатываем каждое событие изменения элемента
+  		$form.on('change', '[data-valid]', function(event) { 
+  			var field = $(this);
+  			if (field.data("valid").indexOf("important")+1) {
+  				if(!validator.checkImportant()) {
+					validator.lockForm();
+				} else {
+					validator.unlockForm();
+				}
+  			}
+			validator.validateField(field);	
+			field.addClass('was-validated');
+		});
+		//если поле было первый раз провенено обрабатываем каждое введение буквы
+  		$form.on('keyup', ".was-validated[data-valid]:not([data-valid*='ajax'])", function(event) { 
+			validator.validateField($(this));	
+		});
+		//обрабаываем сабмит
+		$form.on('submit', function(event) {
+			event.preventDefault();
+			validator.validateForm($(this));
+		});
+		//проверка полей important
+		if(!validator.checkImportant($form)) validator.lockForm();
+  	})();
 }
 
 
 //для удобного запуска валидатора
-  $.fn.citrusValidate = function() {  		
+  /*$.fn.citrusValidate = function() {  		
   		$(this).each(function(index, el) { //в каждой форме
   			var form = $(this);
   			//обрабатываем каждое событие изменения элемента
@@ -337,12 +367,11 @@ $.citrusValidator = new function() {
 			//проверка полей important
 			if(!$.citrusValidator.checkImportant(form)) $.citrusValidator.lockForm(form);
   		});
-  };
+  };*/
 })( jQuery );
 
-
-
 $(function() {
+	window.form = new citrusValidator($("#signupForm1"));
 	//возможно добавлю эти параметры
 	/*window.form1 = new citrusValidate($(".form-validate"), {
 		onFieldError: function(field, error){
@@ -354,5 +383,5 @@ $(function() {
 	});*/
 
 	//запускаем плагин
-	$(".form-validate").citrusValidate();
+	//$(".form-validate").citrusValidate();
 });
