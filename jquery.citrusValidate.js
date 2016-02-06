@@ -6,8 +6,7 @@
 ;(function( $ ){
 /*
 * Конструктор валидатора. Для каждой формы будет свой объект.
-* 
-*/	
+*/
 window.citrusValidator = function (form) {
 	if(!form || !form.length) return {};
 
@@ -154,7 +153,137 @@ window.citrusValidator = function (form) {
 			var isValid = (field.val() === target.val());
 			var errors = isValid ? "" : errorMessages["confirm_password"];
 			callback(field, errors);	
+		},
+		"url": function(field, action, callback) {
+			if(!field.val()) {callback(field); return true;};
+			var isValid = /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})).?)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test( field.val() );
+			var errors = isValid ? "" : errorMessages["url"];				
+			callback(field, errors);
+		},
+		// ИНН юр и физ лица
+		"inn": function(field, action, callback){
+			if(!field.val()) {callback(field); return true;};
+			var value = field.val();
+			var isValid = true;
+
+		    // проверка на число
+		    if (value.match(/\D/)) {
+		        isValid = false;
+		    } else {
+		    	// проверка на 10 и 12 цифр
+			    if (value.length != 12 && value.length != 10) isValid = false;
+			    // проверка по контрольным цифрам
+			    if (value.length == 10) {
+			        var dgt10 = String(((
+			            2 * value[0] + 4 * value[1] + 10 * value[2] +
+			            3 * value[3] + 5 * value[4] + 9 * value[5] +
+			            4 * value[6] + 6 * value[7] + 8 * value[8]) % 11) % 10);
+			        if (value[9] == dgt10) {
+			            isValid =  true;
+			        }
+			        else {
+			            isValid = false;
+			        }
+			    }
+			    if (value.length == 12) {
+			        var dgt11 = String(((
+			            7 * value[0] + 2 * value[1] + 4 * value[2] +
+			            10 * value[3] + 3 * value[4] + 5 * value[5] +
+			            9 * value[6] + 4 * value[7] + 6 * value[8] +
+			            8 * value[9]) % 11) % 10);
+			        var dgt12 = String(((
+			            3 * value[0] + 7 * value[1] + 2 * value[2] +
+			            4 * value[3] + 10 * value[4] + 3 * value[5] +
+			            5 * value[6] + 9 * value[7] + 4 * value[8] +
+			            6 * value[9] + 8 * value[10]) % 11) % 10);
+			        if (value[10] == dgt11 && value[11] == dgt12) {
+			            isValid = true;
+			        }
+			        else {
+			            isValid = false;
+			        }
+			    }
+		    }
+		    var errors = isValid ? "" : errorMessages["inn"];				
+			callback(field, errors);
+		},
+		"inn_u": function(field, action, callback){
+			if(!field.val()) {callback(field); return true;};
+			var value = field.val();
+			var isValid = true;
+
+			 // проверка на число
+		    if (value.match(/\D/)) {
+		        isValid = false;
+		    }
+		    // проверка на 10 цифр
+		    if (value.length != 10)   isValid = false;
+
+			var dgt10 = String(((
+			    2 * value[0] + 4 * value[1] + 10 * value[2] +
+			    3 * value[3] + 5 * value[4] + 9 * value[5] +
+			    4 * value[6] + 6 * value[7] + 8 * value[8]) % 11) % 10);
+			if (value[9] == dgt10) {
+			    isValid = true;
+			}
+			else {		
+			    isValid = false;
+			}
+			var errors = isValid ? "" : errorMessages["inn_u"];				
+			callback(field, errors);
+		},
+		"inn_f": function(field, action, callback){
+			if(!field.val()) {callback(field); return true;};
+			var value = field.val();
+			var isValid = true;
+	
+		    // проверка на число
+		    if (value.match(/\D/)) {
+		        isValid = false;
+		    }				
+			if((value.length == 12) && ((value[10] == ((7 * value[ 0] + 2 * value[1] + 4 * value[2] + 10 * value[3] + 3 * value[4] + 5 * value[5] + 9 * value[6] + 4 * value[7] + 6 * value[8] + 8 * value[9]) % 11) % 10) && (value[11] == ((3 * value[ 0] + 7 * value[1] + 2 * value[2] + 4 * value[3] + 10 * value[4] + 3 * value[5] + 5 * value[6] + 9 * value[7] + 4 * value[8] + 6 * value[9] + 8 * value[10]) % 11) % 10))){
+		        isValid = true;
+		    }else{
+		        isValid = false;
+		    }		    	
+			var errors = isValid ? "" : errorMessages["inn_f"];				
+			callback(field, errors);
+		},
+		"ogrn": function(field, action, callback){
+			if(!field.val()) {callback(field); return true;};
+			var value = field.val();
+			var isValid = true;
+
+			//для ОГРН в 13 знаков
+			if(value.length == 13 && (value.slice(-1) == ((value.slice(0,-1))%11 + '').slice(-1))){
+			    isValid = true;			 
+			//для ОГРН в 15 знаков
+			}else if(value.length == 15 && (value.slice(-1) == ((value.slice(0,-1))%13 + '').slice(-1))){
+			    isValid = true;
+			}else{
+			    isValid = false;
+			}
+			var errors = isValid ? "" : errorMessages["ogrn"];				
+			callback(field, errors);
+		},
+		"kpp": function(field, action, callback){
+			if(!field.val()) {callback(field); return true;};
+			var value = field.val();
+			var isValid = true;
+
+			// проверка на число
+			if (value.match(/\D/)) {
+		        isValid = false;
+		    }
+
+			if(!value.match(/([0-9]{1}[1-9]{1}|[1-9]{1}[0-9]{1})([0-9]{2})([0-9A-F]{2})([0-9]{3})/)){
+				isValid = false;
+			}
+			var errors = isValid ? "" : errorMessages["kpp"];				
+			callback(field, errors);
+			
 		}
+
 	};
 
 
@@ -269,10 +398,13 @@ window.citrusValidator = function (form) {
 	    countFields = validFields.length;
 	    if( countFields == 0 ) {$form.isValid = true; callback($form); return true};
 
-	    $form.isValid = true;
+	    $form.isValid = true; $form.invalidFields = Array();
 		validFields.each(function(index, el) {
 			 validator.validateField($(this), action, function(field){
-			 	if(!field.isValid) $form.isValid = false;
+			 	if(!field.isValid) {
+			 		$form.isValid = false;
+			 		$form.invalidFields.push(field);
+			 	}
 			 	if(!(--countFields)) {
 			 		callback($form);
 		 			if($form.isValid) {
