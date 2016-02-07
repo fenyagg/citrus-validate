@@ -20,9 +20,6 @@ if(isset($_POST['value'])){
 	if($ifAlreadyIn) $error = 'Такое имя уже существует';
 } 
 //имитируем бурную деятельность
-$test = 1;
-for ($i=0; $i < 30000000; $i++) { 
-	$test = $test*$i;
-}
+sleep(2);
 echo $error;
 ?>

@@ -13,6 +13,11 @@
 <body>
 
 <script>
+	var f = function(){
+		this.y = this.y;
+	}
+	f.prototype.y = 0;
+	var a = new f();
 	
 </script>
 	<div class="container">
@@ -20,6 +25,7 @@
 			<div class="col-sm-12">
 				
 				<h1>Валидация полей</h1>
+
 
 				<div class="panel panel-default">
 					<div class="panel-body">
