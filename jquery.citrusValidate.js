@@ -462,7 +462,7 @@ window.citrusValidator = function (form, params) {
   		var callback = callback || function(){};
   		//сбор полей для валидации
 	    var validFields = $form.find("[data-valid]");
-	    countFields = validFields.length;
+	    var countFields = validFields.length;
 	    if( countFields == 0 ) {$form.isValid = true; callback($form); return true};
 
 	    $form.isValid = true; $form.invalidFields = Array();
@@ -531,54 +531,3 @@ window.citrusValidator = function (form, params) {
 citrusValidator.prototype = proto;
 })( jQuery );
 
-$(function() {
-	citrusValidator.prototype.setMessage("phone", "Новая ошибка для телефона");
-
-	window.form = new citrusValidator($("#signupForm1"), {		
-		events: {
-			addFieldError: function(field){
-				var input_container = field.parents(".input-container");
-		  		if(!field.hasClass('error-field')) {
-					field.addClass('error-field');
-					input_container.addClass('has-error')
-									.removeClass('has-success');
-				}
-
-				messagesList = field.errors.join('<br>');
-				var error_block = input_container.find(".error.help-block");	
-				if(error_block.length > 0) {
-					error_block.html(messagesList);
-				} else {
-					input_container.append('<div class="error help-block">'+messagesList+'</div>');
-				}	
-			},
-			removeFieldError: function(field){
-				field.removeClass('error-field');
-				field.parents(".input-container").removeClass('has-error')
-						  					 	 .addClass('has-success')
-						  					 	 .find(".error").remove();
-			},
-			clearField: function(field) {
-				field.removeClass('error-field');
-				field.parents(".input-container").removeClass('has-error')
-												 .removeClass('has-success')
-											 	 .find(".error").remove();
-			},
-			lockField: function(field) {
-				this.clearField(field);
-	  			field.attr("readonly", "readonly")
-		 		 	 .closest('.input-container').addClass('ajax-loading');
-			},
-			unlockField: function(field){
-				field.removeAttr("readonly")
-				 	 .closest('.input-container').removeClass('ajax-loading');
-			},
-			lockForm: function(form){
-		  		form.find("[type='submit']").attr("disabled", "disabled");
-		  	},
-		  	unlockForm: function(form){
-		  		form.find("[type='submit']").removeAttr("disabled");
-		  	}
-		}		
-	});
-});
