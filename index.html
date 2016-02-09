@@ -14,6 +14,7 @@
 
 <script>
 $(function() {
+	citrusValidator.prototype._setMessage("phone", "Новая ошибка для всех форм");
 	window.form = new citrusValidator($("#signupForm1"), {		
 		events: {
 			addFieldError: function(field){
@@ -61,6 +62,8 @@ $(function() {
 		  	}
 		}		
 	});
+	form.setMessage("phone", "Новая ошибка для формы 1");
+	window.form1 = new citrusValidator($("#signupForm2"));
 });
 	
 </script>
@@ -69,7 +72,14 @@ $(function() {
 			<div class="col-sm-12">
 				
 				<h1>Валидация полей</h1>
-
+				<form id="signupForm2" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
+					<div class="form-group">
+						<label class="col-sm-4 control-label" for="firstname1">Телефон:<span class="red">*</span></label>
+						<div class="col-sm-6 icon-container input-container">
+							<input data-valid="phone required" type="text" class="form-control" name="phone" placeholder="99-99-99 или +7 (999) 999-99-99" id="phone"/>
+						</div>
+					</div>
+				</form>
 
 				<div class="panel panel-default">
 					<div class="panel-body">
