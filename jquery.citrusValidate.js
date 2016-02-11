@@ -411,8 +411,11 @@ window.citrusValidator = function (form, params) {
 	  	},
 	  	unlockForm: function(form){
 	  		form.find("[type='submit']").removeAttr("disabled");
+	  	},
+	  	afterFormValidate: function(form){
+	  		if(form.isValid) form.submit();
 	  	}
-	};	
+	};
   	validator.events = $.extend(validator.events, params.events);
 
 
@@ -490,13 +493,7 @@ window.citrusValidator = function (form, params) {
 			 	}
 			 	if(!(--countFields)) {
 			 		callback($form);
-		 			if($form.isValid) {
-		 				if(action) $form.removeClass('not-valid');
-		 				$form.removeClass('not-valid');
-		 			} else {
-		 				$form.addClass('not-valid');
-		 				if(action) $form.addClass('not-valid');
-		 			}			 		
+			 		if(action) validator.events.afterFormValidate($form);		 					 		
 			 	}
 			 });			 
 		});
@@ -535,9 +532,9 @@ window.citrusValidator = function (form, params) {
 			validator.validateField($(this));	
 		});
 		//обрабаываем сабмит
-		$form.on('submit', function(event) {
+		$form.on('click', ":submit", function(event) {
 			event.preventDefault();
-			validator.validateForm($(this));
+			validator.validateForm();
 		});
 		//проверка полей important
 		if(!validator.checkImportant($form)) validator.events.lockForm($form);
