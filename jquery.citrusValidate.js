@@ -97,7 +97,7 @@ var rules = {
 		if(!field.val()) {callback(field); return true;};
 
 		var parthToAjax = $.trim(field.data("ajax-url"));	
-		if(action) validator.events.lockField(field);
+		if(action) validator.params.events.lockField(field);
 		if(parthToAjax.length > 0) {
 			$.ajax({
 				url: parthToAjax,
@@ -106,7 +106,7 @@ var rules = {
 				data: {name: field.attr("name"), value: field.val()},
 			})
 			.done(function(error) {
-				if(action) validator.events.unlockField(field);
+				if(action) validator.params.events.unlockField(field);
 				if(error.length > 0) {callback(field, error); return;};
 				callback(field);
 			})
@@ -338,12 +338,66 @@ window.citrusValidator = function (form, params) {
 	if(!form || !form.length) return {};
 
 	var validator = this,
-		$form = form,
 		rules = validator._getRules(),
 		arMessages = clone(validator._getMessage()),
-		params = params || {events:{}};
+		params = params || {};
+		validator.objForm = form;
 
-	validator.getMessage = function(messageName, arParams){
+	//параметры по умолчанию
+	var defaultParams = {
+		events: {
+			addFieldError: function(field){
+				var input_container = field.parents(".input-container");
+		  		if(!field.hasClass('error-field')) {
+					field.addClass('error-field');
+					input_container.addClass('has-error')
+									.removeClass('has-success');
+				}
+
+				var messagesList = field.errors.join('<br>');
+				var error_block = input_container.find(".error.help-block");	
+				if(error_block.length > 0) {
+					error_block.html(messagesList);
+				} else {
+					input_container.append('<div class="error help-block">'+messagesList+'</div>');
+				}	
+			},
+			removeFieldError: function(field){
+				field.removeClass('error-field');
+				field.parents(".input-container").removeClass('has-error')
+						  					 	 .addClass('has-success')
+						  					 	 .find(".error").remove();
+			},
+			clearField: function(field) {
+				field.removeClass('error-field');
+				field.parents(".input-container").removeClass('has-error')
+												 .removeClass('has-success')
+											 	 .find(".error").remove();
+			},
+			lockField: function(field) {
+				this.clearField(field);
+	  			field.attr("readonly", "readonly")
+		 		 	 .closest('.input-container').addClass('ajax-loading');
+			},
+			unlockField: function(field){
+				field.removeAttr("readonly")
+				 	 .closest('.input-container').removeClass('ajax-loading');
+			},
+			lockForm: function(form){
+		  		form.find("[type='submit']").attr("disabled", "disabled");
+		  	},
+		  	unlockForm: function(form){
+		  		form.find("[type='submit']").removeAttr("disabled");
+		  	},
+		  	afterFormValidate: function(form){
+		  		if(form.isValid) form.submit();
+		  	}
+		}
+	};
+  	validator.params = $.extend(params, defaultParams);
+
+
+  	validator.getMessage = function(messageName, arParams){
 		if(arMessages[messageName] && arMessages[messageName].length > 0) {	
 			var message = arMessages[messageName];
 			if(arParams && arParams.length > 0) {				
@@ -365,59 +419,6 @@ window.citrusValidator = function (form, params) {
 			}
 		}	
 	}
-	/*
-	* события по умолчанию, изменяются через параметры
-	*/
-	validator.events = {
-		addFieldError: function(field){
-			var input_container = field.parents(".input-container");
-	  		if(!field.hasClass('error-field')) {
-				field.addClass('error-field');
-				input_container.addClass('has-error')
-								.removeClass('has-success');
-			}
-
-			var messagesList = field.errors.join('<br>');
-			var error_block = input_container.find(".error.help-block");	
-			if(error_block.length > 0) {
-				error_block.html(messagesList);
-			} else {
-				input_container.append('<div class="error help-block">'+messagesList+'</div>');
-			}	
-		},
-		removeFieldError: function(field){
-			field.removeClass('error-field');
-			field.parents(".input-container").removeClass('has-error')
-					  					 	 .addClass('has-success')
-					  					 	 .find(".error").remove();
-		},
-		clearField: function(field) {
-			field.removeClass('error-field');
-			field.parents(".input-container").removeClass('has-error')
-											 .removeClass('has-success')
-										 	 .find(".error").remove();
-		},
-		lockField: function(field) {
-			this.clearField(field);
-  			field.attr("readonly", "readonly")
-	 		 	 .closest('.input-container').addClass('ajax-loading');
-		},
-		unlockField: function(field){
-			field.removeAttr("readonly")
-			 	 .closest('.input-container').removeClass('ajax-loading');
-		},
-		lockForm: function(form){
-	  		form.find("[type='submit']").attr("disabled", "disabled");
-	  	},
-	  	unlockForm: function(form){
-	  		form.find("[type='submit']").removeAttr("disabled");
-	  	},
-	  	afterFormValidate: function(form){
-	  		if(form.isValid) form.submit();
-	  	}
-	};
-  	validator.events = $.extend(validator.events, params.events);
-
 
 
 	/**
@@ -454,15 +455,15 @@ window.citrusValidator = function (form, params) {
 				if(!(--validRulesLength)) {
 					//errorHandler
 					if (field.errors.length > 0 ) {
-						if(action) validator.events.addFieldError(field);
+						if(action) validator.params.events.addFieldError(field);
 						field.isValid = false;
 					} else {
 						var inputType = field.attr("type");
 						if(action) {
 							if(inputType !== "checkbox" && inputType !== "radio" &&  !field.val()) {
-								validator.events.clearField(field);
+								validator.params.events.clearField(field);
 							}else {
-								validator.events.removeFieldError(field);
+								validator.params.events.removeFieldError(field);
 							}
 						}						
 						field.isValid = true;
@@ -480,27 +481,27 @@ window.citrusValidator = function (form, params) {
   		var action = (typeof action === 'undefined') ? true : action;
   		var callback = callback || function(){};
   		//сбор полей для валидации
-	    var validFields = $form.find("[data-valid]");
+	    var validFields = validator.objForm.find("[data-valid]");
 	    var countFields = validFields.length;
-	    if( countFields == 0 ) {$form.isValid = true; callback($form); return true};
+	    if( countFields == 0 ) {validator.objForm.isValid = true; callback(validator.objForm); return true};
 
-	    $form.isValid = true; $form.invalidFields = Array();
+	    validator.objForm.isValid = true; validator.objForm.invalidFields = Array();
 		validFields.each(function(index, el) {
 			 validator.validateField($(this), action, function(field){
 			 	if(!field.isValid) {
-			 		$form.isValid = false;
-			 		$form.invalidFields.push(field);
+			 		validator.objForm.isValid = false;
+			 		validator.objForm.invalidFields.push(field);
 			 	}
 			 	if(!(--countFields)) {
-			 		callback($form);
-			 		if(action) validator.events.afterFormValidate($form);		 					 		
+			 		callback(validator.objForm);
+			 		if(action) validator.params.events.afterFormValidate(validator.objForm);
 			 	}
 			 });			 
 		});
   	}
   	validator.checkImportant = function(){
   		//проверяем поля important
-		var important_fields = $form.find("[data-valid*='important']");
+		var important_fields = validator.objForm.find("[data-valid*='important']");
 
 		var important_valid = true;
 		if(important_fields.length > 0) {			
@@ -514,30 +515,66 @@ window.citrusValidator = function (form, params) {
   	}
   	//init
   	;(function(){
-  		//обрабатываем каждое событие изменения элемента
-  		$form.on('change', '[data-valid]', function(event) { 
+  		validator.arFields = validator.objForm.find("[data-valid]");
+  		validator.arFields.each(function(index, field) {
+  			var changeToKeyup = false;
+  			if(!$(field).data("validate-trigger")) {
+  				$(field).data("validate-trigger", "change");
+  				changeToKeyup = true;
+  			}
+  			validator.arFields[index] = {
+  				node: field,
+  				changeToKeyup: changeToKeyup
+  			};
+  		});
+
+  		$(validator.arFields).each(function(index, el) {
+  			var field = $(el.node);
+
+  			field.on('change keyup', function(event) {
+  				if( field.data("validate-trigger").indexOf(event.type) < 0  ) return;
+
+  				if (field.data("valid").indexOf("important")+1) {
+	  				if(!validator.checkImportant()) {
+						validator.params.events.lockForm(validator.objForm);
+					} else {
+						validator.params.events.unlockForm(validator.objForm);
+					}
+					return;
+	  			}
+				validator.validateField(field, true, function(){
+					if ( el.changeToKeyup ) $(el.node).data("validate-trigger", "keyup");
+					el.changeToKeyup = false;
+				});
+  			});
+  		});
+  		/*$(el).on( validateTrigger , function(event) {
   			var field = $(this);
+  			
+
+  			
   			if (field.data("valid").indexOf("important")+1) {
   				if(!validator.checkImportant()) {
-					validator.events.lockForm($form);
+					validator.params.events.lockForm(validator.objForm);
 				} else {
-					validator.events.unlockForm($form);
+					validator.params.events.unlockForm(validator.objForm);
 				}
   			}
 			validator.validateField(field);	
-			field.addClass('was-validated');
-		});
+  		});*/
+
 		//если поле было первый раз провенено обрабатываем каждое введение буквы
-  		$form.on('keyup', ".was-validated[data-valid]:not([data-valid*='ajax'])", function(event) { 
+  		/*validator.objForm.on('keyup', ".was-validated[data-valid]:not([data-valid*='ajax'])", function(event) { 
+  			console.log(event);
 			validator.validateField($(this));	
-		});
+		});*/
 		//обрабаываем сабмит
-		$form.on('click', ":submit", function(event) {
+		validator.objForm.on('click', ":submit", function(event) {
 			event.preventDefault();
 			validator.validateForm();
 		});
 		//проверка полей important
-		if(!validator.checkImportant($form)) validator.events.lockForm($form);
+		if(!validator.checkImportant(validator.objForm)) validator.params.events.lockForm(validator.objForm);
   	})();
 }
 
