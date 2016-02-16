@@ -515,59 +515,25 @@ window.citrusValidator = function (form, params) {
   	}
   	//init
   	;(function(){
-  		validator.arFields = validator.objForm.find("[data-valid]");
-  		validator.arFields.each(function(index, field) {
-  			var changeToKeyup = false;
-  			if(!$(field).data("validate-trigger")) {
-  				$(field).data("validate-trigger", "change");
-  				changeToKeyup = true;
-  			}
-  			validator.arFields[index] = {
-  				node: field,
-  				changeToKeyup: changeToKeyup
-  			};
-  		});
-
-  		$(validator.arFields).each(function(index, el) {
-  			var field = $(el.node);
-
-  			field.on('change keyup', function(event) {
-  				if( field.data("validate-trigger").indexOf(event.type) < 0  ) return;
-
-  				if (field.data("valid").indexOf("important")+1) {
-	  				if(!validator.checkImportant()) {
-						validator.params.events.lockForm(validator.objForm);
-					} else {
-						validator.params.events.unlockForm(validator.objForm);
-					}
-					return;
-	  			}
-				validator.validateField(field, true, function(){
-					if ( el.changeToKeyup ) $(el.node).data("validate-trigger", "keyup");
-					el.changeToKeyup = false;
-				});
-  			});
-  		});
-  		/*$(el).on( validateTrigger , function(event) {
+  		//обрабатываются события change и keyup. Для определенных полей указывается действие для валидации. По умолчанию change меняется на keyup после первой валидации
+  		validator.objForm.on('change keyup', '[data-valid]', function(event) {
   			var field = $(this);
-  			
+  			var validateTrigger = field.data("validate-trigger") || "change";
+  			if( validateTrigger.indexOf(event.type) < 0  ) return;
 
-  			
   			if (field.data("valid").indexOf("important")+1) {
   				if(!validator.checkImportant()) {
 					validator.params.events.lockForm(validator.objForm);
 				} else {
 					validator.params.events.unlockForm(validator.objForm);
 				}
-  			}
-			validator.validateField(field);	
-  		});*/
-
-		//если поле было первый раз провенено обрабатываем каждое введение буквы
-  		/*validator.objForm.on('keyup', ".was-validated[data-valid]:not([data-valid*='ajax'])", function(event) { 
-  			console.log(event);
-			validator.validateField($(this));	
-		});*/
+				return;
+  			}  			
+  			validator.validateField($(this), true, function(field){
+  				if(!field.data("validate-trigger")) field.data("validate-trigger", "keyup");
+  			});
+  		});
+		
 		//обрабаываем сабмит
 		validator.objForm.on('click', ":submit", function(event) {
 			event.preventDefault();
