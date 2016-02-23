@@ -1,5 +1,5 @@
 /*
- * CitrusValidator jQuery Plugin v0.7
+ * CitrusValidator jQuery Plugin v0.1b
  * Пример использования citrusValidator
  * var form = new citrusValidator($(form));
  */
@@ -30,7 +30,7 @@ function clone(obj){
 ;(function( $ ){
 	"use strict";
 
-var arMessages = {
+var obMessages = {
 	required: "Это поле необходимо заполнить.",
 	remote: "Пожалуйста, введите правильное значение.",
 	email: "Пожалуйста, введите корректный адрес электронной почты.",
@@ -61,43 +61,43 @@ function clearString(string){
 	return string.replace(/\(|\)|\s+|-/g, "");
 }
 // Правила валидации
-var rules = {
-	"required" : function(field, action, validator, callback) {
+var obRules = {
+	"required" : function(field, action, callback) {
 		var fieldNode = field.get(0);
 		var isValid = fieldNode.type === 'checkbox' ? fieldNode.checked : fieldNode.type === 'radio' ? $('[name="' + fieldNode.name + '"]:checked').length : $.trim(fieldNode.value) !== '';
 
-		var errors = isValid ? "" : validator.getMessage("required");
+		var errors = isValid ? "" : this.getMessage("required");
 		callback(field, errors);
 	},
 	//поля important блокируют submit если не проходят валидацию
-	"important" : function(field, action, validator, callback) {		
+	"important" : function(field, action, callback) {		
 		callback(field);
 	},
 	//Все телефоны России (федеральные и коротие) +7 111 111 11 11 или 11-11-11 (макс 11цифр)
-	"phone" : function(field, action, validator, callback) {
+	"phone" : function(field, action, callback) {
 		if(!field.val()) {callback(field); return true;};
 
 		var value = clearString(field.val());
 		var isValid = value.length > 5 && /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{6,10}$/.test(value);
 
-		var errors = isValid ? "" : validator.getMessage("phone");
+		var errors = isValid ? "" : this.getMessage("phone");
 		callback(field, errors);
 	},
 	// телефоны России (начинаются на +7 или 8)
-	"phone_full" : function(field, action, validator, callback){	
+	"phone_full" : function(field, action, callback){	
 		if(!field.val()) {callback(field); return true;};			
 		var value = clearString(field.val());
 		var isValid = value.length > 10 && /^(8|\+7){1}(\d{10})$/.test(value);
 
-		var errors = isValid ? "" : validator.getMessage("phone_full");				
+		var errors = isValid ? "" : this.getMessage("phone_full");				
 		callback(field, errors);
 	},
 	//post ajax запрос по пути data-ajax-url. Ответ строка с ошибкой
-	"ajax": function(field, action, validator, callback) {			
+	"ajax": function(field, action, callback) {			
 		if(!field.val()) {callback(field); return true;};
-
+		var validator = this;
 		var parthToAjax = $.trim(field.data("ajax-url"));	
-		if(action) validator.params.events.lockField(field);
+		if(action) validator.events.lockField(field);
 		if(parthToAjax.length > 0) {
 			$.ajax({
 				url: parthToAjax,
@@ -106,7 +106,7 @@ var rules = {
 				data: {name: field.attr("name"), value: field.val()},
 			})
 			.done(function(error) {
-				if(action) validator.params.events.unlockField(field);
+				if(action) validator.events.unlockField(field);
 				if(error.length > 0) {callback(field, error); return;};
 				callback(field);
 			})
@@ -116,20 +116,20 @@ var rules = {
 			});
 		}
 	},
-	"email" : function(field, action, validator, callback){	
+	"email" : function(field, action, callback){	
 		if(!field.val()) {callback(field); return true;};
 		var value = $.trim(field.val());
 		var isValid = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(value);
 
-		var errors = isValid ? "" : validator.getMessage("email");				
+		var errors = isValid ? "" : this.getMessage("email");				
 		callback(field, errors);
 	},
 	//число + проверяет max, min параметры
-	"number" : function(field, action, validator, callback){	
+	"number" : function(field, action, callback){	
 		if(!field.val()) {callback(field); return true;};
 		var isNumber = /^(?:-?\d+|-?\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test( field.val() );
 		
-		if(!isNumber) {callback(field, validator.getMessage("number")); return;};
+		if(!isNumber) {callback(field, this.getMessage("number")); return;};
 
 		var value = +field.val();
 		//у числа получим max и min значение
@@ -138,37 +138,37 @@ var rules = {
 		if( typeof field.attr("max") !== "undefined" && field.attr("max") !== "") {max = +field.attr("max"); hasMaxAttr = true;};
 		
 		if( hasMinAttr && hasMaxAttr) {
-			if( value < min || value > max ) errors = validator.getMessage("range", [min, max]);
+			if( value < min || value > max ) errors = this.getMessage("range", [min, max]);
 		} else {
 			if( hasMinAttr ) {
-				if(value < min) errors = validator.getMessage("min", [min]);
+				if(value < min) errors = this.getMessage("min", [min]);
 			}
 			if( hasMaxAttr ) {
-				if(value > max) errors = validator.getMessage("max", [max]);
+				if(value > max) errors = this.getMessage("max", [max]);
 			}
 		}			
 		callback(field, errors);
 	},
-	"main_password": function(field, action, validator, callback){
+	"main_password": function(field, action, callback){
 		var target = field.parents("form").find("[data-valid*='confirm_password']");			
-		if(!!target.val() && !!field.val() ) validator.validateField(target);
+		if(!!target.val() && !!field.val() ) this.validateField(target);
 		callback(field);
 	},
-	"confirm_password": function(field, action, validator, callback){
+	"confirm_password": function(field, action, callback){
 		if(!field.val()) {callback(field); return true;};
 		var target = field.parents("form").find("[data-valid*='main_password']");
 		var isValid = (field.val() === target.val());
-		var errors = isValid ? "" : validator.getMessage("confirm_password");
+		var errors = isValid ? "" : this.getMessage("confirm_password");
 		callback(field, errors);	
 	},
-	"url": function(field, action, validator, callback) {
+	"url": function(field, action, callback) {
 		if(!field.val()) {callback(field); return true;};
 		var isValid = /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})).?)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test( field.val() );
-		var errors = isValid ? "" : validator.getMessage("url");				
+		var errors = isValid ? "" : this.getMessage("url");				
 		callback(field, errors);
 	},
 	// ИНН юр и физ лица
-	"inn": function(field, action, validator, callback){
+	"inn": function(field, action, callback){
 		if(!field.val()) {callback(field); return true;};
 		var value = field.val();
 		var isValid = true;
@@ -211,10 +211,10 @@ var rules = {
 		        }
 		    }
 	    }
-	    var errors = isValid ? "" : validator.getMessage("inn");				
+	    var errors = isValid ? "" : this.getMessage("inn");				
 		callback(field, errors);
 	},
-	"inn_u": function(field, action, validator, callback){
+	"inn_u": function(field, action, callback){
 		if(!field.val()) {callback(field); return true;};
 		var value = field.val();
 		var isValid = true;
@@ -236,10 +236,10 @@ var rules = {
 		else {		
 		    isValid = false;
 		}
-		var errors = isValid ? "" : validator.getMessage("inn_u");				
+		var errors = isValid ? "" : this.getMessage("inn_u");				
 		callback(field, errors);
 	},
-	"inn_f": function(field, action, validator, callback){
+	"inn_f": function(field, action, callback){
 		if(!field.val()) {callback(field); return true;};
 		var value = field.val();
 		var isValid = true;
@@ -253,10 +253,10 @@ var rules = {
 	    }else{
 	        isValid = false;
 	    }		    	
-		var errors = isValid ? "" : validator.getMessage("inn_f");				
+		var errors = isValid ? "" : this.getMessage("inn_f");				
 		callback(field, errors);
 	},
-	"ogrn": function(field, action, validator, callback){
+	"ogrn": function(field, action, callback){
 		if(!field.val()) {callback(field); return true;};
 		var value = field.val();
 		var isValid = true;
@@ -270,10 +270,10 @@ var rules = {
 		}else{
 		    isValid = false;
 		}
-		var errors = isValid ? "" : validator.getMessage("ogrn");				
+		var errors = isValid ? "" : this.getMessage("ogrn");				
 		callback(field, errors);
 	},
-	"kpp": function(field, action, validator, callback){
+	"kpp": function(field, action, callback){
 		if(!field.val()) {callback(field); return true;};
 		var value = field.val();
 		var isValid = true;
@@ -286,12 +286,61 @@ var rules = {
 		if(!value.match(/([0-9]{1}[1-9]{1}|[1-9]{1}[0-9]{1})([0-9]{2})([0-9A-F]{2})([0-9]{3})/)){
 			isValid = false;
 		}
-		var errors = isValid ? "" : validator.getMessage("kpp");				
+		var errors = isValid ? "" : this.getMessage("kpp");				
 		callback(field, errors);
 		
 	}
 };// end rules
 
+//события по умолчанию
+var obEvents = {
+	addFieldError: function(field){
+		var input_container = field.parents(".input-container");
+  		if(!field.hasClass('error-field')) {
+			field.addClass('error-field');
+			input_container.addClass('has-error')
+							.removeClass('has-success');
+		}
+
+		var messagesList = field.errors.join('<br>');
+		var error_block = input_container.find(".error.help-block");	
+		if(error_block.length > 0) {
+			error_block.html(messagesList);
+		} else {
+			input_container.append('<div class="error help-block">'+messagesList+'</div>');
+		}	
+	},
+	removeFieldError: function(field){
+		field.removeClass('error-field');
+		field.parents(".input-container").removeClass('has-error')
+				  					 	 .addClass('has-success')
+				  					 	 .find(".error").remove();
+	},
+	clearField: function(field) {
+		field.removeClass('error-field');
+		field.parents(".input-container").removeClass('has-error')
+										 .removeClass('has-success')
+									 	 .find(".error").remove();
+	},
+	lockField: function(field) {
+		this.clearField(field);
+			field.attr("readonly", "readonly")
+ 		 	 .closest('.input-container').addClass('ajax-loading');
+	},
+	unlockField: function(field){
+		field.removeAttr("readonly")
+		 	 .closest('.input-container').removeClass('ajax-loading');
+	},
+	lockForm: function(form){
+  		form.find("[type='submit']").attr("disabled", "disabled");
+  	},
+  	unlockForm: function(form){
+  		form.find("[type='submit']").removeAttr("disabled");
+  	},
+  	afterFormValidate: function(form){
+  		if(form.isValid) form.submit();
+  	}
+}
 /*
 * Прототип всех форм. Где можно брать и устанавливать общие сообщения (пока).
 * Использование как citrusValidator.prototype чтобы подчеркнуть, что устанавливается для всех форм.
@@ -304,8 +353,8 @@ var proto = new function(){
 	* 	или все сообщения если messageName пустое
 	*/
 	this._getMessage = function(messageName, arParams){
-		if(arMessages[messageName] && arMessages[messageName].length > 0) {	
-			var message = arMessages[messageName];
+		if(obMessages[messageName] && obMessages[messageName].length > 0) {	
+			var message = obMessages[messageName];
 			if(arParams && arParams.length > 0) {				
 				arParams.forEach(function(param, i){
 					message = message.replace("{"+i+"}", param);
@@ -314,19 +363,27 @@ var proto = new function(){
 			} 
 			return message;							
 		}
-		if(!arMessages[messageName]) return arMessages;
+		if(!obMessages[messageName]) return obMessages;
 	}
-	this._setMessage = function(messageName, messageText){	
+	this._setMessage = function(messageName, messageText){
 		if(messageName && messageName.length > 0 && messageText ) {
 			messageText +="";
 			if(messageText.length > 0) {
-				arMessages[messageName] = messageText;
-				return "Сообщение " + messageName + " установлено.";
+				obMessages[messageName] = messageText;
 			}
-		}	
+		}
 	}
-	this._getRules = function(){
-		return rules;
+	this._getRule = function(ruleName){
+		if( !ruleName || !obRules[ruleName]) return obRules;
+		return obRules[ruleName];
+	}
+	this._setRule = function(ruleName, fn){
+		if(!ruleName || $.type(fn) !== "function" ) return;
+		obRules[ruleName] = fn;
+	}
+	this._getEvents = function(eventName){
+		if( !eventName || !obEvents[eventName]) return obEvents;
+		return obEvents[eventName];
 	}
 	
 };
@@ -334,72 +391,22 @@ var proto = new function(){
 /*
 * Конструктор валидатора. Для каждой формы будет свой объект.
 */
-window.citrusValidator = function (form, params) {	
+window.citrusValidator = function (form, events) {	
 	if(!form || !form.length) return {};
 
 	var validator = this,
-		rules = validator._getRules(),
-		arMessages = clone(validator._getMessage()),
-		params = params || {};
-		validator.objForm = form;
+		rules = validator._getRule(),
+		obMessages = clone(validator._getMessage()),
+		events = events || {};
+		validator.jqForm = form;
 
-	//параметры по умолчанию
-	var defaultParams = {
-		events: {
-			addFieldError: function(field){
-				var input_container = field.parents(".input-container");
-		  		if(!field.hasClass('error-field')) {
-					field.addClass('error-field');
-					input_container.addClass('has-error')
-									.removeClass('has-success');
-				}
-
-				var messagesList = field.errors.join('<br>');
-				var error_block = input_container.find(".error.help-block");	
-				if(error_block.length > 0) {
-					error_block.html(messagesList);
-				} else {
-					input_container.append('<div class="error help-block">'+messagesList+'</div>');
-				}	
-			},
-			removeFieldError: function(field){
-				field.removeClass('error-field');
-				field.parents(".input-container").removeClass('has-error')
-						  					 	 .addClass('has-success')
-						  					 	 .find(".error").remove();
-			},
-			clearField: function(field) {
-				field.removeClass('error-field');
-				field.parents(".input-container").removeClass('has-error')
-												 .removeClass('has-success')
-											 	 .find(".error").remove();
-			},
-			lockField: function(field) {
-				this.clearField(field);
-	  			field.attr("readonly", "readonly")
-		 		 	 .closest('.input-container').addClass('ajax-loading');
-			},
-			unlockField: function(field){
-				field.removeAttr("readonly")
-				 	 .closest('.input-container').removeClass('ajax-loading');
-			},
-			lockForm: function(form){
-		  		form.find("[type='submit']").attr("disabled", "disabled");
-		  	},
-		  	unlockForm: function(form){
-		  		form.find("[type='submit']").removeAttr("disabled");
-		  	},
-		  	afterFormValidate: function(form){
-		  		if(form.isValid) form.submit();
-		  	}
-		}
-	};
-  	validator.params = $.extend(params, defaultParams);
-
+	//события по умолчанию
+	var defaultEvents = clone(validator._getEvents());
+  	validator.events = $.extend( defaultEvents, events);
 
   	validator.getMessage = function(messageName, arParams){
-		if(arMessages[messageName] && arMessages[messageName].length > 0) {	
-			var message = arMessages[messageName];
+		if(obMessages[messageName] && obMessages[messageName].length > 0) {	
+			var message = obMessages[messageName];
 			if(arParams && arParams.length > 0) {				
 				arParams.forEach(function(param, i){
 					message = message.replace("{"+i+"}", param);
@@ -408,13 +415,13 @@ window.citrusValidator = function (form, params) {
 			} 
 			return message;							
 		}
-		if(!arMessages[messageName]) return arMessages;
+		if(!obMessages[messageName]) return obMessages;
 	}
 	validator.setMessage = function(messageName, messageText){	
 		if(messageName && messageName.length > 0 && messageText ) {
 			messageText +="";
 			if(messageText.length > 0) {
-				arMessages[messageName] = messageText;
+				obMessages[messageName] = messageText;
 				return "Сообщение " + messageName + " установлено.";
 			}
 		}	
@@ -422,7 +429,7 @@ window.citrusValidator = function (form, params) {
 
 
 	/**
-	* ====================	Основные функции плагина (ядро) ====================
+	* ====================	Основные функции плагина ====================
 	*/
   	validator.validateField = function(field, action, callback){
 
@@ -438,14 +445,17 @@ window.citrusValidator = function (form, params) {
 			//если нет такого правила пишем ошибку
 			if(!rules.hasOwnProperty(ruleName)) {
 				console.log("citrusValidate: Нет правила для "+ruleName);
-				if(!(--validRulesLength)) {
-					if(!field.isValid ) field.isValid = true;
+				if(!(--validRulesLength)) {					
+					if(field.isValid !== false ) {
+						field.data("isvalid", true);
+						field.isValid = true;
+					}
 					callback(field);
 				}
 				return true;
 			}			
-			//вызываем правило, колбэком проверям все ли правила проверены. Если все то отправляем на печать ошибок
-			rules[ruleName](field, action, validator, function(field, errors){
+			//вызываем правило, колбэком проверям все ли правила проверены. Если все то вызываем событие
+			rules[ruleName].call( validator, field, action, function(field, errors){
 				var arErrors = errors || Array();
 				if($.type(arErrors) === "string") arErrors = Array(arErrors);
 				arErrors.forEach(function(error){
@@ -455,19 +465,20 @@ window.citrusValidator = function (form, params) {
 				if(!(--validRulesLength)) {
 					//errorHandler
 					if (field.errors.length > 0 ) {
-						if(action) validator.params.events.addFieldError(field);
+						if(action) validator.events.addFieldError(field);
 						field.isValid = false;
 					} else {
 						var inputType = field.attr("type");
 						if(action) {
 							if(inputType !== "checkbox" && inputType !== "radio" &&  !field.val()) {
-								validator.params.events.clearField(field);
+								validator.events.clearField(field);
 							}else {
-								validator.params.events.removeFieldError(field);
+								validator.events.removeFieldError(field);
 							}
 						}						
 						field.isValid = true;
 					}
+					field.data("isvalid", field.isValid);
 					callback(field);
 				}
 			});							
@@ -481,27 +492,38 @@ window.citrusValidator = function (form, params) {
   		var action = (typeof action === 'undefined') ? true : action;
   		var callback = callback || function(){};
   		//сбор полей для валидации
-	    var validFields = validator.objForm.find("[data-valid]");
+	    var validFields = validator.jqForm.find("[data-valid]");
 	    var countFields = validFields.length;
-	    if( countFields == 0 ) {validator.objForm.isValid = true; callback(validator.objForm); return true};
+	    if( countFields == 0 ) {validator.jqForm.isValid = true; callback(validator.jqForm); return true};
 
-	    validator.objForm.isValid = true; validator.objForm.invalidFields = Array();
+	    validator.jqForm.isValid = true; validator.jqForm.invalidFields = Array();
 		validFields.each(function(index, el) {
-			 validator.validateField($(this), action, function(field){
-			 	if(!field.isValid) {
-			 		validator.objForm.isValid = false;
-			 		validator.objForm.invalidFields.push(field);
-			 	}
-			 	if(!(--countFields)) {
-			 		callback(validator.objForm);
-			 		if(action) validator.params.events.afterFormValidate(validator.objForm);
-			 	}
-			 });			 
+			var field = $(this);
+			if($.type(field.data("isvalid")) !== "undefined") {
+				if(!field.data("isvalid")) {
+					validator.jqForm.isValid = false;
+					validator.jqForm.invalidFields.push(field);
+				}
+				if(!(--countFields)) {
+					callback(validator.jqForm);
+					if(action) validator.events.afterFormValidate(validator.jqForm);
+				}				
+			} else {
+				validator.validateField(field, action, function(field){
+					if(!field.isValid) {
+						validator.jqForm.isValid = false;
+						validator.jqForm.invalidFields.push(field);
+					}
+					if(!(--countFields)) {
+						callback(validator.jqForm);
+						if(action) validator.events.afterFormValidate(validator.jqForm);
+					}
+				});	
+			}					 
 		});
-  	}
-  	validator.checkImportant = function(){
-  		//проверяем поля important
-		var important_fields = validator.objForm.find("[data-valid*='important']");
+  	}  	
+  	validator.checkImportant = function(){  		
+		var important_fields = validator.jqForm.find("[data-valid*='important']");
 
 		var important_valid = true;
 		if(important_fields.length > 0) {			
@@ -515,17 +537,17 @@ window.citrusValidator = function (form, params) {
   	}
   	//init
   	;(function(){
-  		//обрабатываются события change и keyup. Для определенных полей указывается действие для валидации. По умолчанию change меняется на keyup после первой валидации
-  		validator.objForm.on('change keyup', '[data-valid]', function(event) {
+  		//обрабатываются события change и keyup. По умолчанию change меняется на keyup после первой валидации. Можно установить через data-validate-trigger у каждого поля
+  		validator.jqForm.on('change keyup', '[data-valid]', function(event) {
   			var field = $(this);
   			var validateTrigger = field.data("validate-trigger") || "change";
   			if( validateTrigger.indexOf(event.type) < 0  ) return;
 
   			if (field.data("valid").indexOf("important")+1) {
   				if(!validator.checkImportant()) {
-					validator.params.events.lockForm(validator.objForm);
+					validator.events.lockForm(validator.jqForm);
 				} else {
-					validator.params.events.unlockForm(validator.objForm);
+					validator.events.unlockForm(validator.jqForm);
 				}
 				return;
   			}  			
@@ -535,12 +557,12 @@ window.citrusValidator = function (form, params) {
   		});
 		
 		//обрабаываем сабмит
-		validator.objForm.on('click', ":submit", function(event) {
+		validator.jqForm.on('click', ":submit", function(event) {
 			event.preventDefault();
 			validator.validateForm();
 		});
 		//проверка полей important
-		if(!validator.checkImportant(validator.objForm)) validator.params.events.lockForm(validator.objForm);
+		if(!validator.checkImportant(validator.jqForm)) validator.events.lockForm(validator.jqForm);
   	})();
 }
 

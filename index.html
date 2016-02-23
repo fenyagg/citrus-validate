@@ -14,9 +14,8 @@
 
 <script>
 $(function() {
-	citrusValidator.prototype._setMessage("phone", "Новая ошибка для всех форм");
+	//citrusValidator.prototype._setMessage("phone", "Новая ошибка для всех форм");
 	window.form = new citrusValidator($("#signupForm1"), {		
-		events: {
 			addFieldError: function(field){
 				var input_container = field.parents(".input-container");
 		  		if(!field.hasClass('error-field')) {
@@ -60,10 +59,8 @@ $(function() {
 		  	unlockForm: function(form){
 		  		form.find("[type='submit']").removeAttr("disabled");
 		  	}
-		}		
-	});
+		});
 	form.setMessage("phone", "Новая ошибка для формы 1");
-	window.form1 = new citrusValidator($("#signupForm2"));
 });
 	
 </script>
@@ -72,21 +69,13 @@ $(function() {
 			<div class="col-sm-12">
 				
 				<h1>Валидация полей</h1>
-				<form id="signupForm2" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
-					<div class="form-group">
-						<label class="col-sm-4 control-label" for="firstname1">Телефон:<span class="red">*</span></label>
-						<div class="col-sm-6 icon-container input-container">
-							<input data-valid="phone required" type="text" class="form-control" name="phone" placeholder="99-99-99 или +7 (999) 999-99-99" id="phone"/>
-						</div>
-					</div>
-				</form>
 
 				<div class="panel panel-default">
 					<div class="panel-body">
 						<form id="signupForm1" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
 
 							<div class="form-group">
-								<label class="col-sm-4 control-label" for="firstname1">Имя:<span class="red">*</span></label>
+								<label class="col-sm-4 control-label" for="firstname1">Имя (аякс проверка):<span class="red">*</span></label>
 								<div class="col-sm-6 icon-container input-container">
 									<input data-valid="ajax required" data-ajax-url="ajax.php" data-validate-trigger ="change" type="text" class="form-control" name="firstname" placeholder="Аякс проверка"  id="ajax"/>
 								</div>
@@ -106,13 +95,13 @@ $(function() {
 							</div>
 
 							<div class="form-group">
-								<label class="col-sm-4 control-label" for="firstname1">Число (не менее 100 и не более 1000):<span class="red">*</span> </label>
+								<label class="col-sm-4 control-label" for="firstname1">Число (не менее 100 и не более 1000): </label>
 								<div class="col-sm-6 icon-container input-container">
 									<input data-valid="number" type="text" class="form-control" name="number1" min="100" max="1000" placeholder="Число" />
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label" for="password1">Пароль</label>
+								<label class="col-sm-4 control-label" for="password1">Пароль:<span class="red">*</span></label>
 								<div class="col-sm-6 icon-container input-container">
 									<input data-valid="main_password required" type="password" placeholder="Пароль" name="pass" />
 								</div>
@@ -124,7 +113,7 @@ $(function() {
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label " for="email">Email</label>
+								<label class="col-sm-4 control-label" for="email">Email: <span class="red">*</span></label>
 								<div class="col-sm-6 icon-container input-container">
 									<input data-valid="email required" type="email" class="form-control" name="email1" placeholder="example@mail.ru" />
 								</div>
@@ -165,10 +154,6 @@ $(function() {
 									<input data-valid="kpp" type="text" class="form-control" name="kpp" placeholder="773301001" />
 								</div>
 							</div>
-
-							
-
-
 							<div class="form-group">
 								<div class="col-sm-5 col-sm-offset-4">
 									<div class="checkbox icon-container input-container">
@@ -178,7 +163,6 @@ $(function() {
 									</div>
 								</div>
 							</div>
-
 							<div class="form-group">
 								<div class="col-sm-5 col-sm-offset-4">
 									<div class="checkbox icon-container input-container">
@@ -187,8 +171,7 @@ $(function() {
 										</label>
 									</div>
 								</div>
-							</div>
-							
+							</div>							
 
 							<div class="form-group">
 								<div class="col-sm-9 col-sm-offset-4">
