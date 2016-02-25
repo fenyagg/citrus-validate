@@ -14,7 +14,6 @@
 
 <script>
 $(function() {
-	//citrusValidator.prototype._setMessage("phone", "Новая ошибка для всех форм");
 	window.form = new citrusValidator($("#signupForm1"), {		
 			addFieldError: function(field){
 				var input_container = field.parents(".input-container");
@@ -60,7 +59,16 @@ $(function() {
 		  		form.find("[type='submit']").removeAttr("disabled");
 		  	}
 		});
-	form.setMessage("phone", "Новая ошибка для формы 1");
+
+	citrusValidator.prototype._setMessage("uname", "Введите верное имя пользователя");
+	citrusValidator.prototype._setRule("uname", function(field, action, callback){
+		if(!field.val()) {callback(field); return true;};
+		var value = field.val();
+		var isValid = /^[А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+$/.test(value);		
+		var errors = isValid ? "" : this.getMessage("uname");
+		callback(field, errors);
+	});
+	
 });
 	
 </script>
@@ -75,12 +83,19 @@ $(function() {
 						<form id="signupForm1" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
 
 							<div class="form-group">
+								<label class="col-sm-4 control-label" for="firstname1">Имя пользователя:<span class="red">*</span></label>
+								<div class="col-sm-6 icon-container input-container">
+									<input data-valid="uname required" type="text" class="form-control" name="uname" placeholder="Имя пользователя" id="uname"/>
+								</div>
+							</div>
+
+							<div class="form-group">
 								<label class="col-sm-4 control-label" for="firstname1">Имя (аякс проверка):<span class="red">*</span></label>
 								<div class="col-sm-6 icon-container input-container">
 									<input data-valid="ajax required" data-ajax-url="ajax.php" data-validate-trigger ="change" type="text" class="form-control" name="firstname" placeholder="Аякс проверка"  id="ajax"/>
 								</div>
 							</div>
-
+							
 							<div class="form-group">
 								<label class="col-sm-4 control-label" for="firstname1">Телефон:<span class="red">*</span></label>
 								<div class="col-sm-6 icon-container input-container">

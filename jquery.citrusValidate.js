@@ -397,6 +397,7 @@ window.citrusValidator = function (form, events) {
 	var validator = this,
 		rules = validator._getRule(),
 		obMessages = clone(validator._getMessage()),
+		_obMessages = validator._getMessage(),
 		events = events || {};
 		validator.jqForm = form;
 
@@ -405,17 +406,14 @@ window.citrusValidator = function (form, events) {
   	validator.events = $.extend( defaultEvents, events);
 
   	validator.getMessage = function(messageName, arParams){
-		if(obMessages[messageName] && obMessages[messageName].length > 0) {	
-			var message = obMessages[messageName];
-			if(arParams && arParams.length > 0) {				
-				arParams.forEach(function(param, i){
-					message = message.replace("{"+i+"}", param);
-				});	
-				return message;
-			} 
-			return message;							
+  		var message = obMessages[messageName] || _obMessages[messageName] || "";
+		if(message.length > 0 && arParams && arParams.length > 0) {						
+			arParams.forEach(function(param, i){
+				message = message.replace("{"+i+"}", param);
+			});	
+			return message;					
 		}
-		if(!obMessages[messageName]) return obMessages;
+		return message;	
 	}
 	validator.setMessage = function(messageName, messageText){	
 		if(messageName && messageName.length > 0 && messageText ) {
