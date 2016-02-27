@@ -43,6 +43,13 @@ $(function() {
 						<form id="signupForm1" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
 
 							<div class="form-group">
+								<label class="col-sm-4 control-label" for="firstname1">Длина строки:<span class="red">*</span></label>
+								<div class="col-sm-6 icon-container input-container">
+									<input data-valid="length" type="text" class="form-control" name="uname" placeholder="" data-minlength="2" data-maxlength="6" id="length"/>
+								</div>
+							</div>
+
+							<div class="form-group">
 								<label class="col-sm-4 control-label" for="firstname1">Имя пользователя:<span class="red">*</span></label>
 								<div class="col-sm-6 icon-container input-container">
 									<input data-valid="uname required" type="text" class="form-control" name="uname" placeholder="Имя пользователя" id="uname"/>

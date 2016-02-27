@@ -42,8 +42,8 @@ var obMessages = {
 	creditcard: "Пожалуйста, введите правильный номер кредитной карты.",
 	confirm_password: "Пароли не совпадают.",
 	extension: "Пожалуйста, выберите файл с правильным расширением.",
-	maxlength: "Пожалуйста, введите не больше символов.",
-	minlength: "Пожалуйста, введите не меньше символов.",
+	maxlength: "Пожалуйста, введите не больше {0} символов.",
+	minlength: "Пожалуйста, введите не меньше {0} символов.",
 	rangelength: "Пожалуйста, введите значение длиной от {0} до {1} символов.",
 	range: "Пожалуйста, введите число от {0} до {1}.",
 	max: "Пожалуйста, введите число, меньшее или равное {0}.",
@@ -54,7 +54,7 @@ var obMessages = {
 	inn_u: "Введите корректный ИНН юр лица.",
 	inn_f: "Введите корректный ИНН физ лица.",
 	ogrn: "Введите корректный ОГРН.",
-	kpp: "Введите корректный КПП."
+	kpp: "Введите корректный КПП.",
 }	
 //отчищает строку от (), пробелов, -
 function clearString(string){
@@ -147,6 +147,25 @@ var obRules = {
 				if(value > max) errors = this.getMessage("max", [max]);
 			}
 		}			
+		callback(field, errors);
+	},
+	"length" : function(field, action, callback) {
+		if(!field.val()) {callback(field); return true;};
+
+		var dataMinlength = field.data("minlength"),
+			dataMaxlength = field.data("maxlength"),
+			valLength = field.val().length,
+			errors = false;
+		console.log(dataMaxlength);
+		if(typeof dataMinlength !== "undefined" && typeof dataMaxlength !== "undefined") {
+			if(valLength > dataMaxlength || valLength < dataMinlength) {
+				errors = this.getMessage("rangelength" , [dataMinlength, dataMaxlength]);
+			}			
+		} else if(typeof dataMinlength !== "undefined"){
+			if(valLength < dataMinlength) errors = this.getMessage("minlength" , [dataMinlength]);
+		} else if(typeof dataMaxlength !== "undefined"){
+			if(valLength > dataMaxlength) errors = this.getMessage("maxlength" , [dataMaxlength]);
+		}
 		callback(field, errors);
 	},
 	"main_password": function(field, action, callback){
