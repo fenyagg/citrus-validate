@@ -57,8 +57,6 @@ html:
 
 
 <h3>Все глобальные события, сообщения и правила устанавливаются через прототип (citrusValidator.prototype).</h3>
-
-<p>Свойства объекта citrusValidator.prototype</p>
 <ul>
     <li><b>_getMessage(messageName, arParams)</b> -  возвращает сообщение messageName отоформатированное массивом arParams или все сообщения если messageName пустое </li>
     <li><b>_setMessage(messageName, messageText)</b> - Устанавливает сообщение</li>
