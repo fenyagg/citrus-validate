@@ -8,67 +8,27 @@
 	<link rel="stylesheet" href="validate.css">
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-	<script src="jquery.citrusValidate.js"></script>
+	<script src="jquery.citrusValidator.js"></script>
 </head>
 <body>
 
 <script>
 $(function() {
-	window.form = new citrusValidator($("#signupForm1"), {		
-			addFieldError: function(field){
-				var input_container = field.parents(".input-container");
-		  		if(!field.hasClass('error-field')) {
-					field.addClass('error-field');
-					input_container.addClass('has-error')
-									.removeClass('has-success');
-				}
+	window.form = new citrusValidator($("#signupForm1"));
 
-				messagesList = field.errors.join('<br>');
-				var error_block = input_container.find(".error.help-block");	
-				if(error_block.length > 0) {
-					error_block.html(messagesList);
-				} else {
-					input_container.append('<div class="error help-block">'+messagesList+'</div>');
-				}	
-			},
-			removeFieldError: function(field){
-				field.removeClass('error-field');
-				field.parents(".input-container").removeClass('has-error')
-						  					 	 .addClass('has-success')
-						  					 	 .find(".error").remove();
-			},
-			clearField: function(field) {
-				field.removeClass('error-field');
-				field.parents(".input-container").removeClass('has-error')
-												 .removeClass('has-success')
-											 	 .find(".error").remove();
-			},
-			lockField: function(field) {
-				this.clearField(field);
-	  			field.attr("readonly", "readonly")
-		 		 	 .closest('.input-container').addClass('ajax-loading');
-			},
-			unlockField: function(field){
-				field.removeAttr("readonly")
-				 	 .closest('.input-container').removeClass('ajax-loading');
-			},
-			lockForm: function(form){
-		  		form.find("[type='submit']").attr("disabled", "disabled");
-		  	},
-		  	unlockForm: function(form){
-		  		form.find("[type='submit']").removeAttr("disabled");
-		  	}
-		});
+	//form.setMessage("uname", "Введите верное имя пользователя 11q");
 
-	citrusValidator.prototype._setMessage("uname", "Введите верное имя пользователя");
-	citrusValidator.prototype._setRule("uname", function(field, action, callback){
-		if(!field.val()) {callback(field); return true;};
-		var value = field.val();
-		var isValid = /^[А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+$/.test(value);		
-		var errors = isValid ? "" : this.getMessage("uname");
-		callback(field, errors);
+	citrusValidator.prototype._setMessage("uname", "Введите верное имя пользователя1");
+	citrusValidator.prototype._setRules({
+		"uname": function(field, action, callback){
+			if(!field.val()) {callback(field); return true;};
+			var value = field.val();
+			var isValid = /^[А-яё][а-яё]+ [А-яё][а-яё]+$/.test(value);		
+			var errors = isValid ? "" : this.getMessage("uname");
+			callback(field, errors);
+		}
 	});
-	
+
 });
 	
 </script>

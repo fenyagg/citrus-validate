@@ -1,5 +1,5 @@
 /*
- * CitrusValidator jQuery Plugin v0.1b
+ * CitrusValidator jQuery Plugin v0.2b
  * Пример использования citrusValidator
  * var form = new citrusValidator($(form));
  */
@@ -97,7 +97,7 @@ var obRules = {
 		if(!field.val()) {callback(field); return true;};
 		var validator = this;
 		var parthToAjax = $.trim(field.data("ajax-url"));	
-		if(action) validator.events.lockField(field);
+		if(action) validator.callEvent("lockField", field);
 		if(parthToAjax.length > 0) {
 			$.ajax({
 				url: parthToAjax,
@@ -106,7 +106,7 @@ var obRules = {
 				data: {name: field.attr("name"), value: field.val()},
 			})
 			.done(function(error) {
-				if(action) validator.events.unlockField(field);
+				if(action) validator.callEvent("unlockField", field);
 				if(error.length > 0) {callback(field, error); return;};
 				callback(field);
 			})
@@ -308,13 +308,11 @@ var obEvents = {
 			error_block.html(messagesList);
 		} else {
 			input_container.append('<div class="error help-block">'+messagesList+'</div>');
-		}	
+		}
 	},
 	removeFieldError: function(field){
-		field.removeClass('error-field');
-		field.parents(".input-container").removeClass('has-error')
-				  					 	 .addClass('has-success')
-				  					 	 .find(".error").remove();
+		this.callEvent("clearField", field);
+		field.parents(".input-container").addClass('has-success');
 	},
 	clearField: function(field) {
 		field.removeClass('error-field');
@@ -323,8 +321,8 @@ var obEvents = {
 									 	 .find(".error").remove();
 	},
 	lockField: function(field) {
-		this.clearField(field);
-			field.attr("readonly", "readonly")
+		this.callEvent("clearField", field);
+		field.attr("readonly", "readonly")
  		 	 .closest('.input-container').addClass('ajax-loading');
 	},
 	unlockField: function(field){
@@ -342,9 +340,7 @@ var obEvents = {
   	}
 }
 /*
-* Прототип всех форм. Где можно брать и устанавливать общие сообщения (пока).
-* Использование как citrusValidator.prototype чтобы подчеркнуть, что устанавливается для всех форм.
-* + можно устанавливать сообщения не вызывая конструктор
+* Прототип всех форм. Использование как citrusValidator.prototype 
 */
 var proto = new function(){	
 	
@@ -374,16 +370,32 @@ var proto = new function(){
 		}
 	}
 	this._getRule = function(ruleName){
-		if( !ruleName || !obRules[ruleName]) return obRules;
-		return obRules[ruleName];
+		if( !ruleName ) return obRules;
+		return obRules[ruleName] || false;
 	}
 	this._setRule = function(ruleName, fn){
-		if(!ruleName || $.type(fn) !== "function" ) return;
+		if(!ruleName || !$.isFunction(fn) ) return;
 		obRules[ruleName] = fn;
 	}
-	this._getEvents = function(eventName){
-		if( !eventName || !obEvents[eventName]) return obEvents;
-		return obEvents[eventName];
+	this._setRules = function(obRules){
+		if( $.type(obRules) !== "object" && !$.isEmptyObject(obRules)) return;
+		for (var ruleName in obRules) {
+			this._setRule(ruleName, obRules[ruleName]);
+		}
+	}
+	this._getEvent = function(eventName){
+		if( !eventName ) return obEvents;
+		return obEvents[eventName] || function(){};
+	}
+	this._setEvent = function(eventName, fn){
+		if(!eventName || !$.isFunction(fn) ) return;
+		obEvents[eventName] = fn;
+	}
+	this._setEvents = function(obEvents){
+		if( $.type(obEvents) !== "object" && !$.isEmptyObject(obEvents)) return;
+		for (var eventName in obEvents) {
+			this._setEvent(eventName, obEvents[eventName]);
+		}
 	}
 	
 };
@@ -391,27 +403,22 @@ var proto = new function(){
 /*
 * Конструктор валидатора. Для каждой формы будет свой объект.
 */
-window.citrusValidator = function (form, events) {	
+window.citrusValidator = function (form, params) {	
 	if(!form || !form.length) return {};
 
 	var validator = this,
-		rules = validator._getRule(),
+		obRules = clone(validator._getRule()),
 		obMessages = clone(validator._getMessage()),
-		_obMessages = validator._getMessage(),
-		events = events || {};
-		validator.jqForm = form;
+		obEvents = clone(validator._getEvent());
 
-	//события по умолчанию
-	var defaultEvents = clone(validator._getEvents());
-  	validator.events = $.extend( defaultEvents, events);
+	validator.jqForm = form;
 
   	validator.getMessage = function(messageName, arParams){
-  		var message = obMessages[messageName] || _obMessages[messageName] || "";
-		if(message.length > 0 && arParams && arParams.length > 0) {						
+  		var message = obMessages[messageName] || validator._getMessage(messageName) || "";
+		if(message.length > 0 && $.type(arParams) === "array" && arParams.length > 0) {
 			arParams.forEach(function(param, i){
 				message = message.replace("{"+i+"}", param);
-			});	
-			return message;					
+			});				
 		}
 		return message;	
 	}
@@ -420,9 +427,37 @@ window.citrusValidator = function (form, events) {
 			messageText +="";
 			if(messageText.length > 0) {
 				obMessages[messageName] = messageText;
-				return "Сообщение " + messageName + " установлено.";
+				return true;
 			}
 		}	
+	}
+	validator.getRule = function(ruleName){		
+		if( !ruleName ) return obRules;
+		return obRules[ruleName] || validator._getRule(ruleName) || false;
+	}
+	validator.setRule = function(ruleName, fn){		
+		if(!ruleName || !$.isFunction(fn) ) return;
+		obRules[ruleName] = fn;
+		return true;
+	}
+	validator.getEvent = function(eventName){
+		if( !eventName ) return obEvents;
+		return obEvents[eventName] || _getEvent(eventName) || false;
+	}
+	validator.setEvent = function(eventName, fn){
+		if(!eventName || !$.isFunction(fn) ) return;
+		obEvents[eventName] = fn;
+	}
+	validator.setEvents = function(obEvents){
+		if( $.type(obEvents) !== "object" && !$.isEmptyObject(obEvents)) return;
+		for (var eventName in obEvents) {
+			this._setEvent(eventName, obEvents[eventName]);
+		}
+		return true;
+	}
+	validator.callEvent = function(eventName, arg){
+		if( !eventName ) return;
+		this.getEvent(eventName).call(this, arg);
 	}
 
 
@@ -439,10 +474,11 @@ window.citrusValidator = function (form, events) {
 		var validRulesLength = +validArray.length;			
 		//errors будет хранить ошибки
 		field.errors = Array();
-		validArray.forEach(function(ruleName, i, arr) {
+		validArray.forEach(function(ruleName, i, arr) {			
+			var fnRule = validator.getRule(ruleName);
 			//если нет такого правила пишем ошибку
-			if(!rules.hasOwnProperty(ruleName)) {
-				console.log("citrusValidate: Нет правила для "+ruleName);
+			if(!fnRule) {
+				console.log("citrusValidator: Нет правила для "+ruleName);
 				if(!(--validRulesLength)) {					
 					if(field.isValid !== false ) {
 						field.data("isvalid", true);
@@ -451,9 +487,9 @@ window.citrusValidator = function (form, events) {
 					callback(field);
 				}
 				return true;
-			}			
+			}
 			//вызываем правило, колбэком проверям все ли правила проверены. Если все то вызываем событие
-			rules[ruleName].call( validator, field, action, function(field, errors){
+			fnRule.call( validator, field, action, function(field, errors){
 				var arErrors = errors || Array();
 				if($.type(arErrors) === "string") arErrors = Array(arErrors);
 				arErrors.forEach(function(error){
@@ -463,15 +499,15 @@ window.citrusValidator = function (form, events) {
 				if(!(--validRulesLength)) {
 					//errorHandler
 					if (field.errors.length > 0 ) {
-						if(action) validator.events.addFieldError(field);
+						if(action) validator.callEvent("addFieldError", field);
 						field.isValid = false;
 					} else {
 						var inputType = field.attr("type");
 						if(action) {
 							if(inputType !== "checkbox" && inputType !== "radio" &&  !field.val()) {
-								validator.events.clearField(field);
+								validator.callEvent("clearField", field);
 							}else {
-								validator.events.removeFieldError(field);
+								validator.callEvent("removeFieldError", field);
 							}
 						}						
 						field.isValid = true;
@@ -504,7 +540,7 @@ window.citrusValidator = function (form, events) {
 				}
 				if(!(--countFields)) {
 					callback(validator.jqForm);
-					if(action) validator.events.afterFormValidate(validator.jqForm);
+					if(action) validator.callEvent("afterFormValidate", validator.jqForm);
 				}				
 			} else {
 				validator.validateField(field, action, function(field){
@@ -514,7 +550,7 @@ window.citrusValidator = function (form, events) {
 					}
 					if(!(--countFields)) {
 						callback(validator.jqForm);
-						if(action) validator.events.afterFormValidate(validator.jqForm);
+						if(action) validator.callEvent("afterFormValidate", validator.jqForm);
 					}
 				});	
 			}					 
@@ -543,9 +579,9 @@ window.citrusValidator = function (form, events) {
 
   			if (field.data("valid").indexOf("important")+1) {
   				if(!validator.checkImportant()) {
-					validator.events.lockForm(validator.jqForm);
+					validator.callEvent("lockForm", validator.jqForm);
 				} else {
-					validator.events.unlockForm(validator.jqForm);
+					validator.callEvent("unlockForm", validator.jqForm);
 				}
 				return;
   			}  			
@@ -560,7 +596,7 @@ window.citrusValidator = function (form, events) {
 			validator.validateForm();
 		});
 		//проверка полей important
-		if(!validator.checkImportant(validator.jqForm)) validator.events.lockForm(validator.jqForm);
+		if(!validator.checkImportant(validator.jqForm)) validator.callEvent("lockForm", validator.jqForm);
   	})();
 }
 
