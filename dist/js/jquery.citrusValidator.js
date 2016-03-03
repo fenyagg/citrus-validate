@@ -3,13 +3,31 @@
  * https://github.com/fenyagg/citrus-validate
  */
 
+<<<<<<< HEAD:dist/js/jquery.citrusValidator.js
+=======
+
+/* ===== Вспомогательные функции для конирования объектов и функций.
+Function.prototype.clone = function() {
+    var fct = this;
+    var clone = function() {
+        return fct.apply(this, arguments);
+    };
+    clone.prototype = fct.prototype;
+    for (property in fct) {
+        if (fct.hasOwnProperty(property) && property !== 'prototype') {
+            clone[property] = fct[property];
+        }
+    }
+    return clone;
+};
+>>>>>>> origin/master:jquery.citrusValidator.js
 function clone(obj){
     if(obj == null || typeof(obj) != 'object') return obj;    
     var temp = new obj.constructor(); 
     for(var key in obj)
         temp[key] = clone(obj[key]);
     return temp;
-}
+}*/
 
 ;(function( $ ){
 	"use strict";
@@ -140,7 +158,6 @@ var obRules = {
 			dataMaxlength = field.data("maxlength"),
 			valLength = field.val().length,
 			errors = false;
-		console.log(dataMaxlength);
 		if(typeof dataMinlength !== "undefined" && typeof dataMaxlength !== "undefined") {
 			if(valLength > dataMaxlength || valLength < dataMinlength) {
 				errors = this.getMessage("rangelength" , [dataMinlength, dataMaxlength]);
@@ -410,14 +427,14 @@ window.citrusValidator = function (form, params) {
 	if(!form || !form.length) return {};
 
 	var validator = this,
-		obRules = clone(validator._getRule()),
-		obMessages = clone(validator._getMessage()),
-		obEvents = clone(validator._getEvent());
+		obRules = Object.create(validator._getRule()),
+		obMessages = Object.create(validator._getMessage()),
+		obEvents = Object.create(validator._getEvent());
 
 	validator.jqForm = form;
 
   	validator.getMessage = function(messageName, arParams){
-  		var message = obMessages[messageName] || validator._getMessage(messageName) || "";
+  		var message = obMessages[messageName] || "";
 		if(message.length > 0 && $.type(arParams) === "array" && arParams.length > 0) {
 			arParams.forEach(function(param, i){
 				message = message.replace("{"+i+"}", param);
@@ -436,7 +453,7 @@ window.citrusValidator = function (form, params) {
 	}
 	validator.getRule = function(ruleName){		
 		if( !ruleName ) return obRules;
-		return obRules[ruleName] || validator._getRule(ruleName) || false;
+		return obRules[ruleName] || false;
 	}
 	validator.setRule = function(ruleName, fn){		
 		if(!ruleName || !$.isFunction(fn) ) return;
@@ -445,7 +462,7 @@ window.citrusValidator = function (form, params) {
 	}
 	validator.getEvent = function(eventName){
 		if( !eventName ) return obEvents;
-		return obEvents[eventName] || _getEvent(eventName) || false;
+		return obEvents[eventName] || false;
 	}
 	validator.setEvent = function(eventName, fn){
 		if(!eventName || !$.isFunction(fn) ) return;
