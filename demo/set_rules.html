@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>JQuery-validation demo | Bootstrap</title>
+	<meta charset="UTF-8">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+	<script src="../dist/js/jquery.citrusValidator.js"></script>
+	<link rel="stylesheet" href="../dist/css/validate.css">	
+</head>
+<body>
+
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				
+				<h1>Демки</h1>
+
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<h3>1. Добавим новое правило валидации</h3>
+						<form id="signupForm1" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="firstname1">Имя пользователя:<span class="red">*</span></label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="uname required" type="text" class="form-control" name="uname" placeholder="Имя пользователя" id="uname"/>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-9 col-sm-offset-4">
+									<button type="submit" class="btn btn-primary" name="signup1" value="Sign up">Валидация</button>
+								</div>
+							</div>
+						</form>
+						<script>
+							$(function() {
+								//вызов валидатора
+								var form = new citrusValidator($("#signupForm1"));
+
+								//добавим новое правило для проверки имени пользователя
+								citrusValidator.prototype._setMessage("uname", "Введите верное имя пользователя");
+								citrusValidator.prototype._setRules({
+									"uname": function(field, action, callback){
+										if(!field.val()) {callback(field); return true;};	
+										var errors = /^[А-яё][а-яё]+ [А-яё][а-яё]+$/.test(field.val()) ? "" : this.getMessage("uname");
+										callback(field, errors);
+									}
+								});
+							});	
+						</script>
+
+						<h3>2. Добавим имя в ошибку об не заполненном поле из атрибута placeholder</h3>
+						<form id="signupForm2" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="firstname1">Имя пользователя:<span class="red">*</span></label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="required" type="text" class="form-control" name="uname" placeholder="Имя пользователя"/>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-9 col-sm-offset-4">
+									<button type="submit" class="btn btn-primary" name="signup1" value="Sign up">Валидация</button>
+								</div>
+							</div>
+						</form>
+						<script>
+							$(function() {
+								//вызов валидатора
+								window.form = new citrusValidator($("#signupForm2"));
+								form.setMessage("required", "Пожалуйста заполните {0}.");
+								form.setRule("required", function(field, action, callback) {
+										var fieldNode = field.get(0);
+										var isValid = fieldNode.type === 'checkbox' ? fieldNode.checked : fieldNode.type === 'radio' ? $('[name="' + fieldNode.name + '"]:checked').length : $.trim(fieldNode.value) !== '';
+										var fieldName = field.attr("placeholder") || "поле";
+										var errors = isValid ? "" : this.getMessage("required", [fieldName.toLowerCase()]);
+										callback(field, errors);
+									});
+							});								
+						</script>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
