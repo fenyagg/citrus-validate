@@ -12,7 +12,7 @@
 	<script>
 		$(function() {
 			//вызов валидатора
-			var form = new citrusValidator($("#signupForm1"));
+			window.form = new citrusValidator($("#signupForm1"), {"submitBtn": ".js-submit"});
 		});	
 	</script>
 </head>
@@ -31,7 +31,7 @@
 							<div class="form-group">
 								<label class="col-sm-4 control-label" for="firstname1">Длина строки:<span class="red">*</span></label>
 								<div class="col-sm-6 input-container">
-									<input data-valid="length" type="text" class="form-control" name="uname" placeholder="" data-minlength="2" data-maxlength="6" id="length"/>
+									<input data-valid="length" type="text" class="form-control" name="uname" placeholder="от 2 до 6" data-minlength="2" data-maxlength="6" id="length"/>
 								</div>
 							</div>
 							<div class="form-group">
@@ -135,6 +135,7 @@
 
 							<div class="form-group">
 								<div class="col-sm-9 col-sm-offset-4">
+									<a href="javascript: void(0);" class="js-submit">Сабмит</a>
 									<button type="submit" class="btn btn-primary" name="signup1" value="Sign up">Валидация</button>
 								</div>
 							</div>
@@ -144,8 +145,5 @@
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript">
-
-	</script>
 </body>
 </html>

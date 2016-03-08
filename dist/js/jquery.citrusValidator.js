@@ -3,8 +3,6 @@
  * https://github.com/fenyagg/citrus-validate
  */
 
-<<<<<<< HEAD:dist/js/jquery.citrusValidator.js
-=======
 
 /* ===== Вспомогательные функции для конирования объектов и функций.
 Function.prototype.clone = function() {
@@ -31,6 +29,14 @@ function clone(obj){
 
 ;(function( $ ){
 	"use strict";
+
+if (!Object.create) {
+  Object.create = function(proto) {
+    function F() {}
+    F.prototype = proto;
+    return new F;
+  };
+}
 
 var obMessages = {
 	required: "Это поле необходимо заполнить.",
@@ -381,55 +387,69 @@ var proto = new function(){
 		}
 		if(!obMessages[messageName]) return obMessages;
 	}
-	this._setMessage = function(messageName, messageText){
-		if(messageName && messageName.length > 0 && messageText ) {
-			messageText +="";
-			if(messageText.length > 0) {
-				obMessages[messageName] = messageText;
+	this._setMessage = function(messages, messageText){
+		if(arguments.length === 1 && $.isPlainObject(messages) && !$.isEmptyObject(messages)) {
+			for (var prName in messages) {
+				if(typeof messages[prName] !== "string") return false;
+				obMessages[prName] = messages[prName];				
 			}
-		}
+			return true;
+		} else if( arguments.length === 2 && typeof messages === "string" && typeof messageText === "string") {
+			obMessages[messages] = messageText;
+			return true;
+		}		
+		return false;
 	}
 	this._getRule = function(ruleName){
 		if( !ruleName ) return obRules;
 		return obRules[ruleName] || false;
 	}
-	this._setRule = function(ruleName, fn){
-		if(!ruleName || !$.isFunction(fn) ) return;
-		obRules[ruleName] = fn;
-	}
-	this._setRules = function(obRules){
-		if( $.type(obRules) !== "object" && !$.isEmptyObject(obRules)) return;
-		for (var ruleName in obRules) {
-			this._setRule(ruleName, obRules[ruleName]);
-		}
+	this._setRule = function(rules, fn){
+		if(arguments.length === 1 && $.isPlainObject(rules) && !$.isEmptyObject(rules)) {
+			for (var prName in rules) {
+				if(!$.isFunction(rules[prName])) return false;
+				obRules[prName] = rules[prName];				
+			}
+			return true;
+		} else if( arguments.length === 2 && typeof rules === "string" && $.isFunction(fn)) {
+			obRules[rules] = fn;
+			return true;
+		}		
+		return false;
 	}
 	this._getEvent = function(eventName){
 		if( !eventName ) return obEvents;
 		return obEvents[eventName] || function(){};
 	}
-	this._setEvent = function(eventName, fn){
-		if(!eventName || !$.isFunction(fn) ) return;
-		obEvents[eventName] = fn;
-	}
-	this._setEvents = function(obEvents){
-		if( $.type(obEvents) !== "object" && !$.isEmptyObject(obEvents)) return;
-		for (var eventName in obEvents) {
-			this._setEvent(eventName, obEvents[eventName]);
-		}
-	}
-	
+	this._setEvent = function(events, fn){
+		if(arguments.length === 1 && $.isPlainObject(events) && !$.isEmptyObject(events)) {			
+			for (var prName in events) {
+				if(typeof prName !== "string" || !$.isFunction(events[prName])) return false;
+				obEvents[prName] = events[prName];				
+			}
+			return true;
+		} else if( arguments.length === 2 && typeof events === "string" && $.isFunction(fn)) {
+			obEvents[events] = fn;
+			return true;
+		}		
+		return false;
+	}	
 };
 
 /*
 * Конструктор валидатора. Для каждой формы будет свой объект.
 */
-window.citrusValidator = function (form, params) {	
+window.citrusValidator = function (form, options) {	
 	if(!form || !form.length) return {};
 
 	var validator = this,
 		obRules = Object.create(validator._getRule()),
 		obMessages = Object.create(validator._getMessage()),
 		obEvents = Object.create(validator._getEvent());
+
+	var settings = $.extend( {
+	      'submitBtn': ':submit'
+	    }, options);
 
 	validator.jqForm = form;
 
@@ -442,38 +462,52 @@ window.citrusValidator = function (form, params) {
 		}
 		return message;	
 	}
-	validator.setMessage = function(messageName, messageText){	
-		if(messageName && messageName.length > 0 && messageText ) {
-			messageText +="";
-			if(messageText.length > 0) {
-				obMessages[messageName] = messageText;
-				return true;
+	validator.setMessage = function(messages, messageText){
+		if(arguments.length === 1 && $.isPlainObject(messages) && !$.isEmptyObject(messages)) {
+			for (var prName in messages) {
+				if(typeof messages[prName] !== "string") return false;
+				obMessages[prName] = messages[prName];				
 			}
-		}	
+			return true;
+		} else if( arguments.length === 2 && typeof messages === "string" && typeof messageText === "string") {
+			obMessages[messages] = messageText;
+			return true;
+		}		
+		return false;
 	}
 	validator.getRule = function(ruleName){		
 		if( !ruleName ) return obRules;
 		return obRules[ruleName] || false;
 	}
-	validator.setRule = function(ruleName, fn){		
-		if(!ruleName || !$.isFunction(fn) ) return;
-		obRules[ruleName] = fn;
-		return true;
+	validator.setRule = function(rules, fn){		
+		if(arguments.length === 1 && $.isPlainObject(rules) && !$.isEmptyObject(rules)) {
+			for (var prName in rules) {
+				if(!$.isFunction(rules[prName])) return false;
+				obRules[prName] = rules[prName];				
+			}
+			return true;
+		} else if( arguments.length === 2 && typeof rules === "string" && $.isFunction(fn)) {
+			obRules[rules] = fn;
+			return true;
+		}		
+		return false;
 	}
 	validator.getEvent = function(eventName){
 		if( !eventName ) return obEvents;
 		return obEvents[eventName] || false;
 	}
-	validator.setEvent = function(eventName, fn){
-		if(!eventName || !$.isFunction(fn) ) return;
-		obEvents[eventName] = fn;
-	}
-	validator.setEvents = function(obEvents){
-		if( $.type(obEvents) !== "object" && !$.isEmptyObject(obEvents)) return;
-		for (var eventName in obEvents) {
-			this._setEvent(eventName, obEvents[eventName]);
-		}
-		return true;
+	validator.setEvent = function(obEvents){
+		if(arguments.length === 1 && $.isPlainObject(events) && !$.isEmptyObject(events)) {			
+			for (var prName in events) {
+				if(typeof prName !== "string" || !$.isFunction(events[prName])) return false;
+				obEvents[prName] = events[prName];				
+			}
+			return true;
+		} else if( arguments.length === 2 && typeof events === "string" && $.isFunction(fn)) {
+			obEvents[events] = fn;
+			return true;
+		}		
+		return false;
 	}
 	validator.callEvent = function(eventName, arg){
 		if( !eventName ) return;
@@ -532,7 +566,9 @@ window.citrusValidator = function (form, params) {
 						}						
 						field.isValid = true;
 					}
-					field.data("isvalid", field.isValid);
+					field.data("isvalid", field.isValid);					
+					if(!field.data("validate-trigger") && !field.is(":checkbox")) 
+						field.data("validate-trigger", "keyup");
 					callback(field);
 				}
 			});							
@@ -578,7 +614,6 @@ window.citrusValidator = function (form, params) {
   	}  	
   	validator.checkImportant = function(){  		
 		var important_fields = validator.jqForm.find("[data-valid*='important']");
-
 		var important_valid = true;
 		if(important_fields.length > 0) {			
 			important_fields.each(function(index, el) {
@@ -591,7 +626,7 @@ window.citrusValidator = function (form, params) {
   	}
   	//init
   	;(function(){
-  		//обрабатываются события change и keyup. По умолчанию change меняется на keyup после первой валидации. Можно установить через data-validate-trigger у каждого поля
+  		//обрабатываются события change и keyup. По умолчанию change меняется на keyup после первой валидации. Можно установить через data-validate-trigger у каждого поля  		
   		validator.jqForm.on('change keyup', '[data-valid]', function(event) {
   			var field = $(this);
   			var validateTrigger = field.data("validate-trigger") || "change";
@@ -605,13 +640,11 @@ window.citrusValidator = function (form, params) {
 				}
 				return;
   			}  			
-  			validator.validateField($(this), true, function(field){
-  				if(!field.data("validate-trigger")) field.data("validate-trigger", "keyup");
-  			});
+  			validator.validateField($(this));
   		});
 		
 		//обрабаываем сабмит
-		validator.jqForm.on('click', ":submit", function(event) {
+		validator.jqForm.on('click', settings.submitBtn, function(event) {
 			event.preventDefault();
 			validator.validateForm();
 		});
