@@ -496,7 +496,7 @@ window.citrusValidator = function (form, options) {
 		if( !eventName ) return obEvents;
 		return obEvents[eventName] || false;
 	}
-	validator.setEvent = function(obEvents){
+	validator.setEvent = function(events, fn){
 		if(arguments.length === 1 && $.isPlainObject(events) && !$.isEmptyObject(events)) {			
 			for (var prName in events) {
 				if(typeof prName !== "string" || !$.isFunction(events[prName])) return false;
