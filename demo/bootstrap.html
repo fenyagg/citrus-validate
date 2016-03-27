@@ -31,20 +31,20 @@
 							<div class="form-group">
 								<label class="col-sm-4 control-label" for="firstname1">Длина строки:<span class="red">*</span></label>
 								<div class="col-sm-6 input-container">
-									<input data-valid="length" type="text" class="form-control" name="uname" placeholder="от 2 до 6" data-minlength="2" data-maxlength="6" id="length"/>
+									<input data-valid="length" data-valid-params = '{"minlength":2,"maxlength":6}' type="text" class="form-control" name="uname" placeholder="от 2 до 6" id="length"/>
 								</div>
 							</div>
 							<div class="form-group">
 								<label class="col-sm-4 control-label" for="firstname1">Имя (аякс проверка):<span class="red">*</span></label>
 								<div class="col-sm-6 input-container">
-									<input data-valid="ajax required" data-ajax-url="ajax.php" data-validate-trigger ="change" type="text" class="form-control" name="firstname" placeholder="Аякс проверка"  id="ajax"/>
+									<input data-valid="ajax required" data-valid-params = '{"ajaxUrl":"ajax.php", "trigger": "change", "lockOnValid": true}' data-ajax-url="ajax.php" data-validate-trigger ="change" type="text" class="form-control" name="firstname" placeholder="Аякс проверка"  id="ajax"/>
 								</div>
 							</div>
 							
 							<div class="form-group">
 								<label class="col-sm-4 control-label" for="firstname1">Телефон:<span class="red">*</span></label>
 								<div class="col-sm-6 input-container">
-									<input data-valid="phone required" type="text" class="form-control" name="phone" placeholder="99-99-99 или +7 (999) 999-99-99" id="phone"/>
+									<input data-valid="phone required" data-valid-params = '{"ajax-url":"ajax.php"}' type="text" class="form-control" name="phone" placeholder="99-99-99 или +7 (999) 999-99-99" id="phone"/>
 								</div>
 							</div>
 							<div class="form-group">
@@ -57,7 +57,7 @@
 							<div class="form-group">
 								<label class="col-sm-4 control-label" for="firstname1">Число (не менее 100 и не более 1000): </label>
 								<div class="col-sm-6 input-container">
-									<input data-valid="number" type="text" class="form-control" name="number1" min="100" max="1000" placeholder="Число" />
+									<input data-valid="number" type="text" class="form-control" name="number1" data-valid-params='{"min": 100, "max":1000}'  placeholder="Число" />
 								</div>
 							</div>
 							<div class="form-group">
@@ -75,7 +75,7 @@
 							<div class="form-group">
 								<label class="col-sm-4 control-label" for="email">Email: <span class="red">*</span></label>
 								<div class="col-sm-6 input-container">
-									<input data-valid="email required" type="email" class="form-control" name="email1" placeholder="example@mail.ru" />
+									<input data-valid="email required" type="email" class="form-control" name="email1" placeholder="example@mail.ru" id="email"/>
 								</div>
 							</div>
 							<div class="form-group">
