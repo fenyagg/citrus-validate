@@ -80,6 +80,21 @@ var obRules = {
 	},
 	//поля important блокируют submit если не проходят валидацию
 	"important" : function(Vfield, callback) {
+
+		//соберем все important поля
+		var arImportant = form.filterField(function(Vfield){return $.inArray( "important", Vfield.arRules)+1}),
+			isImportantValid = true;
+
+		arImportant.forEach(function(Vfield){			
+			//удалим правило important из проверки чтобы не зациклить и проверим на валидность
+			var rules = Vfield.arRules.slice();
+			rules.splice($.inArray( "important", Vfield.arRules),1);
+			
+			form.checkFieldRules(Vfield, rules, function(Vfield, arErrors){
+				if(arErrors.length) isImportantValid = false;
+			});
+		});
+		this.callEvent(isImportantValid ? "unlockForm": "lockForm");
 		callback(Vfield);
 	},
 	//Все телефоны России (федеральные и коротие) +7 111 111 11 11 или 11-11-11 (макс 11цифр)
@@ -536,63 +551,38 @@ window.citrusValidator = function (form, options) {
 	* ====================	Основные функции плагина ====================
 	*/
 	//VarField массив из функции getField
-  	validator.validateField = function(VarField, action, callback){
+  	validator.validateField = function(VarField, callback){
   		var VarField = $.isArray(VarField) ? VarField : Array(VarField),
-  			action = action === undefined ? true : action,
   			callback = callback || function(){};
 
   		VarField.forEach(function(Vfield){
   			if(Vfield.params.lockOnValid) validator.callEvent("lockField", Vfield.$el);
 
-  			var arRulesLength = Vfield.arRules.length,
-  				arErrors = Array(),
-  				isValid;
+  			validator.checkFieldRules(Vfield, false, function(Vfield, arErrors){
+  				if(Vfield.params.lockOnValid) validator.callEvent("unlockField", Vfield.$el);
+  				Vfield.errors = arErrors;
+  				if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox") ) Vfield.params.trigger = "keyup";
 
-  			Vfield.arRules.forEach(function(rule) {
+	  			if (arErrors.length > 0 ) {
+					validator.callEvent("addFieldError", Vfield.$el, arErrors);
+					Vfield.isValid = false;
+				} else {
+					var inputType = Vfield.$el.attr("type");
+					if(inputType !== "checkbox" && inputType !== "radio" &&  !Vfield.$el.val()) {
+						validator.callEvent("clearField", Vfield.$el);
+						Vfield.isValid = "undefined";
+					}else {
+						validator.callEvent("removeFieldError", Vfield.$el);
+						Vfield.isValid = true;
+					};
+				}
 
-  				var fnRule = validator.getRule(rule);  				
-	  			if(!fnRule || !$.isFunction(fnRule)) {
-	  				console.log("citrusValidator: Нет правила '"+rule+ "'"); return;
-
-	  				if(!(--arRulesLength)) {	
-	  					callback(Vfield, arErrors);
-	  				}
-	  				return;
-	  			}
-
-	  			fnRule.call( validator, Vfield, function(Vfield, errors){
-	  				if(!!errors) arErrors[arErrors.length] = errors;
-
-	  				
-	  				//если последнее правило
-	  				if(!(--arRulesLength)) {
-	  					if(Vfield.params.lockOnValid) validator.callEvent("unlockField", Vfield.$el);
-	  					Vfield.errors = arErrors;
-	  					if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox") ) Vfield.params.trigger = "keyup";
-
-	  					if (arErrors.length > 0 ) {
-							if(action) validator.callEvent("addFieldError", Vfield.$el, arErrors);
-							Vfield.isValid = false;
-						} else {
-							var inputType = Vfield.$el.attr("type");
-							if(inputType !== "checkbox" && inputType !== "radio" &&  !Vfield.$el.val()) {
-								if(action) validator.callEvent("clearField", Vfield.$el);
-								Vfield.isValid = "undefined";
-							}else {
-								if(action) validator.callEvent("removeFieldError", Vfield.$el);
-								Vfield.isValid = true;
-							};
-						}
-
-	  					callback(Vfield, arErrors);
-	  				}				
-	  			});
-
-	  		});	
+				callback(Vfield);
+	  		});
   		});		
   	};
 
-  	validator.checkFieldRules = function( VarField, arRules, callback ){
+  	validator.checkFieldRules = function( VarField, arRules, callback){
   		var VarField = $.isArray(VarField) ? VarField : Array(VarField);
   		var paramArRules = arRules || false;
 
@@ -629,24 +619,24 @@ window.citrusValidator = function (form, options) {
   	* каждое поле с атрибутом data-valid отправляет в валидацию поля. По окончанию callback(form)
   	* @action = если false не выводит никаких сообщений, только срабатывает callback(form) 
   	*/
-  	validator.validateForm = function( callback ){
+  	validator.validateForm = function( callback){
   		var callback = callback || function(){};
   		//сбор полей для валидации
 	    var countFields = validator.fields.length;
 	    validator.isValid = true;
 	    if( !countFields ) {callback(validator); return true};
 
-		validator.fields.forEach(function(Vfield) {			
-			if( Vfield.isValid !== undefined ) {		
+		validator.fields.forEach(function(vField) {			
+			if( vField.isValid !== undefined ) {		
 				
-				if(!Vfield.isValid) validator.isValid = false;
+				if(!vField.isValid) validator.isValid = false;
 				if(!(--countFields)) {
 					callback(validator);
 					validator.callEvent("afterFormValidate");
 				}
 			} else {
-				validator.validateField(Vfield, true, function(Vfield){
-					if(!Vfield.isValid) validator.isValid = false;
+				validator.validateField(vField, function(vField){
+					if(!vField.isValid) validator.isValid = false;
 					if(!(--countFields)) {
 						callback(validator);
 						validator.callEvent("afterFormValidate");
@@ -655,21 +645,14 @@ window.citrusValidator = function (form, options) {
 			}				 
 		});
   	}
-  	validator.checkImportant = function(){
-  		var important_fields = validator.filterField(function(field){return !!field.params["important"]});
-
+  	validator.checkImportant = function(){  		
+		var important_fields = validator.$form.find("[data-valid*='important']");
 		var important_valid = true;
 		if(important_fields.length > 0) {			
-			important_fields.forEach(function(Vfield) {
-
-				if( Vfield.isValid !== undefined ) {
-					if ( !Vfield.isValid ) important_valid = false;
-					return;
-				} else {
-					validator.validateField(Vfield, false, function(Vfield) {
-						if ( !Vfield.isValid ) important_valid = false;
-					});
-				}
+			important_fields.each(function(index, el) {
+				validator.validateField($(this), false, function(field) {
+					if (field.errors.length > 0 ) important_valid = false;
+				});
 			});
 		}
 		return important_valid;
@@ -710,13 +693,7 @@ window.citrusValidator = function (form, options) {
 				var validateTrigger = field["params"]["trigger"] || "change";
 				if( validateTrigger.indexOf(event.type) < 0  ) return;
 
-				var Vfield = validator.getField($(this));
-				
-				validator.validateField(Vfield, true, function(Vfield){
-					if(!!Vfield.params.important) {
-						validator.callEvent(validator.checkImportant() ? "unlockForm":"lockForm");
-					}
-				});
+				validator.validateField(validator.getField($(this)));
 			});
   		});
   	}
@@ -731,8 +708,7 @@ window.citrusValidator = function (form, options) {
 			event.preventDefault();
 			validator.validateForm();
 		});
-		//проверка полей important
-		if(!validator.checkImportant()) validator.callEvent("lockForm");
+		
   	})();
 }
 
