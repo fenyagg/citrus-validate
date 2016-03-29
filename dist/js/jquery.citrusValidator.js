@@ -64,6 +64,7 @@ var obMessages = {
 	inn_f: "Введите корректный ИНН физ лица.",
 	ogrn: "Введите корректный ОГРН.",
 	kpp: "Введите корректный КПП.",
+	filetype: "Не верный тип файла. Возможные типы: {0}."
 }	
 //отчищает строку от (), пробелов, -
 function clearString(string){
@@ -71,6 +72,24 @@ function clearString(string){
 }
 // Правила валидации
 var obRules = {
+	"file" : function(Vfield, callback) {
+		var field = Vfield.$el;
+		if(!field.val()) {callback(Vfield); return true;};
+
+		var ifTypeValid = true;
+		for (var i = 0; i < field.get(0).files.length; i++) {
+			var file = field[0].files[i];
+			if ('name' in file) {				
+				var ext = file.name.split(".");
+				ext = ext[ext.length-1].toLocaleLowerCase();
+				console.log(Vfield.params.filetype.indexOf(ext));
+				if( ! (Vfield.params.filetype.indexOf(ext)+1) ) ifTypeValid = false;
+			}
+		}
+		
+		var errors = ifTypeValid ? "" : this.getMessage("filetype", [Vfield.params.filetype]);
+		callback(Vfield, errors);
+	},
 	"required" : function(Vfield, callback) {
 		var fieldNode = Vfield.$el.get(0);
 		var isValid = fieldNode.type === 'checkbox' ? fieldNode.checked : fieldNode.type === 'radio' ? $('[name="' + fieldNode.name + '"]:checked').length : $.trim(fieldNode.value) !== '';
@@ -552,23 +571,39 @@ window.citrusValidator = function (form, options) {
 
   				var fnRule = validator.getRule(rule);  				
 	  			if(!fnRule || !$.isFunction(fnRule)) {
-	  				console.log("citrusValidator: Нет правила '"+rule+ "'"); return;
+	  				console.log("citrusValidator: Нет правила '"+rule+ "'");
 
-	  				if(!(--arRulesLength)) {	
-	  					callback(Vfield, arErrors);
+	  				if(!(--arRulesLength)) {
+	  					if(Vfield.params.lockOnValid) validator.callEvent("unlockField", Vfield.$el);
+	  					Vfield.errors = arErrors;
+	  					if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file") ) Vfield.params.trigger = "keyup";
+
+	  					if (arErrors.length > 0 ) {
+							if(action) validator.callEvent("addFieldError", Vfield.$el, arErrors);
+							Vfield.isValid = false;
+						} else {
+							var inputType = Vfield.$el.attr("type");
+							if(inputType !== "checkbox" && inputType !== "radio" &&  !Vfield.$el.val()) {
+								if(action) validator.callEvent("clearField", Vfield.$el);
+								Vfield.isValid = "undefined";
+							}else {
+								if(action) validator.callEvent("removeFieldError", Vfield.$el);
+								Vfield.isValid = true;
+							};
+						}
+	  					callback(Vfield, arErrors);	  					
 	  				}
 	  				return;
 	  			}
 
 	  			fnRule.call( validator, Vfield, function(Vfield, errors){
 	  				if(!!errors) arErrors[arErrors.length] = errors;
-
 	  				
 	  				//если последнее правило
 	  				if(!(--arRulesLength)) {
 	  					if(Vfield.params.lockOnValid) validator.callEvent("unlockField", Vfield.$el);
 	  					Vfield.errors = arErrors;
-	  					if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox") ) Vfield.params.trigger = "keyup";
+	  					if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file") ) Vfield.params.trigger = "keyup";
 
 	  					if (arErrors.length > 0 ) {
 							if(action) validator.callEvent("addFieldError", Vfield.$el, arErrors);
@@ -687,8 +722,8 @@ window.citrusValidator = function (form, options) {
   		return validator.fields.filter(fn);
   	}
 
-  	validator.addField = function($fields, arRules, params){  		
-  		if(!$fields || $.type($fields) !=="object" || !($fields instanceof jQuery) || !$fields.length ) throw new Error("citrusValidator: ошибка в аргументе $fields");
+  	validator.addField = function($fields, arRules, params){
+  		if(!$fields || $.type($fields) !=="object" || !$fields.length ) throw new Error("citrusValidator: ошибка в аргументе $fields");
 
   		$fields.each(function(index, el) {
   			if(validator.getField($(el)).length) {
@@ -722,7 +757,7 @@ window.citrusValidator = function (form, options) {
   	}
   	//init
   	;(function(){
-  		validator.$form.find('[data-valid]').each(function(index, el) {  			
+  		validator.$form.find('[data-valid]').each(function(index, el) {
   			validator.addField($(el), $(el).data("valid").split(" "), $(el).data("valid-params"));
   		});
 		
