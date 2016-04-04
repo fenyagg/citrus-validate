@@ -355,8 +355,8 @@ var obRules = {
 var obEvents = {
 	addFieldError: function($field, arErrors){
 		var input_container = $field.parents(".input-container");
-  		if(!$field.hasClass('error-field')) {
-			$field.addClass('error-field');
+
+  		if(!input_container.hasClass('has-error')) {
 			input_container.addClass('has-error')
 							.removeClass('has-success');
 		}
@@ -376,8 +376,7 @@ var obEvents = {
 	clearField: function($field) {
 		$field.removeClass('error-field');
 		$field.parents(".input-container").removeClass('has-error')
-										 .removeClass('has-success')
-									 	 .find(".error").remove();
+										 .removeClass('has-success');
 	},
 	lockField: function($field) {
 		this.callEvent("clearField", $field);
