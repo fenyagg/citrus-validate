@@ -390,13 +390,37 @@ var obEvents = {
 	lockForm: function(form){
 		var v = this;
 		v.$form.find(v.settings['submitBtn']).attr("disabled", "disabled");
+		v.$form.find(":submit").attr("disabled", "disabled");
   	},
   	unlockForm: function(form){
   		var v = this;
   		v.$form.find(v.settings['submitBtn']).removeAttr("disabled");
+  		v.$form.find(":submit").removeAttr("disabled");
   	},
   	afterFormValidate: function(){
   		if(this.isValid) this.$form.submit();
+  	},
+  	scrollToFirstError: function(){
+  		var errorFileds = form.filterField(function(field){return field.isValid === false});
+  		if(!errorFileds.length) return;
+
+  		var topField,
+  			smallestOffsetTop = 0;
+
+  		//поиск самого первого элемента с ошибкой  и фокус на нем
+  		errorFileds.forEach(function(field, i){
+  			var offsetTop = field.$el.offset().top;
+  			if(!smallestOffsetTop || smallestOffsetTop > offsetTop){
+  				smallestOffsetTop = offsetTop;
+  				topField = field;
+  			}  				
+  		});
+  		if(smallestOffsetTop) {
+  			$('body').animate({scrollTop: smallestOffsetTop-20}, 100, "swing", function(){
+  				topField.$el.focus();
+  			});  			
+  		}
+  		
   	}
 }
 /*
@@ -547,6 +571,7 @@ window.citrusValidator = function (form, options) {
 	validator.callEvent = function(eventName, arg1, arg2){
 		if( !eventName ) return;
 		this.getEvent(eventName).call(this, arg1, arg2);
+		return this;
 	}
 
 
@@ -677,6 +702,7 @@ window.citrusValidator = function (form, options) {
 				if(!(--countFields)) {
 					callback(validator);
 					validator.callEvent("afterFormValidate");
+					validator.callEvent("scrollToFirstError");
 				}
 			} else {
 				validator.validateField(Vfield, true, function(Vfield){
@@ -684,6 +710,7 @@ window.citrusValidator = function (form, options) {
 					if(!(--countFields)) {
 						callback(validator);
 						validator.callEvent("afterFormValidate");
+						validator.callEvent("scrollToFirstError");
 					}
 				});	
 			}				 
@@ -765,6 +792,12 @@ window.citrusValidator = function (form, options) {
 			event.preventDefault();
 			validator.validateForm();
 		});
+		//обработка нажатий enter в форме если submitBtn != :submit . Эмулируем клик.
+		if (validator.settings.submitBtn !== ":submit") {
+			validator.$form.on('keypress' , function(e){
+				if(e.keyCode==13) validator.$form.find(validator.settings.submitBtn).click();
+			});
+		};
 		//проверка полей important
 		if(!validator.checkImportant()) validator.callEvent("lockForm");
   	})();
