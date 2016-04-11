@@ -414,13 +414,8 @@ var obEvents = {
   				smallestOffsetTop = offsetTop;
   				topField = field;
   			}  				
-  		});
-  		if(smallestOffsetTop) {
-  			$('body').animate({scrollTop: smallestOffsetTop-20}, 100, "swing", function(){
-  				topField.$el.focus();
-  			});  			
-  		}
-  		
+  		});  		 			
+  		topField.$el.focus();
   	}
 }
 /*
@@ -794,8 +789,11 @@ window.citrusValidator = function (form, options) {
 		});
 		//обработка нажатий enter в форме если submitBtn != :submit . Эмулируем клик.
 		if (validator.settings.submitBtn !== ":submit") {
-			validator.$form.on('keypress' , function(e){
-				if(e.keyCode==13) validator.$form.find(validator.settings.submitBtn).click();
+			validator.$form.on('keypress' , function(event){				
+				if(event.keyCode==13) {
+					event.preventDefault();
+					validator.validateForm();
+				}
 			});
 		};
 		//проверка полей important
