@@ -402,20 +402,7 @@ var obEvents = {
   	},
   	scrollToFirstError: function(){
   		var errorFileds = form.filterField(function(field){return field.isValid === false});
-  		if(!errorFileds.length) return;
-
-  		var topField,
-  			smallestOffsetTop = 0;
-
-  		//поиск самого первого элемента с ошибкой  и фокус на нем
-  		errorFileds.forEach(function(field, i){
-  			var offsetTop = field.$el.offset().top;
-  			if(!smallestOffsetTop || smallestOffsetTop > offsetTop){
-  				smallestOffsetTop = offsetTop;
-  				topField = field;
-  			}  				
-  		});  		 			
-  		topField.$el.focus();
+  		if(errorFileds.length) errorFileds[0].$el.focus();
   	}
 }
 /*
