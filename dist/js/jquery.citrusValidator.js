@@ -82,7 +82,6 @@ var obRules = {
 			if ('name' in file) {
 				var ext = file.name.split(".");
 				ext = ext[ext.length-1].toLocaleLowerCase();
-				console.log(Vfield.params.filetype.indexOf(ext));
 				if( ! (Vfield.params.filetype.indexOf(ext)+1) ) ifTypeValid = false;
 			}
 		}
@@ -493,7 +492,7 @@ window.citrusValidator = function (form, options) {
 	    }, options);
 
 	validator.$form = form;
-	validator.fields = Array();	
+	validator.fields = Array();
 	validator.isLocked = false;
 
   	validator.getMessage = function(messageName, arParams){
