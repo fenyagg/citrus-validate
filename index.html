@@ -1,11 +1,155 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>JQuery citrusvalidatior</title>
+	<title>JQuery-validation demo | Bootstrap</title>
 	<meta charset="UTF-8">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+	<script src="dist/js/jquery.citrusValidator.js"></script>
+	<link rel="stylesheet" href="dist/css/validate.css">
+	<script>
+		$(function() {
+			//вызов валидатора
+			window.form = new citrusValidator($("#signupForm1"), {"submitBtn": ".js-submit"});
+		});	
+	</script>
 </head>
 <body>
-	<h1>Валидатор CitrusValidator jQuery Plugin</h1>
 
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-12">
+				
+				<h1>Валидация полей</h1>
+
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<form id="signupForm1" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="firstname1">Длина строки:<span class="red">*</span></label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="length" data-valid-params = '{"minlength":2,"maxlength":6}' type="text" class="form-control" name="uname" placeholder="от 2 до 6" id="length"/>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="firstname1">Имя (аякс проверка):<span class="red">*</span></label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="ajax required" data-valid-params = '{"ajaxUrl":"ajax.php", "trigger": "change", "lockOnValid": true}' data-ajax-url="ajax.php" data-validate-trigger ="change" type="text" class="form-control" name="firstname" placeholder="Аякс проверка"  id="ajax"/>
+								</div>
+							</div>
+							
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="firstname1">Телефон:<span class="red">*</span></label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="phone required" data-valid-params = '{"ajax-url":"ajax.php"}' type="text" class="form-control" name="phone" placeholder="99-99-99 или +7 (999) 999-99-99" id="phone"/>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="firstname1">Федеральный номер телефона:<span class="red">*</span></label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="phone_full required" type="text" class="form-control"  name="phone1" placeholder="+7 (999) 999-99-99"/>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="firstname1">Число (не менее 100 и не более 1000): </label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="number" type="text" class="form-control" name="number1" data-valid-params='{"min": 100, "max":1000}'  placeholder="Число" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="password1">Пароль:<span class="red">*</span></label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="main_password required" type="password" placeholder="Пароль" name="pass" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="confirm_password1">Повтор пароля</label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="confirm_password" type="password" placeholder="Повторите пароль" name="pass_confirm" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="email">Email: <span class="red">*</span></label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="email required" type="email" class="form-control" name="email1" placeholder="example@mail.ru" id="email"/>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label " for="url">URL</label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="url" type="text" class="form-control" name="url" placeholder="http://example.ru" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="url">ИНН</label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="inn" type="text" class="form-control" name="inn" placeholder="1234567894" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="url">ИНН юр лица</label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="inn_u" type="text" class="form-control" name="inn_u" placeholder="1234567894" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="url">ИНН физ лица</label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="inn_f" type="text" class="form-control" name="inn_f" placeholder="054302743481" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="url">ОГРН</label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="ogrn" type="text" class="form-control" name="ogrn" placeholder="5077746887312" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="kpp">КПП</label>
+								<div class="col-sm-6 input-container">
+									<input data-valid="kpp" type="text" class="form-control" name="kpp" placeholder="773301001" />
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label" for="kpp">Сообщение</label>
+								<div class="col-sm-6 input-container">
+									<textarea class="form-control" name="big_text" id="" cols="30" rows="10"></textarea>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-5 col-sm-offset-4">
+									<div class="checkbox input-container">
+										<label>
+											<input data-valid="required" data-valid-params='{"important":1}' type="checkbox" id="agree1" name="agree12" value="agree" />Пока не тыкнешь кнопка не активна
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-5 col-sm-offset-4">
+									<div class="checkbox input-container">
+										<label>
+											<input data-valid="required" data-valid-params='{"important":1}' type="checkbox" id="agree2" name="agree22" value="agree" />Пока не тыкнешь кнопка не активна 2
+										</label>
+									</div>
+								</div>
+							</div>				
+
+							<div class="form-group">
+								<div class="col-sm-9 col-sm-offset-4">
+									<a href="javascript: void(0);" class="js-submit">Сабмит</a>
+									<button type="submit" class="btn btn-primary" name="signup1" value="Sign up">Валидация</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </body>
 </html>

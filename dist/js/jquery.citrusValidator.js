@@ -389,13 +389,13 @@ var obEvents = {
 	},
 	lockForm: function(form){
 		var v = this;
-		v.$form.find(v.settings['submitBtn']).attr("disabled", "disabled");
-		v.$form.find(":submit").attr("disabled", "disabled");
+		v.isLocked = true;
+		this.$form.find(v.settings['submitBtn']).attr("disabled", "disabled");
   	},
   	unlockForm: function(form){
   		var v = this;
+  		v.isLocked = false;
   		v.$form.find(v.settings['submitBtn']).removeAttr("disabled");
-  		v.$form.find(":submit").removeAttr("disabled");
   	},
   	afterFormValidate: function(){
   		if(this.isValid) this.$form.submit();
@@ -493,7 +493,8 @@ window.citrusValidator = function (form, options) {
 	    }, options);
 
 	validator.$form = form;
-	validator.fields = Array();
+	validator.fields = Array();	
+	validator.isLocked = false;
 
   	validator.getMessage = function(messageName, arParams){
   		var message = obMessages[messageName] || "";
@@ -772,12 +773,12 @@ window.citrusValidator = function (form, options) {
 		//обрабаываем сабмит
 		validator.$form.on('click', validator.settings.submitBtn, function(event) {
 			event.preventDefault();
-			validator.validateForm();
+			if(!$(this).attr("disabled")) validator.validateForm();
 		});
-		//обработка нажатий enter в форме если submitBtn != :submit . Эмулируем клик.
+		//обработка нажатий enter в форме если submitBtn != :submit .
 		if (validator.settings.submitBtn !== ":submit") {
 			validator.$form.on('keypress' , function(event){
-				if(event.keyCode==13) {
+				if( event.keyCode == 13 && event.target.type !== "textarea") {
 					event.preventDefault();
 					validator.validateForm();
 				}
