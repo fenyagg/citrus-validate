@@ -353,6 +353,7 @@ var obRules = {
 //события по умолчанию
 var obEvents = {
 	addFieldError: function($field, arErrors){
+		console.log($field);
 		var input_container = $field.parents(".input-container");
 
   		if(!input_container.hasClass('has-error')) {
