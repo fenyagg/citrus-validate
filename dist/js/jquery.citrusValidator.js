@@ -583,7 +583,7 @@ window.citrusValidator = function (form, options) {
 	  				if(!(--arRulesLength)) {
 	  					if(Vfield.params.lockOnValid) validator.callEvent("unlockField", Vfield.$el);
 	  					Vfield.errors = arErrors;
-	  					if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file") ) Vfield.params.trigger = "keyup";
+	  					if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file, select") ) Vfield.params.trigger = "keyup";
 
 	  					if (arErrors.length > 0 ) {
 							if(action) validator.callEvent("addFieldError", Vfield.$el, arErrors);
@@ -610,7 +610,7 @@ window.citrusValidator = function (form, options) {
 	  				if(!(--arRulesLength)) {
 	  					if(Vfield.params.lockOnValid) validator.callEvent("unlockField", Vfield.$el);
 	  					Vfield.errors = arErrors;
-	  					if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file") ) Vfield.params.trigger = "keyup";
+	  					if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file, select") ) Vfield.params.trigger = "keyup";
 
 	  					if (arErrors.length > 0 ) {
 							if(action) validator.callEvent("addFieldError", Vfield.$el, arErrors);
