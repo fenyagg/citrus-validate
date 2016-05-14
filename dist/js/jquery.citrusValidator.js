@@ -1,5 +1,5 @@
 /*
- * CitrusValidator jQuery Plugin v0.3b
+ * CitrusValidator jQuery Plugin
  * https://github.com/fenyagg/citrus-validate
  */
 
@@ -479,8 +479,7 @@ var proto = new function(){
 * Конструктор валидатора. Для каждой формы будет свой объект.
 */
 window.citrusValidator = function (form, options) {
-	if(!form || form.length != 1) throw new Error("citrusValidator: Не верный аргумент вызова конструктора");
-
+	if(!form || form.length != 1) throw new Error("citrusValidator: ошибка в аргументе form");
 
 	var validator = this,
 		obRules = Object.create(validator._getRule()),
@@ -708,7 +707,7 @@ window.citrusValidator = function (form, options) {
 		});
   	}
   	validator.filterField = function(fn){
-  		if(!fn || !$.isFunction(fn)) return false;
+  		if(!fn || !$.isFunction(fn)) throw new Error("citrusValidator: ошибка в аргументе функции filterField");;
   		return validator.fields.filter(fn);
   	}
 
