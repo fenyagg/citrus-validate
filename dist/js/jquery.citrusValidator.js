@@ -58,7 +58,7 @@ var obMessages = {
 	max: "Пожалуйста, введите число, меньшее или равное {0}.",
 	min: "Пожалуйста, введите число, большее или равное {0}.",
 	phone: "Пожалуйста, введите корректный номер телефона.",
-	phone_full: "Пожалуйста, введите корректный номер телефона.",
+	phone_all: "Пожалуйста, введите корректный номер телефона.",
 	inn: "Введите корректный ИНН.",
 	inn_u: "Введите корректный ИНН юр лица.",
 	inn_f: "Введите корректный ИНН физ лица.",
@@ -101,24 +101,24 @@ var obRules = {
 		callback(Vfield);
 	},
 	//Все телефоны России (федеральные и коротие) +7 111 111 11 11 или 11-11-11 (макс 11цифр)
-	"phone" : function(Vfield, callback) {
+	"phone_all" : function(Vfield, callback) {
 		var field = Vfield.$el;
 		if(!field.val()) {callback(Vfield); return true;};
 
 		var value = clearString(field.val());
 		var isValid = value.length > 5 && /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{6,10}$/.test(value);
 
-		var errors = isValid ? "" : this.getMessage("phone");
+		var errors = isValid ? "" : this.getMessage("phone_all");
 		callback(Vfield, errors);
 	},
 	// телефоны России (начинаются на +7 или 8)
-	"phone_full" : function(Vfield, callback){
+	"phone" : function(Vfield, callback){
 		var field = Vfield.$el;
 		if(!field.val()) {callback(Vfield); return true;};
 		var value = clearString(field.val());
 		var isValid = value.length > 10 && /^(8|\+7){1}(\d{10})$/.test(value);
 
-		var errors = isValid ? "" : this.getMessage("phone_full");
+		var errors = isValid ? "" : this.getMessage("phone");
 		callback(Vfield, errors);
 	},
 	//post ajax запрос по пути ajax-url. Ответ строка с ошибкой
@@ -352,9 +352,8 @@ var obRules = {
 
 //события по умолчанию
 var obEvents = {
-	addFieldError: function($field, arErrors){
-		console.log($field);
-		var input_container = $field.parents(".input-container");
+	addFieldError: function($field, arErrors){		
+		var input_container = $field.parents(".input-container");		
 
   		if(!input_container.hasClass('has-error')) {
 			input_container.addClass('has-error')
@@ -402,7 +401,7 @@ var obEvents = {
   	},
   	scrollToFirstError: function(){
   		var errorFileds = this.filterField(function(field){return field.isValid === false});
-  		if(errorFileds.length) errorFileds[0].$el.focus();
+  		if(errorFileds.length) errorFileds[0].$el.first().focus();
   	}
 }
 /*
@@ -576,21 +575,17 @@ window.citrusValidator = function (form, options) {
 
   			Vfield.arRules.forEach(function(rule) {
 
-  				var fnRule = validator.getRule(rule);
-	  			if(!fnRule || !$.isFunction(fnRule)) {
-	  				console.log("citrusValidator: Нет правила '"+rule+ "'");
-
-	  				if(!(--arRulesLength)) {
+  				function onComplete () {
+  					if(!(--arRulesLength)) {
 	  					if(Vfield.params.lockOnValid) validator.callEvent("unlockField", Vfield.$el);
 	  					Vfield.errors = arErrors;
-	  					if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file, select") ) Vfield.params.trigger = "keyup";
+	  					if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file, :radio, select") ) Vfield.params.trigger = "keyup";
 
 	  					if (arErrors.length > 0 ) {
 							if(action) validator.callEvent("addFieldError", Vfield.$el, arErrors);
 							Vfield.isValid = false;
 						} else {
-							var inputType = Vfield.$el.attr("type");
-							if(inputType !== "checkbox" && inputType !== "radio" &&  !Vfield.$el.val()) {
+							if( !Vfield.$el.is(":checkbox, :radio") &&  !Vfield.$el.val()) {
 								if(action) validator.callEvent("clearField", Vfield.$el);
 								Vfield.isValid = "undefined";
 							}else {
@@ -600,36 +595,22 @@ window.citrusValidator = function (form, options) {
 						}
 	  					callback(Vfield, arErrors);
 	  				}
-	  				return;
+  				}
+
+  				var fnRule = validator.getRule(rule);
+	  			if(!fnRule || !$.isFunction(fnRule)) {
+	  				console.log("citrusValidator: Нет правила '"+rule+ "'");
+
+	  				onComplete();	  				
+	  				return true;
 	  			}
 
 	  			fnRule.call( validator, Vfield, function(Vfield, errors){
 	  				if(!!errors) arErrors[arErrors.length] = errors;
 
-	  				//если последнее правило
-	  				if(!(--arRulesLength)) {
-	  					if(Vfield.params.lockOnValid) validator.callEvent("unlockField", Vfield.$el);
-	  					Vfield.errors = arErrors;
-	  					if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file, select") ) Vfield.params.trigger = "keyup";
-
-	  					if (arErrors.length > 0 ) {
-							if(action) validator.callEvent("addFieldError", Vfield.$el, arErrors);
-							Vfield.isValid = false;
-						} else {
-							var inputType = Vfield.$el.attr("type");
-							if(inputType !== "checkbox" && inputType !== "radio" &&  !Vfield.$el.val()) {
-								if(action) validator.callEvent("clearField", Vfield.$el);
-								Vfield.isValid = "undefined";
-							}else {
-								if(action) validator.callEvent("removeFieldError", Vfield.$el);
-								Vfield.isValid = true;
-							};
-						}
-
-	  					callback(Vfield, arErrors);
-	  				}
+	  				onComplete();
 	  			});
-
+	  			return true;
 	  		});
   		});
   	};
@@ -734,21 +715,28 @@ window.citrusValidator = function (form, options) {
   	validator.addField = function($fields, arRules, params){
   		if(!$fields || $.type($fields) !=="object" || !$fields.length ) throw new Error("citrusValidator: ошибка в аргументе $fields");
 
-  		$fields.each(function(index, el) {
-  			if(validator.getField($(el)).length) {
-  				console.error("Поле с именем"+$(el).attr("name")+" уже добавлено");
+  		$fields.each(function(index, field) {
+  			var $el = $(this).prop("type") == "radio" ? $('[name="' + $(this).prop("name") + '"]') : $(this);
+
+  			//проверка на наличие уже в массиве этих полей
+  			var findedField = validator.getField($(field));
+  			if(findedField.length) {
+  				findedField = findedField[0];
+  				//если поле уже в массиве полей то сливаем правила и параметры	
+  				findedField.arRules = $.unique( $.merge( findedField.arRules, arRules) );
+  				findedField.params = $.extend( true, findedField.params, params );
   				return;
   			}
 
   			//собираем массив полей
 			validator.fields[validator.fields.length] = {
-				$el: $(this),
+				$el: $el,
 				arRules: arRules || Array(),
 				params: params || Array()
 			};
 
 			//обрабатываются события change и keyup. По умолчанию change меняется на keyup после первой валидации. Можно установить через data-validate-trigger у каждого поля
-			$(el).on('change keyup', function(event) {
+			$el.on('change keyup', function(event) {				
 				var field = validator.getField($(this))[0] || false;
 				if(!field) {console.error("Нет поля в массиве полей validator.fields");return;}
 				var validateTrigger = field["params"]["trigger"] || "change";
@@ -767,7 +755,7 @@ window.citrusValidator = function (form, options) {
   	//init
   	;(function(){
   		validator.$form.find('[data-valid]').each(function(index, el) {
-  			validator.addField($(el), $(el).data("valid").split(" "), $(el).data("valid-params"));
+  			validator.addField( $(el), $(el).data("valid").split(" "), $(el).data("valid-params") );
   		});
 
 		//обрабаываем сабмит

@@ -12,7 +12,7 @@
 	<script>
 		$(function() {
 			//вызов валидатора
-			window.form = new citrusValidator($("#signupForm1"), {"submitBtn": ".js-submit"});
+			window.form = new citrusValidator($("#signupForm1"));
 		});	
 	</script>
 </head>
@@ -24,7 +24,6 @@
 			<div class="col-sm-12">
 				
 				<h1>Валидация полей</h1>
-
 				<div class="panel panel-default">
 					<div class="panel-body">
 						<form id="signupForm1" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
@@ -44,13 +43,13 @@
 							<div class="form-group">
 								<label class="col-sm-4 control-label" for="firstname1">Телефон:<span class="red">*</span></label>
 								<div class="col-sm-6 input-container">
-									<input data-valid="phone required" data-valid-params = '{"ajax-url":"ajax.php"}' type="text" class="form-control" name="phone" placeholder="99-99-99 или +7 (999) 999-99-99" id="phone"/>
+									<input data-valid="phone_all required" data-valid-params = '{"ajax-url":"ajax.php"}' type="text" class="form-control" name="phone" placeholder="99-99-99 или +7 (999) 999-99-99" id="phone"/>
 								</div>
 							</div>
 							<div class="form-group">
 								<label class="col-sm-4 control-label" for="firstname1">Федеральный номер телефона:<span class="red">*</span></label>
 								<div class="col-sm-6 input-container">
-									<input data-valid="phone_full required" type="text" class="form-control"  name="phone1" placeholder="+7 (999) 999-99-99"/>
+									<input data-valid="phone required" type="text" class="form-control"  name="phone1" placeholder="+7 (999) 999-99-99"/>
 								</div>
 							</div>
 
@@ -139,7 +138,7 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<div class="col-sm-5 col-sm-offset-4">
+								<div class="col-sm-5 col-sm-offset-4 input-container">
 						          <div class="radio">
 						            <label>
 						              <input data-valid="required" type="radio" name="underwear" >
@@ -157,11 +156,10 @@
 
 							<div class="form-group">
 								<div class="col-sm-9 col-sm-offset-4">
-									<a href="javascript: void(0);" class="js-submit">Сабмит</a>
 									<button type="submit" class="btn btn-primary" name="signup1" value="Sign up">Валидация</button>
 								</div>
 							</div>
-						</form>
+						</form>						
 					</div>
 				</div>
 			</div>
