@@ -352,13 +352,12 @@ var obRules = {
 
 //события по умолчанию
 var obEvents = {
-	addFieldError: function($field, arErrors){		
-		var input_container = $field.parents(".input-container");		
-
-  		if(!input_container.hasClass('has-error')) {
-			input_container.addClass('has-error')
-							.removeClass('has-success');
-		}
+	addFieldError: function(Vfield, arErrors){
+		var $field = Vfield.$el;
+		var input_container = $field.parents(".input-container");
+  		
+		input_container.addClass('has-error')
+						.removeClass('has-success');		
 
 		var messagesList = arErrors.join('<br>');
 		var error_block = input_container.find(".error.help-block");
@@ -368,30 +367,32 @@ var obEvents = {
 			input_container.append('<div class="error help-block">'+messagesList+'</div>');
 		}
 	},
-	removeFieldError: function($field){
-		this.callEvent("clearField", $field);
-		$field.parents(".input-container").addClass('has-success');
-	},
-	clearField: function($field) {
-		$field.removeClass('error-field');
+	removeFieldError: function(Vfield){
+		var $field = Vfield.$el;
 		$field.parents(".input-container").removeClass('has-error')
-										 .removeClass('has-success');
+										  .addClass('has-success');
 	},
-	lockField: function($field) {
-		this.callEvent("clearField", $field);
-		$field.attr("readonly", "readonly")
- 		 	 .closest('.input-container').addClass('ajax-loading');
+	clearField: function(Vfield) {
+		delete  Vfield.isValid;
+		var input_container = Vfield.$el.parents(".input-container");
+		input_container.removeClass('has-error')
+					   .removeClass('has-success');
 	},
-	unlockField: function($field){
-		$field.removeAttr("readonly")
-		 	 .closest('.input-container').removeClass('ajax-loading');
+	lockField: function(Vfield) {
+		this.callEvent("removeFieldError", Vfield);
+		Vfield.$el.attr("readonly", "readonly")
+ 		 	  .closest('.input-container').addClass('ajax-loading');
 	},
-	lockForm: function(form){
+	unlockField: function(Vfield){
+		Vfield.$el.removeAttr("readonly")
+		 	 	  .closest('.input-container').removeClass('ajax-loading');
+	},
+	lockForm: function(){
 		var v = this;
 		v.isLocked = true;
-		this.$form.find(v.settings['submitBtn']).attr("disabled", "disabled");
+		v.$form.find(v.settings['submitBtn']).attr("disabled", "disabled");
   	},
-  	unlockForm: function(form){
+  	unlockForm: function(){
   		var v = this;
   		v.isLocked = false;
   		v.$form.find(v.settings['submitBtn']).removeAttr("disabled");
@@ -402,6 +403,14 @@ var obEvents = {
   	scrollToFirstError: function(){
   		var errorFileds = this.filterField(function(field){return field.isValid === false});
   		if(errorFileds.length) errorFileds[0].$el.first().focus();
+  	},
+  	reset: function () {
+  		var v = this;
+  		v.$form[0].reset();
+  		v.fields.forEach(function(Vfield, i, arr) {
+  			v.callEvent("clearField", Vfield);
+  		});
+  		v.callEvent(v.checkImportant() ? "unlockForm":"lockForm");
   	}
 }
 /*
@@ -566,7 +575,7 @@ window.citrusValidator = function (form, options) {
   			callback = callback || function(){};
 
   		VarField.forEach(function(Vfield){
-  			if(Vfield.params.lockOnValid) validator.callEvent("lockField", Vfield.$el);
+  			if(Vfield.params.lockOnValid) validator.callEvent("lockField", Vfield);
 
   			var arRulesLength = Vfield.arRules.length,
   				arErrors = Array(),
@@ -576,19 +585,18 @@ window.citrusValidator = function (form, options) {
 
   				function onComplete () {
   					if(!(--arRulesLength)) {
-	  					if(Vfield.params.lockOnValid) validator.callEvent("unlockField", Vfield.$el);
+	  					if(Vfield.params.lockOnValid) validator.callEvent("unlockField", Vfield);
 	  					Vfield.errors = arErrors;
 	  					if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file, :radio, select") ) Vfield.params.trigger = "keyup";
 
 	  					if (arErrors.length > 0 ) {
-							if(action) validator.callEvent("addFieldError", Vfield.$el, arErrors);
+							if(action) validator.callEvent("addFieldError", Vfield, arErrors);
 							Vfield.isValid = false;
 						} else {
 							if( !Vfield.$el.is(":checkbox, :radio") &&  !Vfield.$el.val()) {
 								if(action) validator.callEvent("clearField", Vfield.$el);
-								Vfield.isValid = "undefined";
 							}else {
-								if(action) validator.callEvent("removeFieldError", Vfield.$el);
+								if(action) validator.callEvent("removeFieldError", Vfield);
 								Vfield.isValid = true;
 							};
 						}
@@ -682,21 +690,20 @@ window.citrusValidator = function (form, options) {
   	validator.checkImportant = function(){
   		var important_fields = validator.filterField(function(field){return !!field.params["important"]});
 
-		var important_valid = true;
+		var importantIsvalid = true;
 		if(important_fields.length > 0) {
 			important_fields.forEach(function(Vfield) {
-
 				if( Vfield.isValid !== undefined ) {
-					if ( !Vfield.isValid ) important_valid = false;
+					if ( !Vfield.isValid ) importantIsvalid = false;
 					return;
 				} else {
 					validator.validateField(Vfield, false, function(Vfield) {
-						if ( !Vfield.isValid ) important_valid = false;
+						if ( !Vfield.isValid ) importantIsvalid = false;
 					});
 				}
 			});
 		}
-		return important_valid;
+		return importantIsvalid;
   	}
 
   	//возвращает массив validator.fields отсортированный по массиву $el
