@@ -1,8 +1,9 @@
 # citrusValidator
 
-Валидатор CitrusValidator jQuery Plugin
+<p><b>Внимание! Документация и примеры устарели! Для использования смотрите основной пример в index.html или ждите обновления.</b></p>
 
-<p style="color:red;"><b>Документация и примеры устарели! Для использования смотрите основной пример в index.html или ждите обновления.</b></p>
+<p>Валидатор CitrusValidator jQuery Plugin</p>
+
 
 <h2>Пример использования citrusValidator</h2>
 ```js
