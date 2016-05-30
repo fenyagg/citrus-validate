@@ -572,7 +572,7 @@ window.citrusValidator = function (form, options) {
   			callback = callback || function(){};
 
   		VarField.forEach(function(Vfield){
-  			if(Vfield.params.lockOnValid) validator.callEvent("lockField", Vfield);
+  			if(Vfield.params.lockOnValid) validator.callEvent("lockField", Vfield.$el);
 
   			var arRulesLength = Vfield.arRules.length,
   				arErrors = Array(),
@@ -757,8 +757,9 @@ window.citrusValidator = function (form, options) {
   	}
   	//init
   	;(function(){
-  		validator.$form.find('[data-valid]').each(function(index, el) {
-  			if ($(el).data("valid").length) validator.addField( $(el), $(el).data("valid").split(" "), $(el).data("valid-params") );
+  		validator.$form.find('[data-valid], [data-valid-params]').each(function(index, el) {
+  			if ($(el).data("valid").length || $(el).data("valid-params").length)
+  				validator.addField( $(el), $(el).data("valid").split(" "), $(el).data("valid-params") );
   		});
 
 		//обрабаываем сабмит
