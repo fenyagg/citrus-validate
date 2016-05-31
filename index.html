@@ -12,19 +12,35 @@
 	<script>
 		$(function() {
 			//вызов валидатора
-			window.form = new citrusValidator($("#signupForm2"));
+			window.form1 = new citrusValidator($("#signupForm1"));
+
+			window.form2 = new citrusValidator($("#signupForm2"));
+			form2.addField(
+				$("#f2_length"),
+				[],
+				{"minlength":2,"maxlength":6}
+			);
+			//console.log(form2);
 		});
 	</script>
 </head>
 <body>
-	<form id="signupForm2" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
-		<div class="form-group">
-			<label class="col-sm-4 control-label" for="firstname1">Длина строки:<span class="red">*</span></label>
-			<div class="col-sm-6 input-container">
-				<input data-valid="length" data-valid-params = '{"minlength":2,"maxlength":6}' type="text" class="form-control" name="uname" placeholder="от 2 до 6" id="length"/>
+	<p>Добавление полей через addFeild</p>
+	<div class="row">
+		<form id="signupForm2" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
+			<div class="form-group">
+				<label class="col-sm-4 control-label" for="firstname1">Длина строки:<span class="red">*</span></label>
+				<div class="col-sm-6 input-container">
+					<input type="text" class="form-control" name="uname" placeholder="от 2 до 6" id="f2_length"/>
+				</div>
 			</div>
-		</div>
-	</form>
+			<div class="form-group">
+				<div class="col-sm-9 col-sm-offset-4">
+					<button type="submit" class="btn btn-primary" name="signup1" value="Sign up">Валидация</button>
+				</div>
+			</div>
+		</form>
+	</div>
 
 	<div class="container">
 		<div class="row">

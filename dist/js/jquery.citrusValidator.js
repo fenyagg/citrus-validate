@@ -201,7 +201,7 @@ var obRules = {
 	"main_password": function(Vfield, callback){
 		var field = Vfield.$el;
 
-		var target = form.filterField(function(field){return $.inArray( "confirm_password", field.arRules)+1})[0];
+		var target = this.filterField(function(field){return $.inArray( "confirm_password", field.arRules)+1})[0];
 		if(!!target.$el.val() && !!field.val() ) this.validateField(target);
 		callback(Vfield);
 	},
@@ -578,42 +578,39 @@ window.citrusValidator = function (form, options) {
   				arErrors = Array(),
   				isValid;
 
+			function onComplete () {
+				if(Vfield.params.lockOnValid) validator.callEvent("unlockField", Vfield.$el);
+					Vfield.errors = arErrors;
+				if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file, :radio, select") ) Vfield.params.trigger = "keyup";
+
+				if (arErrors.length > 0 ) {
+					if(action) validator.callEvent("addFieldError", Vfield.$el, arErrors);
+					Vfield.isValid = false;
+				} else {
+					if( !Vfield.$el.is(":checkbox, :radio") &&  !Vfield.$el.val()) {
+						if(action) validator.callEvent("clearField", Vfield.$el);
+						delete  Vfield.isValid;
+					}else {
+						if(action) validator.callEvent("removeFieldError", Vfield.$el);
+						Vfield.isValid = true;
+					};
+				}
+				callback(Vfield, arErrors);
+			}
+			if(!arRulesLength) {onComplete(); return true;}
   			Vfield.arRules.forEach(function(rule) {
-
-  				function onComplete () {
-  					if(!(--arRulesLength)) {
-	  					if(Vfield.params.lockOnValid) validator.callEvent("unlockField", Vfield.$el);
-	  					Vfield.errors = arErrors;
-	  					if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file, :radio, select") ) Vfield.params.trigger = "keyup";
-
-	  					if (arErrors.length > 0 ) {
-							if(action) validator.callEvent("addFieldError", Vfield.$el, arErrors);
-							Vfield.isValid = false;
-						} else {
-							if( !Vfield.$el.is(":checkbox, :radio") &&  !Vfield.$el.val()) {
-								if(action) validator.callEvent("clearField", Vfield.$el);
-								delete  Vfield.isValid;
-							}else {
-								if(action) validator.callEvent("removeFieldError", Vfield.$el);
-								Vfield.isValid = true;
-							};
-						}
-	  					callback(Vfield, arErrors);
-	  				}
-  				}
-
   				var fnRule = validator.getRule(rule);
 	  			if(!fnRule || !$.isFunction(fnRule)) {
 	  				console.log("citrusValidator: Нет правила '"+rule+ "'");
 
-	  				onComplete();
+	  				if(!(--arRulesLength)) onComplete();
 	  				return true;
 	  			}
 
 	  			fnRule.call( validator, Vfield, function(Vfield, errors){
 	  				if(!!errors) arErrors[arErrors.length] = errors;
 
-	  				onComplete();
+	  				if(!(--arRulesLength)) onComplete();
 	  			});
 	  			return true;
 	  		});
@@ -654,10 +651,9 @@ window.citrusValidator = function (form, options) {
 		});
   	}
   	/**
-  	* каждое поле с атрибутом data-valid отправляет в валидацию поля. По окончанию callback(form)
   	* @action = если false не выводит никаких сообщений, только срабатывает callback(form)
   	*/
-  	validator.validateForm = function( callback ){
+  	validator.validateForm = function( callback, action ){
   		var callback = callback || function(){};
   		//сбор полей для валидации
 	    var countFields = validator.fields.length;
@@ -711,7 +707,7 @@ window.citrusValidator = function (form, options) {
 		});
   	}
   	validator.filterField = function(fn){
-  		if(!fn || !$.isFunction(fn)) throw new Error("citrusValidator: ошибка в аргументе функции filterField");;
+  		if(!fn || !$.isFunction(fn)) throw new Error("citrusValidator: ошибка в аргументе функции filterField");
   		return validator.fields.filter(fn);
   	}
 
@@ -758,8 +754,10 @@ window.citrusValidator = function (form, options) {
   	//init
   	;(function(){
   		validator.$form.find('[data-valid], [data-valid-params]').each(function(index, el) {
-  			if ($(el).data("valid").length || $(el).data("valid-params").length)
-  				validator.addField( $(el), $(el).data("valid").split(" "), $(el).data("valid-params") );
+  			var arRules = $(el).data("valid") ? $(el).data("valid").split(" ") : [];
+  			var obParams = $(el).data("valid-params") || {};
+  			if ( arRules || obParams)
+  				validator.addField( $(el), arRules, obParams );
   		});
 
 		//обрабаываем сабмит
@@ -767,7 +765,7 @@ window.citrusValidator = function (form, options) {
 			event.preventDefault();
 			if(!$(this).attr("disabled")) validator.validateForm();
 		});
-		//обработка нажатий enter в форме если submitBtn != :submit .
+		//обработка нажатий enter в форме
 		if (validator.settings.submitBtn !== ":submit") {
 			validator.$form.on('keypress' , function(event){
 				if( event.keyCode == 13 && event.target.type !== "textarea") {
