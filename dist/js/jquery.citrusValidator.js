@@ -86,14 +86,14 @@ var obRules = {
 			}
 		}
 
-		var errors = ifTypeValid ? "" : this.getMessage("filetype", [Vfield.params.filetype]);
+		var errors = ifTypeValid ? "" : this.getMessage.call(Vfield,"filetype", [Vfield.params.filetype]);
 		callback(Vfield, errors);
 	},
 	"required" : function(Vfield, callback) {
 		var fieldNode = Vfield.$el.get(0);
 		var isValid = fieldNode.type === 'checkbox' ? fieldNode.checked : fieldNode.type === 'radio' ? $('[name="' + fieldNode.name + '"]:checked').length : $.trim(fieldNode.value) !== '';
 
-		var errors = isValid ? "" : this.getMessage("required");
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"required");
 		callback(Vfield, errors);
 	},
 	//поля important блокируют submit если не проходят валидацию
@@ -108,7 +108,7 @@ var obRules = {
 		var value = clearString(field.val());
 		var isValid = value.length > 5 && /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{6,10}$/.test(value);
 
-		var errors = isValid ? "" : this.getMessage("phone_all");
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"phone_all");
 		callback(Vfield, errors);
 	},
 	// телефоны России (начинаются на +7 или 8)
@@ -118,7 +118,7 @@ var obRules = {
 		var value = clearString(field.val());
 		var isValid = value.length > 10 && /^(8|\+7){1}(\d{10})$/.test(value);
 
-		var errors = isValid ? "" : this.getMessage("phone");
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"phone");
 		callback(Vfield, errors);
 	},
 	//post ajax запрос по пути ajax-url. Ответ строка с ошибкой
@@ -150,7 +150,7 @@ var obRules = {
 		var value = $.trim(field.val());
 		var isValid =  /^(|(([A-Za-z0-9]+_+)|([A-Za-z0-9]+\-+)|([A-Za-z0-9]+\.+)|([A-Za-z0-9]+\++))*[A-Za-z0-9]+@((\w+\-+)|(\w+\.))*\w{1,63}\.[a-zA-Z]{2,6})$/.test(value);
 
-		var errors = isValid ? "" : this.getMessage("email");
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"email");
 		callback(Vfield, errors);
 	},
 	//число + проверяет max, min параметры
@@ -159,7 +159,7 @@ var obRules = {
 		if(!field.val()) {callback(Vfield); return true;};
 		var isNumber = /^(?:-?\d+|-?\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test( field.val() );
 
-		if(!isNumber) {callback(Vfield, this.getMessage("number")); return;};
+		if(!isNumber) {callback(Vfield, this.getMessage.call(Vfield,"number")); return;};
 
 		var value = +field.val();
 		//у числа получим max и min значение
@@ -168,13 +168,13 @@ var obRules = {
 		if( typeof Vfield.params.max !== "undefined" && Vfield.params.max !== "") {max = +Vfield.params.max; hasMaxAttr = true;};
 
 		if( hasMinAttr && hasMaxAttr) {
-			if( value < min || value > max ) errors = this.getMessage("range", [min, max]);
+			if( value < min || value > max ) errors = this.getMessage.call(Vfield,"range", [min, max]);
 		} else {
 			if( hasMinAttr ) {
-				if(value < min) errors = this.getMessage("min", [min]);
+				if(value < min) errors = this.getMessage.call(Vfield,"min", [min]);
 			}
 			if( hasMaxAttr ) {
-				if(value > max) errors = this.getMessage("max", [max]);
+				if(value > max) errors = this.getMessage.call(Vfield,"max", [max]);
 			}
 		}
 		callback(Vfield, errors);
@@ -189,12 +189,12 @@ var obRules = {
 			errors = false;
 		if(typeof dataMinlength !== "undefined" && typeof dataMaxlength !== "undefined") {
 			if(valLength > dataMaxlength || valLength < dataMinlength) {
-				errors = this.getMessage("rangelength" , [dataMinlength, dataMaxlength]);
+				errors = this.getMessage.call(Vfield,"rangelength" , [dataMinlength, dataMaxlength]);
 			}
 		} else if(typeof dataMinlength !== "undefined"){
-			if(valLength < dataMinlength) errors = this.getMessage("minlength" , [dataMinlength]);
+			if(valLength < dataMinlength) errors = this.getMessage.call(Vfield,"minlength" , [dataMinlength]);
 		} else if(typeof dataMaxlength !== "undefined"){
-			if(valLength > dataMaxlength) errors = this.getMessage("maxlength" , [dataMaxlength]);
+			if(valLength > dataMaxlength) errors = this.getMessage.call(Vfield,"maxlength" , [dataMaxlength]);
 		}
 		callback(Vfield, errors);
 	},
@@ -210,14 +210,14 @@ var obRules = {
 		if(!field.val()) {callback(Vfield); return true;};
 		var target = field.parents("form").find("[data-valid*='main_password']");
 		var isValid = (field.val() === target.val());
-		var errors = isValid ? "" : this.getMessage("confirm_password");
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"confirm_password");
 		callback(Vfield, errors);
 	},
 	"url": function(Vfield, callback) {
 		var field = Vfield.$el;
 		if(!field.val()) {callback(Vfield); return true;};
 		var isValid = /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})).?)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test( field.val() );
-		var errors = isValid ? "" : this.getMessage("url");
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"url");
 		callback(Vfield, errors);
 	},
 	// ИНН юр и физ лица
@@ -265,7 +265,7 @@ var obRules = {
 		        }
 		    }
 	    }
-	    var errors = isValid ? "" : this.getMessage("inn");
+	    var errors = isValid ? "" : this.getMessage.call(Vfield,"inn");
 		callback(Vfield, errors);
 	},
 	"inn_u": function(Vfield, callback){
@@ -291,7 +291,7 @@ var obRules = {
 		else {
 		    isValid = false;
 		}
-		var errors = isValid ? "" : this.getMessage("inn_u");
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"inn_u");
 		callback(Vfield, errors);
 	},
 	"inn_f": function(Vfield, callback){
@@ -309,7 +309,7 @@ var obRules = {
 	    }else{
 	        isValid = false;
 	    }
-		var errors = isValid ? "" : this.getMessage("inn_f");
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"inn_f");
 		callback(Vfield, errors);
 	},
 	"ogrn": function(Vfield, callback){
@@ -327,7 +327,7 @@ var obRules = {
 		}else{
 		    isValid = false;
 		}
-		var errors = isValid ? "" : this.getMessage("ogrn");
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"ogrn");
 		callback(Vfield, errors);
 	},
 	"kpp": function(Vfield, callback){
@@ -344,7 +344,7 @@ var obRules = {
 		if(!value.match(/([0-9]{1}[1-9]{1}|[1-9]{1}[0-9]{1})([0-9]{2})([0-9A-F]{2})([0-9]{3})/)){
 			isValid = false;
 		}
-		var errors = isValid ? "" : this.getMessage("kpp");
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"kpp");
 		callback(Vfield, errors);
 
 	}
@@ -501,7 +501,8 @@ window.citrusValidator = function (form, options) {
 	validator.isLocked = false;
 
   	validator.getMessage = function(messageName, arParams){
-  		var message = obMessages[messageName] || "";
+  		var message = this.messages && this.messages[messageName] ? this.messages[messageName] :  obMessages[messageName] ? obMessages[messageName] : "";
+
 		if(message.length > 0 && $.type(arParams) === "array" && arParams.length > 0) {
 			arParams.forEach(function(param, i){
 				message = message.replace("{"+i+"}", param);
@@ -587,7 +588,7 @@ window.citrusValidator = function (form, options) {
 					if(action) validator.callEvent("addFieldError", Vfield.$el, arErrors);
 					Vfield.isValid = false;
 				} else {
-					if( !Vfield.$el.is(":checkbox, :radio") &&  !Vfield.$el.val()) {
+					if( !Vfield.$el.is(":checkbox, :radio") && !Vfield.$el.val() ) {
 						if(action) validator.callEvent("clearField", Vfield.$el);
 						delete  Vfield.isValid;
 					}else {
@@ -597,6 +598,12 @@ window.citrusValidator = function (form, options) {
 				}
 				callback(Vfield, arErrors);
 			}
+			if( Vfield.$el.prop("disabled") ) {
+  				if(action) validator.callEvent("clearField", Vfield.$el);
+				delete  Vfield.isValid;
+				onComplete ();
+				return;
+  			}
 			if(!arRulesLength) {onComplete(); return true;}
   			Vfield.arRules.forEach(function(rule) {
   				var fnRule = validator.getRule(rule);
@@ -711,8 +718,12 @@ window.citrusValidator = function (form, options) {
   		return validator.fields.filter(fn);
   	}
 
-  	validator.addField = function($fields, arRules, params){
+  	validator.addField = function($fields, arRules, params, messages){
   		if(!$fields || $.type($fields) !=="object" || !$fields.length ) throw new Error("citrusValidator: ошибка в аргументе $fields");
+
+  		var arRules = arRules || [],
+  			params = params || {},
+  		    messages = messages || {};
 
   		$fields.each(function(index, field) {
   			var $el = $(this).prop("type") == "radio" ? $('[name="' + $(this).prop("name") + '"]') : $(this);
@@ -724,14 +735,16 @@ window.citrusValidator = function (form, options) {
   				//если поле уже в массиве полей то сливаем правила и параметры
   				findedField.arRules = $.unique( $.merge( findedField.arRules, arRules) );
   				findedField.params = $.extend( true, findedField.params, params );
+  				findedField.messages = $.extend( true, findedField.messages, messages );
   				return;
   			}
 
   			//собираем массив полей
 			validator.fields[validator.fields.length] = {
 				$el: $el,
-				arRules: arRules || Array(),
-				params: params || Array()
+				arRules: arRules,
+				params: params,
+				messages: messages
 			};
 
 			//обрабатываются события change и keyup. По умолчанию change меняется на keyup после первой валидации. Можно установить через data-validate-trigger у каждого поля
@@ -753,11 +766,12 @@ window.citrusValidator = function (form, options) {
   	}
   	//init
   	;(function(){
-  		validator.$form.find('[data-valid], [data-valid-params]').each(function(index, el) {
+  		validator.$form.find('[data-valid], [data-valid-params], [data-valid-messages]').each(function(index, el) {
   			var arRules = $(el).data("valid") ? $(el).data("valid").split(" ") : [];
-  			var obParams = $(el).data("valid-params") || {};
-  			if ( arRules || obParams)
-  				validator.addField( $(el), arRules, obParams );
+  			var params = $(el).data("valid-params") || {};
+  			var messages = $(el).data("valid-messages") || {};
+  			if ( arRules || params)
+  				validator.addField( $(el), arRules, params, messages );
   		});
 
 		//обрабаываем сабмит

@@ -17,8 +17,9 @@
 			window.form2 = new citrusValidator($("#signupForm2"));
 			form2.addField(
 				$("#f2_length"),
-				[],
-				{"minlength":2,"maxlength":6}
+				["required"],
+				{"minlength":2,"maxlength":6},
+				{"required": "test"}
 			);
 			//console.log(form2);
 		});
@@ -31,7 +32,7 @@
 			<div class="form-group">
 				<label class="col-sm-4 control-label" for="firstname1">Длина строки:<span class="red">*</span></label>
 				<div class="col-sm-6 input-container">
-					<input type="text" class="form-control" name="uname" placeholder="от 2 до 6" id="f2_length"/>
+					<input type="text" class="form-control" name="uname" placeholder="от 2 до 6" id="f2_length" disabled="disabled" />
 				</div>
 			</div>
 			<div class="form-group">
