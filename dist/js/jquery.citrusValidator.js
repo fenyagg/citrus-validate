@@ -586,6 +586,7 @@ window.citrusValidator = function (form, options) {
 
 				if (arErrors.length > 0 ) {
 					if(action) validator.callEvent("addFieldError", Vfield.$el, arErrors);
+					Vfield.$el.trigger("validError");
 					Vfield.isValid = false;
 				} else {
 					if( !Vfield.$el.is(":checkbox, :radio") && !Vfield.$el.val() ) {
@@ -593,6 +594,7 @@ window.citrusValidator = function (form, options) {
 						delete  Vfield.isValid;
 					}else {
 						if(action) validator.callEvent("removeFieldError", Vfield.$el);
+						Vfield.$el.trigger("validSucess");
 						Vfield.isValid = true;
 					};
 				}
