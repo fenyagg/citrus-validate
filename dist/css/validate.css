@@ -72,10 +72,10 @@
 }
 
 .input-container.has-success:after, .input-container.has-error:after, .input-container.ajax-loading:after {
-    font-family: 'Glyphicons Halflings'; 
+    font-family: 'Glyphicons Halflings';
     position: absolute;
     top: 0;
-    right: 15px;       
+    right: 15px;
     font-style: normal;
     font-weight: 400;
     z-index: 2;
@@ -88,7 +88,7 @@
 }
 .input-container.has-success:after {
     content: "\e013";
-    color: #3c763d;     
+    color: #3c763d;
 }
 .input-container.has-error:after {
     content: "\e014";
@@ -102,20 +102,99 @@
     -o-animation: move 2s linear 0s infinite;
     animation: move 2s linear 0s infinite;
 }
-    @-webkit-keyframes move { 
+    @-webkit-keyframes move {
         0% { -webkit-transform: rotate(0deg); }
         100%   { -webkit-transform: rotate(360deg); }
     }
-    @-moz-keyframes move { 
+    @-moz-keyframes move {
         0% { -moz-transform: rotate(0deg); }
         100%   { -moz-transform: rotate(360deg); }
     }
-    @-o-keyframes move { 
+    @-o-keyframes move {
         0% { -o-transform: rotate(0deg); }
         100%   { -o-transform: rotate(360deg); }
     }
-    @keyframes move { 
+    @keyframes move {
         0% { transform: rotate(0deg); }
-        100%   { transform: rotate(360deg); } 
+        100%   { transform: rotate(360deg); }
     }
-    
+
+
+/*password complexity */
+    .new-registration {
+        margin-top: 20px;
+    }
+
+    /*lines*/
+    .register-pass-status-line1, .register-pass-status-line2, .register-pass-status-line3, .register-pass-status-line4, .register-pass-status-line5 {
+        width: 90px;
+        height: 5px;
+        background-color: rgba(0,0,0,0.1);
+        float: left;
+        margin-right: 15px;
+        -moz-border-radius: 2px;
+        -webkit-border-radius: 2px;
+        border-radius: 2px;
+    }
+    .new-registration .register-pass-status-line1, .new-registration .register-pass-status-line2, .new-registration .register-pass-status-line3, .new-registration .register-pass-status-line4, .new-registration .register-pass-status-line5 {
+        width: 80px;
+        height: 2px;
+        margin-right: 5px;
+    }
+    .register-pass-status-line4 {
+        margin: 0;
+    }
+    .good1 .register-pass-status-line1 {
+        background-color: #ff2a0b;
+    }
+    .good2 .register-pass-status-line1, .good2 .register-pass-status-line2 {
+        background-color: #ffc926;
+    }
+    .good3 .register-pass-status-line1, .good3 .register-pass-status-line2, .good3 .register-pass-status-line3 {
+        background-color: #7ab148;
+    }
+    .good4 .register-pass-status-line1, .good4 .register-pass-status-line2, .good4 .register-pass-status-line3, .good4 .register-pass-status-line4 {
+        background-color: #7dd016;
+    }
+    .good5 .register-pass-status-line1, .good5 .register-pass-status-line2, .good5 .register-pass-status-line3, .good5 .register-pass-status-line4, .good5 .register-pass-status-line5 {
+        background-color: #1DA1E9;
+    }
+
+    /*text*/
+    .new-registration .password-stutus-txt {
+        padding-top: 10px;
+        font-size: 14px;
+        float: none;
+        line-height: 20px;
+    }
+        .new-reg-status-pad strong {
+            color: #333333;
+            font-weight: normal;
+            padding-right: 5px;
+        }
+        .new-reg-status-description {
+            color: #666666;
+            line-height: 1.4em;
+            margin-top: .5em;
+        }
+
+    .good1 .password-stutus-txt {
+        color: #ff2a0b;
+        display: block;
+    }
+    .good2 .password-stutus-txt {
+        color: #ffc926;
+        display: block;
+    }
+    .good3 .password-stutus-txt {
+        color: #7ab148;
+        display: block;
+    }
+    .good4 .password-stutus-txt {
+        color: #7dd016;
+        display: block;
+    }
+    .good5 .password-stutus-txt {
+        color: #1DA1E9;
+        display: block;
+    }

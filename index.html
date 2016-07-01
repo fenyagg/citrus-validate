@@ -15,18 +15,20 @@
 			window.form1 = new citrusValidator($("#signupForm1"));
 
 			window.form2 = new citrusValidator($("#signupForm2"));
-			form2.addField(
-				$("#f2_length"),
-				["required"],
-				{"minlength":2,"maxlength":6},
-				{"required": "test"}
-			);
-			$("#f2_length")
-				.on('validSucess', function(event) {
-					console.log("Sucess");
+			form2
+				.addField(
+					$("#f2_length"),
+					["required"],
+					{"minlength":2,"maxlength":6},
+					{"required": "test"}
+				)
+				.on('validSucess', function(event, vField) {
+					console.log(this);
+					console.log(event);
 				})
-				.on('validError', function(event) {
-					console.log("Error");
+				.on('validError', function(event, vField) {
+					console.log(this)
+					console.log(vField);;
 				});
 		});
 	</script>
@@ -93,6 +95,22 @@
 								<label class="col-sm-4 control-label" for="password1">Пароль:<span class="red">*</span></label>
 								<div class="col-sm-6 input-container">
 									<input data-valid="main_password required" type="password" placeholder="Пароль" name="pass" />
+
+									<div class="new-registration good4">
+										<div class="lines clearfix">
+											<div class="register-pass-status-line1"></div>
+											 <div class="register-pass-status-line2"></div>
+											 <div class="register-pass-status-line3"></div>
+											 <div class="register-pass-status-line4"></div>
+											 <div class="register-pass-status-line5"></div>
+										</div>
+
+
+									 <div class="password-stutus-txt">
+										<div class="new-reg-status-pad"><strong>Надежность:</strong> Хороший</div>
+										<div class="new-reg-status-description">Этот пароль не поддастся самым распространённым атакам с применением полного перебора. Убедитесь, что запомнили его.</div>
+									 </div>
+								   </div><!-- .new-registration -->
 								</div>
 							</div>
 							<div class="form-group">
