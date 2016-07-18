@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>JQuery-validation demo | Bootstrap</title>
+	<meta charset="UTF-8">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+	<script src="../dist/js/jquery.citrusValidator.js"></script>
+	<link rel="stylesheet" href="../dist/css/validate.css">
+	<script>
+		$(function() {
+			window.form = new citrusValidator($("#signupForm1"));
+		});	
+	</script>
+</head>
+<body>
+	
+	<p><br></p>
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-4"></div>
+			<div class="col-sm-6"><h1>Регистрация</h1></div>
+		</div>
+		<form id="signupForm1" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
+			<div class="form-group">
+				<label class="col-sm-4 control-label" for="firstname1">Имя пользователя:<span class="red">*</span></label>
+				<div class="col-sm-6 input-container">
+					<input data-valid="required" type="text" class="form-control" name="uname" placeholder="Имя пользователя" id="uname"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label" for="password1">Пароль:<span class="red">*</span></label>
+				<div class="col-sm-6 input-container">
+					<input 
+						data-valid="main_password length required"
+						data-valid-params = '{"minlength": 4, "contains": ["en", "rus", "dig", "punkt"]}'
+					 	type="password" placeholder="Пароль" name="pass"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label" for="confirm_password1">Повтор пароля</label>
+				<div class="col-sm-6 input-container">
+					<input data-valid="required confirm_password" type="password" placeholder="Повторите пароль" name="pass_confirm" />
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-9 col-sm-offset-4">
+					<button type="submit" class="btn btn-primary" name="signup1" value="Sign up">Валидация</button>
+				</div>
+			</div>
+		</form>
+	</div><!-- container -->
+</body>

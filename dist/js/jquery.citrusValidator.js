@@ -201,8 +201,10 @@ var obRules = {
 	"main_password": function(Vfield, callback){
 		var field = Vfield.$el;
 
+		//проверяем повтор пароля
 		var target = this.filterField(function(field){return $.inArray( "confirm_password", field.arRules)+1})[0];
 		if(!!target.$el.val() && !!field.val() ) this.validateField(target);
+
 		callback(Vfield);
 	},
 	"confirm_password": function(Vfield, callback){
@@ -346,8 +348,7 @@ var obRules = {
 		}
 		var errors = isValid ? "" : this.getMessage.call(Vfield,"kpp");
 		callback(Vfield, errors);
-
-	}
+	},
 };// end rules
 
 //события по умолчанию
@@ -566,13 +567,13 @@ window.citrusValidator = function (form, options) {
 	/**
 	* ====================	Основные функции плагина ====================
 	*/
-	//VarField массив из функции getField
-  	validator.validateField = function(VarField, action, callback){
-  		var VarField = $.isArray(VarField) ? VarField : Array(VarField),
+	//Vfield массив из функции getField
+  	validator.validateField = function(Vfield, action, callback){
+  		var Vfield = $.isArray(Vfield) ? Vfield : Array(Vfield),
   			action = action === undefined ? true : action,
   			callback = callback || function(){};
 
-  		VarField.forEach(function(Vfield){
+  		Vfield.forEach(function(Vfield){
   			if(Vfield.params.lockOnValid) validator.callEvent("lockField", Vfield.$el);
 
   			var arRulesLength = Vfield.arRules.length,
@@ -625,45 +626,13 @@ window.citrusValidator = function (form, options) {
 	  		});
   		});
   	};
-
-  	validator.checkFieldRules = function( VarField, arRules, callback ){
-  		var VarField = $.isArray(VarField) ? VarField : Array(VarField);
-  		var paramArRules = arRules || false;
-
-  		VarField.forEach(function(Vfield){
-  			var arRules = paramArRules || Vfield.arRules;
-
-	  		//посчитаем все правила
-			var arRulesLength = +arRules.length;
-			var arErrors = Array();
-	  		arRules.forEach(function(rule) {
-
-  				var fnRule = validator.getRule(rule);
-	  			if(!fnRule || !$.isFunction(fnRule)) {
-	  				console.log("citrusValidator: Нет правила '"+rule+ "'"); return;
-	  				if(!(--arRulesLength)) {
-	  					callback(Vfield, arErrors);
-	  				}
-	  				return;
-	  			}
-
-	  			fnRule.call( validator, Vfield, function(Vfield, errors){
-	  				if(!!errors) arErrors[arErrors.length] = errors;
-
-	  				//если последнее правило
-	  				if(!(--arRulesLength)) {
-	  					callback(Vfield, arErrors);
-	  				}
-	  			});
-
-	  		});
-		});
-  	}
   	/**
   	* @action = если false не выводит никаких сообщений, только срабатывает callback(form)
   	*/
-  	validator.validateForm = function( callback, action ){
+  	validator.validateForm = function( action, callback ){
   		var callback = callback || function(){};
+  		var action = typeof action === "undefined" ? true : !!action;  		
+
   		//сбор полей для валидации
 	    var countFields = validator.fields.length;
 	    validator.isValid = true;
@@ -674,16 +643,16 @@ window.citrusValidator = function (form, options) {
 				if(!Vfield.isValid) validator.isValid = false;
 				if(!(--countFields)) {
 					callback(validator);
-					validator.callEvent("afterFormValidate");
-					validator.callEvent("scrollToFirstError");
+					if(action) validator.callEvent("afterFormValidate");
+					if(action) validator.callEvent("scrollToFirstError");
 				}
 			} else {
-				validator.validateField(Vfield, true, function(Vfield){
+				validator.validateField(Vfield, action, function(Vfield){
 					if(!Vfield.isValid && Vfield.isValid !== undefined) validator.isValid = false;
 					if(!(--countFields)) {
 						callback(validator);
-						validator.callEvent("afterFormValidate");
-						validator.callEvent("scrollToFirstError");
+						if(action) validator.callEvent("afterFormValidate");
+						if(action) validator.callEvent("scrollToFirstError");
 					}
 				});
 			}
