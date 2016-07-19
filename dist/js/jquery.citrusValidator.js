@@ -631,12 +631,12 @@ window.citrusValidator = function (form, options) {
   	*/
   	validator.validateForm = function( action, callback ){
   		var callback = callback || function(){};
-  		var action = typeof action === "undefined" ? true : !!action;  		
+  		var action = typeof action === "undefined" ? true : !!action;
 
   		//сбор полей для валидации
 	    var countFields = validator.fields.length;
 	    validator.isValid = true;
-	    if( !countFields ) {callback(validator); return true};
+	    if( !countFields ) {callback(validator); if(action) validator.callEvent("afterFormValidate"); return true};
 
 		validator.fields.forEach(function(Vfield) {
 			if( Vfield.isValid !== undefined ) {
