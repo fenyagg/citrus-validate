@@ -639,7 +639,7 @@ window.citrusValidator = function (form, options) {
 	    if( !countFields ) {callback(validator); if(action) validator.callEvent("afterFormValidate"); return true};
 
 		validator.fields.forEach(function(Vfield) {
-			if( Vfield.isValid !== undefined ) {
+			if( Vfield.isValid !== undefined && Vfield.params["trigger"] !== "submit" ) {
 				if(!Vfield.isValid) validator.isValid = false;
 				if(!(--countFields)) {
 					callback(validator);
@@ -749,13 +749,7 @@ window.citrusValidator = function (form, options) {
 		//обрабаываем сабмит
 		validator.$form.on('click', validator.settings.submitBtn, function(event) {
 			event.preventDefault();
-			if(!$(this).attr("disabled")) {
-				var vFieldsSubmit = validator.filterField(function(field){return field.params["trigger"] == "submit"});
-				vFieldsSubmit.forEach(function(Vfield, i, arr){
-					delete Vfield.isValid;
-				});
-				validator.validateForm();
-			}
+			if(!$(this).attr("disabled")) validator.validateForm();
 		});
 		//обработка нажатий enter в форме
 		if (validator.settings.submitBtn !== ":submit") {
