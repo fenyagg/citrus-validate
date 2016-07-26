@@ -720,6 +720,7 @@ window.citrusValidator = function (form, options) {
 
 			//обрабатываются события change и keyup. По умолчанию change меняется на keyup после первой валидации. Можно установить через data-validate-trigger у каждого поля
 			$el.on('change keyup', function(event) {
+				if( event.keyCode == 13 ) return;
 				var field = validator.getField($(this))[0] || false;
 				if(!field) {console.error("Нет поля в массиве полей validator.fields");return;}
 				var validateTrigger = field["params"]["trigger"] || "change";
