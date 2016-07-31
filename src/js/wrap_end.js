@@ -1,0 +1,3 @@
+
+citrusValidator.prototype = proto;
+})( jQuery );

@@ -38,7 +38,10 @@ function clone(obj){
 	    return new F;
 	  };
 	}
-
+/*=========================
+  Default messages
+  ===========================*/
+  
 var obMessages = {
 	required: "Это поле необходимо заполнить.",
 	email: "Пожалуйста, введите корректный адрес электронной почты.",
@@ -61,6 +64,10 @@ var obMessages = {
 	kpp: "Пожалуйста, введите корректный КПП.",
 	filetype: "Не верный тип файла. Возможные типы: {0}."
 }
+/*=========================
+  Default Rules
+  ===========================*/
+
 //отчищает строку от (), пробелов, -
 function clearString(string){
 	return string.replace(/\(|\)|\s+|-/g, "");
@@ -77,7 +84,7 @@ var obRules = {
 			if ('name' in file) {
 				var ext = file.name.split(".");
 				ext = ext[ext.length-1].toLocaleLowerCase();
-				if( ! (Vfield.params.filetype.indexOf(ext)+1) ) ifTypeValid = false;
+				if( !(Vfield.params.filetype.indexOf(ext)+1) ) ifTypeValid = false;
 			}
 		}
 
@@ -343,9 +350,11 @@ var obRules = {
 		var errors = isValid ? "" : this.getMessage.call(Vfield,"kpp");
 		callback(Vfield, errors);
 	},
-};// end rules
-
-//события по умолчанию
+};
+/*=========================
+  Default events
+  ===========================*/
+  
 var obEvents = {
 	addFieldError: function($field, arErrors){
 		var input_container = $field.parents(".input-container");
@@ -381,12 +390,12 @@ var obEvents = {
 	lockForm: function(){
 		var v = this;
 		v.isLocked = true;
-		v.$form.find(v.settings['submitBtn']).attr("disabled", "disabled");
+		v.$form.find(v.settings.submitBtn).attr("disabled", "disabled");
   	},
   	unlockForm: function(){
   		var v = this;
   		v.isLocked = false;
-  		v.$form.find(v.settings['submitBtn']).removeAttr("disabled");
+  		v.$form.find(v.settings.submitBtn).removeAttr("disabled");
   	},
   	afterFormValidate: function(){
   		if(this.isValid) this.$form.submit();
@@ -405,9 +414,10 @@ var obEvents = {
   		v.callEvent(v.checkImportant() ? "unlockForm":"lockForm");
   	}
 }
-/*
-* Прототип всех форм. Использование как citrusValidator.prototype
-*/
+/*=========================
+  citrusValidator prototype
+  ===========================*/
+
 var proto = new function(){
 
 	/*
@@ -475,27 +485,27 @@ var proto = new function(){
 		return false;
 	}
 };
-
-/*
-* Конструктор валидатора. Для каждой формы будет свой объект.
-*/
+/*=========================
+  citrusValidator
+  ===========================*/
+  
 window.citrusValidator = function (form, options) {
 	if(!form || form.length != 1) throw new Error("citrusValidator: ошибка в аргументе form");
 
-	var validator = this,
-		obRules = Object.create(validator._getRule()),
-		obMessages = Object.create(validator._getMessage()),
-		obEvents = Object.create(validator._getEvent());
+	var v 			= this,
+		obRules 	= Object.create(v._getRule()),
+		obMessages 	= Object.create(v._getMessage()),
+		obEvents 	= Object.create(v._getEvent());
 
-	validator.settings = $.extend( {
+	v.settings = $.extend( {
 	      'submitBtn': ':submit'
 	    }, options);
 
-	validator.$form = form;
-	validator.fields = Array();
-	validator.isLocked = false;
+	v.$form = form;
+	v.fields = Array();
+	v.isLocked = false;
 
-  	validator.getMessage = function(messageName, arParams){
+  	v.getMessage = function(messageName, arParams){
   		var message = this.messages && this.messages[messageName] ? this.messages[messageName] :  obMessages[messageName] ? obMessages[messageName] : "";
 
 		if(message.length > 0 && $.type(arParams) === "array" && arParams.length > 0) {
@@ -505,7 +515,7 @@ window.citrusValidator = function (form, options) {
 		}
 		return message;
 	}
-	validator.setMessage = function(messages, messageText){
+	v.setMessage = function(messages, messageText){
 		if(arguments.length === 1 && $.isPlainObject(messages) && !$.isEmptyObject(messages)) {
 			for (var prName in messages) {
 				if(typeof messages[prName] !== "string") return false;
@@ -518,10 +528,10 @@ window.citrusValidator = function (form, options) {
 		}
 		return false;
 	}
-	validator.getRule = function(ruleName){
+	v.getRule = function(ruleName){
 		return !ruleName ? obRules: obRules[ruleName] || false;
 	}
-	validator.setRule = function(rules, fn){
+	v.setRule = function(rules, fn){
 		if(arguments.length === 1 && $.isPlainObject(rules) && !$.isEmptyObject(rules)) {
 			for (var prName in rules) {
 				if(!$.isFunction(rules[prName])) return false;
@@ -534,11 +544,11 @@ window.citrusValidator = function (form, options) {
 		}
 		return false;
 	}
-	validator.getEvent = function(eventName){
+	v.getEvent = function(eventName){
 		if( !eventName ) return obEvents;
 		return obEvents[eventName] || false;
 	}
-	validator.setEvent = function(events, fn){
+	v.setEvent = function(events, fn){
 		if(arguments.length === 1 && $.isPlainObject(events) && !$.isEmptyObject(events)) {
 			for (var prName in events) {
 				if(typeof prName !== "string" || !$.isFunction(events[prName])) return false;
@@ -551,44 +561,54 @@ window.citrusValidator = function (form, options) {
 		}
 		return false;
 	}
-	validator.callEvent = function(eventName, arg1, arg2){
+	v.callEvent = function(eventName, arg1, arg2){
 		if( !eventName ) return;
 		this.getEvent(eventName).call(this, arg1, arg2);
 		return this;
 	}
 
+	//Работа с массивом v.fields
+  	v.getField = function($fields){
+  		if(!$fields) return v.fields;
+  		return v.fields.filter(function(item) {
+		  return $(item.$el).is($fields);
+		});
+  	}
+  	v.filterField = function(fn){
+  		if(!fn || !$.isFunction(fn)) throw new Error("citrusValidator: ошибка в аргументе функции filterField");
+  		return v.fields.filter(fn);
+  	}
 
-	/**
-	* ====================	Основные функции плагина ====================
-	*/
+
+
 	//Vfield массив из функции getField
-  	validator.validateField = function(Vfield, action, callback){
+  	v.validateField = function(Vfield, action, callback){
   		var Vfield = $.isArray(Vfield) ? Vfield : Array(Vfield),
   			action = action === undefined ? true : action,
   			callback = callback || function(){};
 
   		Vfield.forEach(function(Vfield){
-  			if(Vfield.params.lockOnValid) validator.callEvent("lockField", Vfield.$el);
+  			if(Vfield.params.lockOnValid) v.callEvent("lockField", Vfield.$el);
 
   			var arRulesLength = Vfield.arRules.length,
   				arErrors = Array(),
   				isValid;
 
 			function onComplete () {
-				if(Vfield.params.lockOnValid) validator.callEvent("unlockField", Vfield.$el);
+				if(Vfield.params.lockOnValid) v.callEvent("unlockField", Vfield.$el);
 					Vfield.errors = arErrors;
 				if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file, :radio, select") ) Vfield.params.trigger = "keyup";
 
 				if (arErrors.length > 0 ) {
-					if(action) validator.callEvent("addFieldError", Vfield.$el, arErrors);
+					if(action) v.callEvent("addFieldError", Vfield.$el, arErrors);
 					Vfield.$el.trigger("validError", [Vfield]);
 					Vfield.isValid = false;
 				} else {
 					if( !Vfield.$el.is(":checkbox, :radio") && !Vfield.$el.val() ) {
-						if(action) validator.callEvent("clearField", Vfield.$el);
+						if(action) v.callEvent("clearField", Vfield.$el);
 						delete  Vfield.isValid;
 					}else {
-						if(action) validator.callEvent("removeFieldError", Vfield.$el);
+						if(action) v.callEvent("removeFieldError", Vfield.$el);
 						Vfield.$el.trigger("validSucess", [Vfield]);
 						Vfield.isValid = true;
 					};
@@ -596,14 +616,14 @@ window.citrusValidator = function (form, options) {
 				callback(Vfield, arErrors);
 			}
 			if( Vfield.$el.prop("disabled") ) {
-  				if(action) validator.callEvent("clearField", Vfield.$el);
+  				if(action) v.callEvent("clearField", Vfield.$el);
 				delete  Vfield.isValid;
 				onComplete ();
 				return;
   			}
 			if(!arRulesLength) {onComplete(); return true;}
   			Vfield.arRules.forEach(function(rule) {
-  				var fnRule = validator.getRule(rule);
+  				var fnRule = v.getRule(rule);
 	  			if(!fnRule || !$.isFunction(fnRule)) {
 	  				console.log("citrusValidator: Нет правила '"+rule+ "'");
 
@@ -611,7 +631,7 @@ window.citrusValidator = function (form, options) {
 	  				return true;
 	  			}
 
-	  			fnRule.call( validator, Vfield, function(Vfield, errors){
+	  			fnRule.call( v, Vfield, function(Vfield, errors){
 	  				if(!!errors) arErrors[arErrors.length] = errors;
 
 	  				if(!(--arRulesLength)) onComplete();
@@ -619,41 +639,38 @@ window.citrusValidator = function (form, options) {
 	  			return true;
 	  		});
   		});
-  	};
-  	/**
-  	* @action = если false не выводит никаких сообщений, только срабатывает callback(form)
-  	*/
-  	validator.validateForm = function( action, callback ){
+  	};  	
+  	v.validateForm = function( action, callback ){
   		var callback = callback || function(){};
   		var action = typeof action === "undefined" ? true : !!action;
 
   		//сбор полей для валидации
-	    var countFields = validator.fields.length;
-	    validator.isValid = true;
-	    if( !countFields ) {callback(validator); if(action) validator.callEvent("afterFormValidate"); return true};
+	    var countFields = v.fields.length;
+	    v.isValid = true;
+	    if( !countFields ) {callback(v); if(action) v.callEvent("afterFormValidate"); return true};
 
-		validator.fields.forEach(function(Vfield) {
+		v.fields.forEach(function(Vfield) {
 			if( Vfield.isValid !== undefined && Vfield.params["trigger"] !== "submit" ) {
-				if(!Vfield.isValid) validator.isValid = false;
+				if(!Vfield.isValid) v.isValid = false;
 				if(!(--countFields)) {
-					callback(validator);
-					if(action) validator.callEvent("afterFormValidate");
-					if(action) validator.callEvent("scrollToFirstError");
+					callback(v);
+					if(action) v.callEvent("afterFormValidate");
+					if(action) v.callEvent("scrollToFirstError");
 				}
 			} else {
-				validator.validateField(Vfield, action, function(Vfield){
-					if(!Vfield.isValid && Vfield.isValid !== undefined) validator.isValid = false;
+				v.validateField(Vfield, action, function(Vfield){
+					if(!Vfield.isValid && Vfield.isValid !== undefined) v.isValid = false;
 					if(!(--countFields)) {
-						callback(validator);
-						if(action) validator.callEvent("afterFormValidate");
-						if(action) validator.callEvent("scrollToFirstError");
+						callback(v);
+						if(action) v.callEvent("afterFormValidate");
+						if(action) v.callEvent("scrollToFirstError");
 					}
 				});
 			}
 		});
   	}
-  	validator.checkImportant = function(){
-  		var important_fields = validator.filterField(function(field){return !!field.params["important"]});
+  	v.checkImportant = function(){
+  		var important_fields = v.filterField(function(field){return !!field.params["important"]});
 
 		var importantIsvalid = true;
 		if(important_fields.length > 0) {
@@ -662,7 +679,7 @@ window.citrusValidator = function (form, options) {
 					if ( !Vfield.isValid ) importantIsvalid = false;
 					return;
 				} else {
-					validator.validateField(Vfield, false, function(Vfield) {
+					v.validateField(Vfield, false, function(Vfield) {
 						if ( !Vfield.isValid ) importantIsvalid = false;
 					});
 				}
@@ -671,19 +688,7 @@ window.citrusValidator = function (form, options) {
 		return importantIsvalid;
   	}
 
-  	//возвращает массив validator.fields отсортированный по массиву $el
-  	validator.getField = function($fields){
-  		if(!$fields) return validator.fields;
-  		return validator.fields.filter(function(item) {
-		  return $(item.$el).is($fields);
-		});
-  	}
-  	validator.filterField = function(fn){
-  		if(!fn || !$.isFunction(fn)) throw new Error("citrusValidator: ошибка в аргументе функции filterField");
-  		return validator.fields.filter(fn);
-  	}
-
-  	validator.addField = function($fields, arRules, params, messages){
+  	v.addField = function($fields, arRules, params, messages){
   		if(!$fields || $.type($fields) !=="object" || !$fields.length ) throw new Error("citrusValidator: ошибка в аргументе $fields");
 
   		var arRules = arRules || [],
@@ -694,7 +699,7 @@ window.citrusValidator = function (form, options) {
   			var $el = $(this).prop("type") == "radio" ? $('[name="' + $(this).prop("name") + '"]') : $(this);
 
   			//проверка на наличие уже в массиве этих полей
-  			var findedField = validator.getField($(field));
+  			var findedField = v.getField($(field));
   			if(findedField.length) {
   				findedField = findedField[0];
   				//если поле уже в массиве полей то сливаем правила и параметры
@@ -705,7 +710,7 @@ window.citrusValidator = function (form, options) {
   			}
 
   			//собираем массив полей
-			validator.fields[validator.fields.length] = {
+			v.fields[v.fields.length] = {
 				$el: $el,
 				arRules: arRules,
 				params: params,
@@ -715,16 +720,16 @@ window.citrusValidator = function (form, options) {
 			//обрабатываются события change и keyup. По умолчанию change меняется на keyup после первой валидации. Можно установить через data-validate-trigger у каждого поля
 			$el.on('change keyup', function(event) {
 				if( event.keyCode == 13 ) return;
-				var field = validator.getField($(this))[0] || false;
-				if(!field) {console.error("Нет поля в массиве полей validator.fields");return;}
+				var field = v.getField($(this))[0] || false;
+				if(!field) {console.error("Нет поля в массиве полей v.fields");return;}
 				var validateTrigger = field["params"]["trigger"] || "change";
 				if( validateTrigger.indexOf(event.type) < 0  ) return;
 
-				var Vfield = validator.getField($(this));
+				var Vfield = v.getField($(this));
 
-				validator.validateField(Vfield, true, function(Vfield){
+				v.validateField(Vfield, true, function(Vfield){
 					if(!!Vfield.params.important) {
-						validator.callEvent(validator.checkImportant() ? "unlockForm":"lockForm");
+						v.callEvent(v.checkImportant() ? "unlockForm":"lockForm");
 					}
 				});
 			});
@@ -733,30 +738,30 @@ window.citrusValidator = function (form, options) {
   	}
   	//init
   	;(function(){
-  		validator.$form.find('[data-valid], [data-valid-params], [data-valid-messages]').each(function(index, el) {
+  		v.$form.find('[data-valid], [data-valid-params], [data-valid-messages]').each(function(index, el) {
   			var arRules = $(el).data("valid") ? $(el).data("valid").split(" ") : [];
   			var params = $(el).data("valid-params") || {};
   			var messages = $(el).data("valid-messages") || {};
   			if ( arRules || params)
-  				validator.addField( $(el), arRules, params, messages );
+  				v.addField( $(el), arRules, params, messages );
   		});
 
 		//обрабаываем сабмит
-		validator.$form.on('click', validator.settings.submitBtn, function(event) {
+		v.$form.on('click', v.settings.submitBtn, function(event) {
 			event.preventDefault();
-			if(!$(this).attr("disabled")) validator.validateForm();
+			if(!$(this).attr("disabled")) v.validateForm();
 		});
 		//обработка нажатий enter в форме
-		if (validator.settings.submitBtn !== ":submit") {
-			validator.$form.on('keypress' , function(event){
+		if (v.settings.submitBtn !== ":submit") {
+			v.$form.on('keypress' , function(event){
 				if( event.keyCode == 13 && event.target.type !== "textarea") {
 					event.preventDefault();
-					validator.validateForm();
+					v.validateForm();
 				}
 			});
 		};
 		//проверка полей important
-		if(!validator.checkImportant()) validator.callEvent("lockForm");
+		if(!v.checkImportant()) v.callEvent("lockForm");
   	})();
 }
 
