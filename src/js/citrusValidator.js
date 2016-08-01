@@ -1,7 +1,8 @@
+
 /*=========================
   citrusValidator
   ===========================*/
-  
+
 window.citrusValidator = function (form, options) {
 	if(!form || form.length != 1) throw new Error("citrusValidator: ошибка в аргументе form");
 
@@ -152,7 +153,7 @@ window.citrusValidator = function (form, options) {
 	  			return true;
 	  		});
   		});
-  	};  	
+  	};
   	v.validateForm = function( action, callback ){
   		var callback = callback || function(){};
   		var action = typeof action === "undefined" ? true : !!action;

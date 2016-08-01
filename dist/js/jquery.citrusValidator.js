@@ -38,10 +38,11 @@ function clone(obj){
 	    return new F;
 	  };
 	}
+
 /*=========================
   Default messages
   ===========================*/
-  
+
 var obMessages = {
 	required: "Это поле необходимо заполнить.",
 	email: "Пожалуйста, введите корректный адрес электронной почты.",
@@ -64,6 +65,7 @@ var obMessages = {
 	kpp: "Пожалуйста, введите корректный КПП.",
 	filetype: "Не верный тип файла. Возможные типы: {0}."
 }
+
 /*=========================
   Default Rules
   ===========================*/
@@ -351,10 +353,11 @@ var obRules = {
 		callback(Vfield, errors);
 	},
 };
+
 /*=========================
   Default events
   ===========================*/
-  
+
 var obEvents = {
 	addFieldError: function($field, arErrors){
 		var input_container = $field.parents(".input-container");
@@ -414,6 +417,7 @@ var obEvents = {
   		v.callEvent(v.checkImportant() ? "unlockForm":"lockForm");
   	}
 }
+
 /*=========================
   citrusValidator prototype
   ===========================*/
@@ -485,10 +489,11 @@ var proto = new function(){
 		return false;
 	}
 };
+
 /*=========================
   citrusValidator
   ===========================*/
-  
+
 window.citrusValidator = function (form, options) {
 	if(!form || form.length != 1) throw new Error("citrusValidator: ошибка в аргументе form");
 
@@ -639,7 +644,7 @@ window.citrusValidator = function (form, options) {
 	  			return true;
 	  		});
   		});
-  	};  	
+  	};
   	v.validateForm = function( action, callback ){
   		var callback = callback || function(){};
   		var action = typeof action === "undefined" ? true : !!action;

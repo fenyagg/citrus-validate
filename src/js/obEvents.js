@@ -1,7 +1,8 @@
+
 /*=========================
   Default events
   ===========================*/
-  
+
 var obEvents = {
 	addFieldError: function($field, arErrors){
 		var input_container = $field.parents(".input-container");
