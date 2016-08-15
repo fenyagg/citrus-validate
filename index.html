@@ -4,8 +4,12 @@
 	<title>JQuery-validation demo | Bootstrap</title>
 	<meta charset="UTF-8">
 
+<!-- frameworks -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+<!-- libs -->
+	<script src="dist/libs/jquery.maskedinput.js"></script>
 
 	<script src="dist/js/jquery.citrusValidator.min.js"></script>
 	<link rel="stylesheet" href="dist/css/jquery.citrusValidator.min.css">
@@ -30,6 +34,7 @@
 					console.log(this)
 					console.log(vField);;
 				});
+			$("#phone").mask("+7 (999) 999-99-99");
 		});
 	</script>
 </head>
@@ -75,7 +80,7 @@
 							<div class="form-group">
 								<label class="col-sm-4 control-label" for="firstname1">Телефон:<span class="red">*</span></label>
 								<div class="col-sm-6 input-container">
-									<input data-valid="phone_all required" data-valid-params = '{"ajax-url":"ajax.php"}' type="text" class="form-control" name="phone" placeholder="99-99-99 или +7 (999) 999-99-99" id="phone"/>
+									<input data-valid="phone required" data-valid-params = '{"ajax-url":"ajax.php"}' type="text" class="form-control" name="phone" placeholder="99-99-99 или +7 (999) 999-99-99" id="phone"/>
 								</div>
 							</div>
 							<div class="form-group">

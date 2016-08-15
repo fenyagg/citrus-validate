@@ -20,13 +20,15 @@
 			                root: 		'dist/',
 			                styles: 	'dist/css/',
 			                scripts: 	'dist/js/',
-			                lang: 		'dist/js/lang/'
+			                lang: 		'dist/js/lang/',
+			                libsJS: 	'dist/libs/',
 			            },
 			            source: {
 			                root: 		'src/',
 			                styles: 	'src/css/*.css',
 			                scripts: 	'src/js/*.js',
-			                lang: 		'src/js/lang/*.js'
+			                lang: 		'src/js/lang/*.js',
+			                libsJS: 	"src/libs/*.js"
 		            	},
        			 	},
        	v 			= {
@@ -40,6 +42,11 @@
        						'src/js/citrusValidator.js',
        						'src/js/wrap_end.js',
        					]
+       				},
+       	libs		= {
+       					jsFiles: [
+       						"src/libs/*.js"
+       					]
        				};
 
 
@@ -51,6 +58,10 @@
 	gulp.task("bildLang", function () {
 		return  gulp.src(paths.source.lang)
 					.pipe(gulp.dest(paths.dist.lang));
+	});
+	gulp.task("bildLibs", function () {
+		return  gulp.src(paths.source.libsJS)
+					.pipe(gulp.dest(paths.dist.libsJS));
 	});
 	gulp.task("bildJS", function () {
  		return 	gulp.src(v.jsFiles)
@@ -71,8 +82,8 @@
 				   	.pipe(gulp.dest(paths.dist.styles));
 	});
 
-	
-	gulp.task("bild", ['bildLang', 'bildJS', 'bildCSS'], function  () {
+
+	gulp.task("bild", ['bildLang', 'bildLibs', 'bildJS', 'bildCSS'], function  () {
 		return true;
 	});
 	gulp.task("browser-sync", function () {
@@ -84,12 +95,14 @@
 		});
 	});
 
-	gulp.task('dev', ['browser-sync', 'bildJS', 'bildCSS'], function () {
+	gulp.task('dev', ['browser-sync', 'bild'], function () {
 		gulp.watch(paths.source.scripts, ['bildJS']);
 		gulp.watch(paths.source.lang, ['bildLang']);
 		gulp.watch(paths.source.styles, ['bildCSS']);
+		gulp.watch(paths.source.libsJS, ['bildLibs']);
 
 		gulp.watch(paths.source.scripts, browserSync.reload);
+		gulp.watch(paths.source.libsJS, browserSync.reload);
 		gulp.watch(paths.source.styles, browserSync.reload);
 		gulp.watch(paths.root+"index.html", browserSync.reload);
 	});
