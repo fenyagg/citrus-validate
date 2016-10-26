@@ -118,6 +118,7 @@ var obRules = {
 	},
 	"length" : function(Vfield, callback) {
 		var field = Vfield.$el;
+		if(!field.val()) {callback(Vfield); return true;};
 
 		var dataMinlength = Vfield.params.minlength,
 			dataMaxlength = Vfield.params.maxlength,
