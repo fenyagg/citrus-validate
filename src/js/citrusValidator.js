@@ -256,8 +256,7 @@ window.citrusValidator = function (form, options) {
   			var arRules = $(el).data("valid") ? $(el).data("valid").split(" ") : [];
   			var params = $(el).data("valid-params") || {};
   			var messages = $(el).data("valid-messages") || {};
-  			if ( arRules || params)
-  				v.addField( $(el), arRules, params, messages );
+			if ( arRules.length || !$.isEmptyObject(params) || !$.isEmptyObject(messages)) v.addField( $(el), arRules, params, messages );
   		});
 
 		//обрабаываем сабмит
