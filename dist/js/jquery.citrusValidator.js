@@ -739,6 +739,14 @@ window.citrusValidator = function (form, options) {
 					}
 				});
 			});
+			$el.on('validate', function () {
+				var Vfield = v.getField($(this));
+				v.validateField(Vfield, true, function(Vfield){
+					if(!!Vfield.params.important) {
+						v.callEvent(v.checkImportant() ? "unlockForm":"lockForm");
+					}
+				});
+			});
   		});
   		return $fields;
   	}
