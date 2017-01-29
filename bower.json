@@ -16,6 +16,20 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    "demo",
+    "src",
+    ".gitattributes",
+    ".gitignore",
+    ".sublime-gulp.cache",
+    "ajax.php",
+    "bower.json",
+    "gulpfile.js",
+    "index.html",
+    "package.json",
+    "README.md",
+    "sublime-gulp.log",
+
+    "dist/libs"
   ]
 }
