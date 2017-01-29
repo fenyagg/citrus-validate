@@ -33,7 +33,6 @@
     "bower.json",
     ".bower.json",
 
-    "dist/libs",
-    "dist/css"
+    "dist/libs"
   ]
 }
