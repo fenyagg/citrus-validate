@@ -1,0 +1,21 @@
+{
+  "name": "citrus-validator",
+  "description": "Jquery validator",
+  "main": "dist/js/jquery.citrusValidator.min.js",
+  "authors": [
+    "fenyagg"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "citrus-validator"
+  ],
+  "homepage": "https://github.com/fenyagg/citrus-validate",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
