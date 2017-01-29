@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JQuery-validation demo | Bootstrap</title>
+    <meta charset="UTF-8">
+
+    <!-- frameworks -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+    <!-- libs -->
+    <script src="../dist/libs/jquery.maskedinput.js"></script>
+
+    <script src="../dist/js/jquery.citrusValidator.min.js"></script>
+    <link rel="stylesheet" href="../dist/css/jquery.citrusValidator.min.css">
+    <script>
+        $(function() {
+            //вызов валидатора
+            new citrusValidator($("#signupForm2"))
+                .addField(
+                        $("#f2_length"),
+                        ["required", "length"],
+                        {"minlength":2,"maxlength":6},
+                        {"required": "test"}
+                )
+                .on('validSucess', function(event, vField) {
+                    console.log(this);
+                    console.log(event);
+                })
+                .on('validError', function(event, vField) {
+                    console.log(this)
+                    console.log(vField);;
+                });
+        });
+    </script>
+</head>
+<body>
+<p><br></p>
+<div class="container">
+    <h4>Добавление полей через addFeild и события "validSucess", "validError". <br>
+        Установка сообщеия для правила "required".</h4>
+    <br>
+    <div class="row">
+        <form id="signupForm2" method="post" class="form-validate form-horizontal" action="" autocomplete="off">
+            <div class="form-group">
+                <label class="col-sm-4 control-label" for="firstname1">Длина строки:<span class="red">*</span></label>
+                <div class="col-sm-6 input-container">
+                    <input type="text" class="form-control" name="uname" placeholder="от 2 до 6" id="f2_length" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-9 col-sm-offset-4">
+                    <button type="submit" class="btn btn-primary" name="signup1" value="Sign up">Валидация</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

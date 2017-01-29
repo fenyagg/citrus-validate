@@ -21,12 +21,19 @@
 .form-horizontal .has-feedback .radio .form-control-feedback {
 	right: 0;
 }
-.form-validate .has-success input {
+.form-validate .input-container.has-success:not(.has-group-error) input,
+.form-validate .input-container.has-group-success:not(.has-error) input {
     border-color: #3c763d;
     -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
 }
-.form-validate .has-error input {
+
+.has-error .help-block, .has-group-error .help-block {
+    color: #a94442;
+}
+
+.form-validate .has-error input,
+.form-validate .has-group-error input{
     border-color: #a94442;
     -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
@@ -38,12 +45,12 @@
 	padding: 0;
     font-weight: bold;
 }
-   .input-container:not(.has-error) .help-block.error {
+   .input-container:not(.has-error) .help-block.error, .input-container:not(.has-group-error) .help-block.group-error {
         opacity: 0;
         height: 0;
         margin: 0;
     }
-    .input-container.has-error .help-block.error {
+    .input-container.has-error .help-block.error, .input-container.has-group-error .help-block.group-error {
         opacity: 1;
         margin-bottom: 0;
         -webkit-transition: opacity .3s ease;
@@ -67,11 +74,19 @@
 .input-container.has-success input[type='checkbox'],
 .input-container.has-success input[type='radio'],
 .input-container.has-error input[type='checkbox'],
-.input-container.has-error input[type='radio'] {
+.input-container.has-error input[type='radio'],
+.input-container.has-group-success input[type='checkbox'],
+.input-container.has-group-success input[type='radio'],
+.input-container.has-group-error input[type='checkbox'],
+.input-container.has-group-error input[type='radio']{
 	padding-right: 0;
 }
 
-.input-container.has-success:after, .input-container.has-error:after, .input-container.ajax-loading:after {
+.input-container.has-success:after,
+.input-container.has-error:after,
+.input-container.has-group-success:after,
+.input-container.has-group-error:after,
+.input-container.ajax-loading:after {
     font-family: 'Glyphicons Halflings';
     position: absolute;
     top: 0;
@@ -86,11 +101,11 @@
     text-align: center;
     pointer-events: none;
 }
-.input-container.has-success:after {
+.input-container.has-success:not(.has-group-error):after, .input-container.has-group-success:not(.has-error):after {
     content: "\e013";
     color: #3c763d;
 }
-.input-container.has-error:after {
+.input-container.has-error:after, .input-container.has-group-error:after {
     content: "\e014";
     color: #a94442;
 }

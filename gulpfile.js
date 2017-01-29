@@ -95,16 +95,16 @@
 		});
 	});
 
-	gulp.task('dev', ['browser-sync', 'bild'], function () {
+	gulp.task('dev', ['bild'], function () {
 		gulp.watch(paths.source.scripts, ['bildJS']);
 		gulp.watch(paths.source.lang, ['bildLang']);
 		gulp.watch(paths.source.styles, ['bildCSS']);
 		gulp.watch(paths.source.libsJS, ['bildLibs']);
 
-		gulp.watch(paths.source.scripts, browserSync.reload);
+		/*gulp.watch(paths.source.scripts, browserSync.reload);
 		gulp.watch(paths.source.libsJS, browserSync.reload);
 		gulp.watch(paths.source.styles, browserSync.reload);
-		gulp.watch(paths.root+"index.html", browserSync.reload);
+		gulp.watch(paths.root+"index.html", browserSync.reload);*/
 	});
 
 })();

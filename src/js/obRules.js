@@ -9,6 +9,32 @@ function clearString(string){
 }
 // Правила валидации
 var obRules = {
+	ruleGroup: function(Vfield, callback) {
+        var v = this,
+            isValid = false,
+            arRulesLength;
+
+		if( $.isArray(Vfield.params.ruleGroup) && Vfield.params.ruleGroup.length ) {
+            arRulesLength = Vfield.params.ruleGroup.length;
+            var onComplete = function () {
+                var errors = isValid ? "" : v.getMessage.call(Vfield, "ruleGroup");
+                callback(Vfield, errors);               
+            };
+			Vfield.params.ruleGroup.forEach(function (rule) {
+				var fnRule = v.getRule(rule);
+                if(!fnRule || !$.isFunction(fnRule)) {
+                    console.error("citrusValidator: Нет правила '"+rule+ "'");
+                    if(!(--arRulesLength)) onComplete();
+                    return true;
+                }
+                fnRule.call( v, Vfield, function(Vfield, errors){
+                    if(!errors) isValid = true;
+                    if(!(--arRulesLength)) onComplete();
+                });
+
+			});
+		}
+	},
 	"file" : function(Vfield, callback) {
 		var field = Vfield.$el;
 		if(!field.val()) {callback(Vfield); return true;};
@@ -28,8 +54,7 @@ var obRules = {
 	},
 	"required" : function(Vfield, callback) {
 		var fieldNode = Vfield.$el.get(0);
-		var isValid = fieldNode.type === 'checkbox' ? fieldNode.checked : fieldNode.type === 'radio' ? $('[name="' + fieldNode.name + '"]:checked').length : $.trim(fieldNode.value) !== '';
-
+		var isValid = fieldNode.type === 'radio' || fieldNode.type === 'checkbox' ? this.$form.find('[name="' + fieldNode.name + '"]:checked').length : $.trim(fieldNode.value) !== '';
 		var errors = isValid ? "" : this.getMessage.call(Vfield,"required");
 		callback(Vfield, errors);
 	},
@@ -60,9 +85,12 @@ var obRules = {
 	},
 	//post ajax запрос по пути ajax-url. Ответ строка с ошибкой
 	"ajax": function(Vfield, callback) {
+        var validator = this;
 		var field = Vfield.$el;
 		if(!field.val()) {callback(Vfield); return true;};
-		var validator = this;
+
+        validator.callEvent("lockField", field);
+
 		var parthToAjax = Vfield.params.ajaxUrl;
 		if(parthToAjax.length > 0) {
 			$.ajax({
@@ -76,9 +104,12 @@ var obRules = {
 				callback(Vfield);
 			})
 			.fail(function() {
-				console.error("error");
+				console.error("citrusValidator: ajax validate error");
 				callback(Vfield);
-			});
+			})
+            .always(function() {
+                validator.callEvent("unlockField", field);
+            });
 		}
 	},
 	"email" : function(Vfield, callback){
