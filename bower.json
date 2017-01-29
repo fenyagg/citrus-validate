@@ -1,7 +1,7 @@
 {
   "name": "citrus-validator",
   "description": "Jquery validator",
-  "main": "dist/js/jquery.citrusValidator.min.js",
+  "main": "dist/js/jquery.citrusValidator.js",
   "authors": [
     "fenyagg"
   ],
@@ -10,7 +10,7 @@
     "citrus-validator"
   ],
   "homepage": "https://github.com/fenyagg/citrus-validate",
-  "private": true,
+  "private": false,
   "ignore": [
     "**/.*",
     "node_modules",
