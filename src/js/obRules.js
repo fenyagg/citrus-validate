@@ -149,6 +149,7 @@ var obRules = {
 	},
 	"length" : function(Vfield, callback) {
 		var field = Vfield.$el;
+		if(!field.val()) {callback(Vfield); return true;};
 
 		var dataMinlength = Vfield.params.minlength,
 			dataMaxlength = Vfield.params.maxlength,
@@ -177,8 +178,8 @@ var obRules = {
 	"confirm_password": function(Vfield, callback){
 		var field = Vfield.$el;
 		if(!field.val()) {callback(Vfield); return true;};
-		var target = field.parents("form").find("[data-valid*='main_password']");
-		var isValid = (field.val() === target.val());
+		var target = this.filterField(function(field){return $.inArray( "main_password", field.arRules)+1})[0];
+		var isValid = (field.val() === target.$el.val());
 		var errors = isValid ? "" : this.getMessage.call(Vfield,"confirm_password");
 		callback(Vfield, errors);
 	},

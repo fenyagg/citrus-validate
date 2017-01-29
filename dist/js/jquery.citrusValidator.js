@@ -195,6 +195,7 @@ var obRules = {
 	},
 	"length" : function(Vfield, callback) {
 		var field = Vfield.$el;
+		if(!field.val()) {callback(Vfield); return true;};
 
 		var dataMinlength = Vfield.params.minlength,
 			dataMaxlength = Vfield.params.maxlength,
@@ -223,8 +224,8 @@ var obRules = {
 	"confirm_password": function(Vfield, callback){
 		var field = Vfield.$el;
 		if(!field.val()) {callback(Vfield); return true;};
-		var target = field.parents("form").find("[data-valid*='main_password']");
-		var isValid = (field.val() === target.val());
+		var target = this.filterField(function(field){return $.inArray( "main_password", field.arRules)+1})[0];
+		var isValid = (field.val() === target.$el.val());
 		var errors = isValid ? "" : this.getMessage.call(Vfield,"confirm_password");
 		callback(Vfield, errors);
 	},
@@ -828,6 +829,14 @@ window.citrusValidator = function (form, options) {
 					}
 				});
 			});
+			$el.on('validate', function () {
+				var Vfield = v.getField($(this));
+				v.validateField(Vfield, true, function(Vfield){
+					if(!!Vfield.params.important) {
+						v.callEvent(v.checkImportant() ? "unlockForm":"lockForm");
+					}
+				});
+			});
   		});
   		return $fields;
   	};
@@ -837,8 +846,7 @@ window.citrusValidator = function (form, options) {
   			var arRules = $(el).data("valid") ? $(el).data("valid").split(" ") : [];
   			var params = $(el).data("valid-params") || {};
   			var messages = $(el).data("valid-messages") || {};
-  			if ( arRules || params)
-  				v.addField( $(el), arRules, params, messages );
+			if ( arRules.length || !$.isEmptyObject(params) || !$.isEmptyObject(messages)) v.addField( $(el), arRules, params, messages );
   		});
 
 		//обрабаываем сабмит

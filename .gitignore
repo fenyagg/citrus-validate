@@ -1,4 +1,8 @@
 node_modules
 *.log
 *.cache
+<<<<<<< HEAD
 .idea
+=======
+/.idea
+>>>>>>> origin/master

@@ -291,6 +291,14 @@ window.citrusValidator = function (form, options) {
 					}
 				});
 			});
+			$el.on('validate', function () {
+				var Vfield = v.getField($(this));
+				v.validateField(Vfield, true, function(Vfield){
+					if(!!Vfield.params.important) {
+						v.callEvent(v.checkImportant() ? "unlockForm":"lockForm");
+					}
+				});
+			});
   		});
   		return $fields;
   	};
@@ -300,8 +308,7 @@ window.citrusValidator = function (form, options) {
   			var arRules = $(el).data("valid") ? $(el).data("valid").split(" ") : [];
   			var params = $(el).data("valid-params") || {};
   			var messages = $(el).data("valid-messages") || {};
-  			if ( arRules || params)
-  				v.addField( $(el), arRules, params, messages );
+			if ( arRules.length || !$.isEmptyObject(params) || !$.isEmptyObject(messages)) v.addField( $(el), arRules, params, messages );
   		});
 
 		//обрабаываем сабмит
