@@ -1,5 +1,5 @@
 # Summary
 
-* [Introduction](README.md)
-* Главная
+* [Главная](README.md)
+* [События](glavnaya.md)
 

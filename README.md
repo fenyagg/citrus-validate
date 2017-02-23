@@ -55,20 +55,6 @@ html:
     <li><b>kpp</b> - КПП</li>
 </ul>
 
-<h3>Предустановленные события</h3>
-<ul>
-    <li><b>addFieldError(field)</b> - добавляет ошибку к полю и класс "has-error"</li>
-    <li><b>removeFieldError(field)</b> - удаляет ошибку к полю и добавляет класс "has-success"</li>
-    <li><b>clearField(field)</b> - удаляет все классы и сообщения об ошибках и правильной валидации</li>
-    <li><b>lockField(field)</b> - блокирует заполнение поля и вешает loading (для аякс запросов)</li>
-    <li><b>unlockField(field)</b> - разблокирует поле</li>
-    <li><b>lockForm(form)</b> - блокирует submit</li>
-    <li><b>unlockForm(form)</b>- разблокирует submit</li>
-    <li><b>afterFormValidate(form)</b> - запускает submit формы если form.isValid</li>
-</ul>
-
-
-
 <h3>Все глобальные события, сообщения и правила устанавливаются через прототип (citrusValidator.prototype).</h3>
 <ul>
     <li><b>_getMessage(messageName, arParams)</b> -  возвращает сообщение messageName отоформатированное массивом arParams или все сообщения если messageName пустое </li>
