@@ -9,13 +9,6 @@
 <h2>Пример использования citrusValidator</h2>
 
 
-```
-<script>
-    let a = 3;
-</script>
-```
-
-
 ```js
 $(function() {
   var form = new citrusValidator($("#signupForm1"));
