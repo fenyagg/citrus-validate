@@ -31,10 +31,8 @@
     "gulpfile.js",
     "index.html",
     "package.json",
-    "README.md",
     "sublime-gulp.log",
-    "bower.json",
-    ".bower.json",
+    "*.md",
 
     "dist/libs"
   ]
