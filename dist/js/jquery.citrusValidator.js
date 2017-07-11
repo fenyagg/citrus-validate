@@ -792,7 +792,7 @@ window.citrusValidator = function (form, options) {
   			if(findedField.length) {
   				findedField = findedField[0];
   				//если поле уже в массиве полей то сливаем правила и параметры
-  				findedField.arRules = $.unique( $.merge( findedField.arRules, arRules) );
+  				findedField.arRules = $.unique( $.merge( findedField.arRules.slice(), arRules) );
   				findedField.params = $.extend( true, findedField.params, params );
   				findedField.messages = $.extend( true, findedField.messages, messages );
   				return;

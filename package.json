@@ -1,6 +1,6 @@
 {
   "name": "citrus-validator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Jquery validator",
   "main": "dist/js/jquery.citrusValidator.min.js",
   "scripts": {
