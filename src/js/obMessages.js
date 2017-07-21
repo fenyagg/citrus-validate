@@ -26,5 +26,6 @@ var obMessages = {
 	filetype: "Invalid file type. Possible types: {0}.",
 	group: "Please fill in the {0}.",
     list_separator: " or ",
-	ruleGroup: "Wrong format"
+	ruleGroup: "Wrong format",
+	recaptcha: 'Anti-spam protection'
 };

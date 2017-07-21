@@ -317,4 +317,29 @@ var obRules = {
 		var errors = isValid ? "" : this.getMessage.call(Vfield,"kpp");
 		callback(Vfield, errors);
 	},
+	"recaptcha" : function (Vfield, callback) {
+		/*
+		* Использование
+		*< script src='//www.google.com/recaptcha/api.js?hl=ru'></script>
+		* <div id="<?=$fieldInfo['ID']?>"></div>
+		* <input type="hidden" name="<?=$fieldInfo['CODE']?>" data-valid='recaptcha'>
+		*      <script>
+			        if (typeof grecaptcha !== 'undefined') {
+			            var $hiddenRecaptcha = $('[name="<?=$fieldInfo['CODE']?>"]');
+				        var widgetId = grecaptcha.render('<?=$fieldInfo['ID']?>', {
+					        'sitekey' : '<?=($arParams['GOOGLE_RECAPTCHA_PUBLIC_KEY'])?>',
+					        'callback' : function(){ $hiddenRecaptcha.trigger('validate');},
+				        });
+				        $hiddenRecaptcha.data('widget-id', widgetId);
+			        }
+			    </script>
+		* */
+
+		if (typeof grecaptcha === 'undefined') {callback(Vfield); return;}
+
+		var widjetId = Vfield.$el.data('widget-id');
+		var isValid = grecaptcha.getResponse(widjetId);
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"recaptcha");
+		callback(Vfield, errors);
+	}
 };

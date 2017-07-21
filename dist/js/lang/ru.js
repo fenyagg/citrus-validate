@@ -21,5 +21,6 @@ citrusValidator.prototype._setMessage ({
 	filetype: "Не верный тип файла. Возможные типы: {0}.",
 	group: "Пожалуйста, заполните {0}.",
 	list_separator: " или ",
-    ruleGroup: "Не верный формат"
+    ruleGroup: "Не верный формат",
+	recaptcha: 'Не пройдена защита от спама'
 });
