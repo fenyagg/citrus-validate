@@ -70,3 +70,7 @@ var proto = new function(){
 		return false;
 	}
 };
+//добавление сообщений для битрикса
+if (typeof BX !== 'undefined' && !!BX.message("citrusValidator")) {
+	proto._setMessage(BX.message("citrusValidator"));
+}
