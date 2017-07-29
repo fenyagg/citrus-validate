@@ -367,6 +367,7 @@ var obRules = {
 	"recaptcha" : function (Vfield, callback) {
 		/*
 		* Использование
+		*< script src='//www.google.com/recaptcha/api.js?hl=ru'></script>
 		* <div id="<?=$fieldInfo['ID']?>"></div>
 		* <input type="hidden" name="<?=$fieldInfo['CODE']?>" data-valid='recaptcha'>
 		*      <script>
@@ -868,9 +869,28 @@ window.citrusValidator = function (form, options) {
   	//init
   	;(function(){
   		v.$form.find('[data-valid], [data-valid-params], [data-valid-messages]').each(function(index, el) {
-  			var arRules = $(el).data("valid") ? $(el).data("valid").split(" ") : [];
-  			var params = $(el).data("valid-params") || {};
-  			var messages = $(el).data("valid-messages") || {};
+  			var allData = $(el).data();
+  			var arRules = allData["valid"] ? allData["valid"].split(" ") : [];
+  			var params = allData["validParams"] || {};
+  			var messages = allData["validMessages"] || {};
+
+  			for (var dataName in allData) {
+			    if (dataName.indexOf('validParam')+1) {
+				    var paramName = dataName.replace('validParam', '');
+				    if ( paramName[0] === paramName[0].toUpperCase()) {
+					    paramName = paramName.toLowerCase();
+					    params[paramName] = allData[dataName];
+				    }
+			    }
+  				if (dataName.indexOf('validMessage')+1) {
+  					var messageName = dataName.replace('validMessage', '');
+  					if ( messageName[0] === messageName[0].toUpperCase()) {
+					    messageName = messageName.toLowerCase();
+					    messages[messageName] = allData[dataName];
+				    }
+			    }
+		    }
+
 			if ( arRules.length || !$.isEmptyObject(params) || !$.isEmptyObject(messages)) v.addField( $(el), arRules, params, messages );
   		});
 
