@@ -14,3 +14,6 @@
 	    return new F;
 	  };
 	}
+	var isset = function (v) {
+		return typeof v !== 'undefined' && v !== null;
+	};

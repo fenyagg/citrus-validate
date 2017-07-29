@@ -17,10 +17,12 @@
 	<script>
 		$(function() {
 			//вызов валидатора
-			//window.form = new citrusValidator($("#signupForm1"));
+			window.form = new citrusValidator($("#signupForm1"));
 			$(".phone_mask").mask("+7 (999) 999-99-99");
 
-			window.form1 = new citrusValidator($("#custom-message-form"));
+			$("#custom-message-form").citrusValidator();
+			var validator = $("form").citrusValidator('get');
+			console.log(validator);
 		});
 	</script>
 </head>

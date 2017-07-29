@@ -304,6 +304,8 @@ window.citrusValidator = function (form, options) {
   	};
   	//init
   	;(function(){
+  		if (proto._getValidator(v.$form).length) {console.warn('Form already init'); return;}
+
   		v.$form.find('[data-valid], [data-valid-params], [data-valid-messages]').each(function(index, el) {
   			var allData = $(el).data();
   			var arRules = allData["valid"] ? allData["valid"].split(" ") : [];
@@ -346,5 +348,7 @@ window.citrusValidator = function (form, options) {
 		};
 		//проверка полей important
 		if(!v.checkImportant()) v.callEvent("lockForm");
+
+		arValidators.push(v);
   	})();
 }

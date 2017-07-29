@@ -40,6 +40,7 @@
        						'src/js/obEvents.js',
        						'src/js/prototype.js',
        						'src/js/citrusValidator.js',
+					        'src/js/citrusValidatorPlugin.js',
        						'src/js/wrap_end.js',
        					]
        				},

@@ -14,6 +14,9 @@
 	    return new F;
 	  };
 	}
+	var isset = function (v) {
+		return typeof v !== 'undefined' && v !== null;
+	};
 
 /*=========================
   Default messages
@@ -495,8 +498,8 @@ var obEvents = {
   citrusValidator prototype
   ===========================*/
 
+var arValidators = [];
 var proto = new function(){
-
 	/*
 	*	возвращает сообщение messageName отоформатированное массивом arParams
 	* 	или все сообщения если messageName пустое
@@ -513,7 +516,7 @@ var proto = new function(){
 			return message;
 		}
 		if(!obMessages[messageName]) return obMessages;
-	}
+	};
 	this._setMessage = function(messages, messageText){
 		if(arguments.length === 1 && $.isPlainObject(messages) && !$.isEmptyObject(messages)) {
 			for (var prName in messages) {
@@ -526,11 +529,11 @@ var proto = new function(){
 			return true;
 		}
 		return false;
-	}
+	};
 	this._getRule = function(ruleName){
 		if( !ruleName ) return obRules;
 		return obRules[ruleName] || false;
-	}
+	};
 	this._setRule = function(rules, fn){
 		if(arguments.length === 1 && $.isPlainObject(rules) && !$.isEmptyObject(rules)) {
 			for (var prName in rules) {
@@ -543,11 +546,11 @@ var proto = new function(){
 			return true;
 		}
 		return false;
-	}
+	};
 	this._getEvent = function(eventName){
 		if( !eventName ) return obEvents;
 		return obEvents[eventName] || function(){};
-	}
+	};
 	this._setEvent = function(events, fn){
 		if(arguments.length === 1 && $.isPlainObject(events) && !$.isEmptyObject(events)) {
 			for (var prName in events) {
@@ -560,6 +563,12 @@ var proto = new function(){
 			return true;
 		}
 		return false;
+	};
+	this._getValidator = function ($el) {
+		if (!isset($el) && !$el.length) return [];
+		return arValidators.filter(function (validator) {
+			return $el.is(validator.$form);
+		});
 	}
 };
 //добавление сообщений для битрикса
@@ -872,6 +881,8 @@ window.citrusValidator = function (form, options) {
   	};
   	//init
   	;(function(){
+  		if (proto._getValidator(v.$form).length) {console.warn('Form already init'); return;}
+
   		v.$form.find('[data-valid], [data-valid-params], [data-valid-messages]').each(function(index, el) {
   			var allData = $(el).data();
   			var arRules = allData["valid"] ? allData["valid"].split(" ") : [];
@@ -914,8 +925,24 @@ window.citrusValidator = function (form, options) {
 		};
 		//проверка полей important
 		if(!v.checkImportant()) v.callEvent("lockForm");
+
+		arValidators.push(v);
   	})();
 }
+
+
+$.fn.citrusValidator = function(params) {
+	var $el = this;
+	if (isset(params) && params === 'get') {
+		return proto._getValidator($el);
+	} else {
+		var params = params || {};
+		return $el.each(function(index, form ) {
+			new citrusValidator($(form), params);
+		});
+	}
+};
+
 
 citrusValidator.prototype = proto;
 })( jQuery );
