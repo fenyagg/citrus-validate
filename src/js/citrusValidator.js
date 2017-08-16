@@ -141,7 +141,7 @@ window.citrusValidator = function (form, options) {
 	  			}
 
 	  			fnRule.call( v, Vfield, function(Vfield, errors){
-	  				if(!!errors) arErrors[arErrors.length] = errors;
+	  				if(!!errors && !!errors.length) arErrors[arErrors.length] = errors;
 
 	  				if(!(--arRulesLength)) onComplete();
 	  			});

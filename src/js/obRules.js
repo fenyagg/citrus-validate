@@ -37,19 +37,42 @@ var obRules = {
 	},
 	"file" : function(Vfield, callback) {
 		var field = Vfield.$el;
-		if(!field.val()) {callback(Vfield); return true;};
+		if(!field.val()) {callback(Vfield); return true;}
 
-		var ifTypeValid = true;
+		var ifTypeValid = true,
+			summFilesSize = 0;
+
 		for (var i = 0; i < field.get(0).files.length; i++) {
 			var file = field[0].files[i];
 			if ('name' in file) {
 				var ext = file.name.split(".");
 				ext = ext[ext.length-1].toLocaleLowerCase();
 				if( !(Vfield.params.filetype.indexOf(ext)+1) ) ifTypeValid = false;
+
+				summFilesSize +=file.size;
 			}
 		}
 
-		var errors = ifTypeValid ? "" : this.getMessage.call(Vfield,"filetype", [Vfield.params.filetype]);
+		var	ifSizeValid = true;
+		if (Vfield.params.filesize) {
+			var paramFileSize = Vfield.params.filesize;
+			var maxFileSize = Vfield.params.filesize,
+				arSizeCalc = {'мб': 1048576, 'mb': 1048576,'кб': 1024, 'kb': 1024};
+			for (var sizeName in arSizeCalc) {
+				if (typeof paramFileSize === 'string' && paramFileSize.indexOf(sizeName)+1) {
+					paramFileSize = +paramFileSize.replace(sizeName,'') * arSizeCalc[sizeName];
+				}
+			}
+			ifSizeValid = summFilesSize <= paramFileSize;
+		}
+
+		var errors = [];
+		if (!ifTypeValid)
+			errors.push(this.getMessage.call(Vfield,"filetype", [Vfield.params.filetype]));
+
+		if(!ifSizeValid)
+			errors.push(this.getMessage.call(Vfield,"filesize", [Vfield.params.filesize]));
+
 		callback(Vfield, errors);
 	},
 	"required" : function(Vfield, callback) {

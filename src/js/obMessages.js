@@ -24,6 +24,7 @@ var obMessages = {
 	ogrn: "Please enter a valid OGRN.",
 	kpp: "Please enter a valid KPP.",
 	filetype: "Invalid file type. Possible types: {0}.",
+	filesize: 'The file size should be no more than {0}',
 	group: "Please fill in the {0}.",
     list_separator: " or ",
 	ruleGroup: "Wrong format",
