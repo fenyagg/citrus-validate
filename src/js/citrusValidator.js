@@ -13,7 +13,8 @@ window.citrusValidator = function (form, options) {
 
 	v.settings = $.extend({
             'submitBtn': ':submit',
-            'input_container': ".input-container"
+            'input_container': ".input-container",
+			'checkInit': true
 	    }, options);
 	v.$form = form;
 	v.fields = [];
@@ -302,9 +303,19 @@ window.citrusValidator = function (form, options) {
   		});
   		return $fields;
   	};
+  	/*v.destroy = function () {
+		v = undefined;
+    };*/
   	//init
   	;(function(){
-  		if (proto._getValidator(v.$form).length) {console.warn('Form already init'); return;}
+		var arValidator = proto._getValidator(v.$form);
+  		if (arValidator.length) {
+		    if (v.settings.checkInit) {
+			    console.warn('Validator already init'); return;
+		    } else {
+			    v._removeValidator(arValidator);
+		    }
+		}
 
   		v.$form.find('[data-valid], [data-valid-params], [data-valid-messages]').each(function(index, el) {
   			var allData = $(el).data();

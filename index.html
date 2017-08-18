@@ -21,8 +21,11 @@
 			$(".phone_mask").mask("+7 (999) 999-99-99");
 
 			$("#custom-message-form").citrusValidator();
-			var validator = $("form").citrusValidator('get');
-			console.log(validator);
+			//удаление валидатора из массива
+			//citrusValidator.prototype._removeValidator(form);
+
+			$("form").citrusValidator({checkInit:false});
+			console.log($("form").citrusValidator('get'));
 		});
 	</script>
 </head>

@@ -829,7 +829,13 @@ var proto = new function(){
 		return arValidators.filter(function (validator) {
 			return $el.is(validator.$form);
 		});
-	}
+	};
+	this._removeValidator = function (arV) {
+		var arV = [].concat(arV);
+		arValidators = arValidators.filter(function (v) {
+			return !($.inArray(v,arV)+1);
+		});
+	};
 };
 //добавление сообщений для битрикса
 if (typeof BX !== 'undefined' && !!BX.message("citrusValidator")) {
@@ -850,7 +856,8 @@ window.citrusValidator = function (form, options) {
 
 	v.settings = $.extend({
             'submitBtn': ':submit',
-            'input_container': ".input-container"
+            'input_container': ".input-container",
+			'checkInit': true
 	    }, options);
 	v.$form = form;
 	v.fields = [];
@@ -1139,9 +1146,19 @@ window.citrusValidator = function (form, options) {
   		});
   		return $fields;
   	};
+  	/*v.destroy = function () {
+		v = undefined;
+    };*/
   	//init
   	;(function(){
-  		if (proto._getValidator(v.$form).length) {console.warn('Form already init'); return;}
+		var arValidator = proto._getValidator(v.$form);
+  		if (arValidator.length) {
+		    if (v.settings.checkInit) {
+			    console.warn('Validator already init'); return;
+		    } else {
+			    v._removeValidator(arValidator);
+		    }
+		}
 
   		v.$form.find('[data-valid], [data-valid-params], [data-valid-messages]').each(function(index, el) {
   			var allData = $(el).data();

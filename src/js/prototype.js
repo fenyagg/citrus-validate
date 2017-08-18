@@ -74,7 +74,13 @@ var proto = new function(){
 		return arValidators.filter(function (validator) {
 			return $el.is(validator.$form);
 		});
-	}
+	};
+	this._removeValidator = function (arV) {
+		var arV = [].concat(arV);
+		arValidators = arValidators.filter(function (v) {
+			return !($.inArray(v,arV)+1);
+		});
+	};
 };
 //добавление сообщений для битрикса
 if (typeof BX !== 'undefined' && !!BX.message("citrusValidator")) {
