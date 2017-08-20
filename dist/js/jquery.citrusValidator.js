@@ -64,6 +64,7 @@ function clearString(string){
 	return string.replace(/\(|\)|\s+|-/g, "");
 }
 
+//доп функции для валидации с https://github.com/Kholenkov/js-data-validation/blob/master/data-validation.js
 function validateBik(bik, error) {
 	var result = false;
 	if (typeof bik === 'number') {
@@ -320,6 +321,7 @@ function validateSnils(snils, error) {
 	}
 	return result;
 }
+
 // Правила валидации
 var obRules = {
 	ruleGroup: function(Vfield, callback) {
@@ -554,8 +556,8 @@ var obRules = {
 	// ИНН юр и физ лица
 	"inn": function(Vfield, callback){
 		var field = Vfield.$el;
-		if(!field.val()) {callback(Vfield); return true;};
-		var isValid = validateInn(field.val());
+		if(!field.val()) {callback(Vfield); return true;}
+		var isValid = validateInn(field.val(), {});
 	    var errors = isValid ? "" : this.getMessage.call(Vfield,"inn");
 		callback(Vfield, errors);
 	},
@@ -606,49 +608,99 @@ var obRules = {
 	"ogrn": function(Vfield, callback){
 		var field = Vfield.$el;
 		if(!field.val()) {callback(Vfield); return true;};
-		var isValid = validateOgrn(field.val());
+		var isValid = validateOgrn(field.val(), {});
 		var errors = isValid ? "" : this.getMessage.call(Vfield,"ogrn");
 		callback(Vfield, errors);
 	},
 	"kpp": function(Vfield, callback){
 		var field = Vfield.$el;
 		if(!field.val()) {callback(Vfield); return true;};
-		var isValid = validateKpp(field.val());
+		var isValid = validateKpp(field.val(), {});
 		var errors = isValid ? "" : this.getMessage.call(Vfield,"kpp");
 		callback(Vfield, errors);
 	},
 	"bik": function(Vfield, callback){
-		var field = Vfield.$el;
-		if(!field.val()) {callback(Vfield); return true;};
-		var isValid = validateBik(field.val());
+		var field = Vfield.$el,
+			v = this;
+		if(!field.val()) {callback(Vfield); return true;}
+		var isValid = validateBik(field.val(), {});
+
+		if (isValid) {
+			//validate ks and rs
+			var ksField = this.filterField(function (field) {
+				return $.inArray('ks', field.arRules)+1;
+			});
+			$(ksField).each(function (index,item) {
+				var ksFieldDouble = Object.create(item);
+				ksFieldDouble.arRules = ['ks'];
+				v.validateField(ksFieldDouble);
+			});
+
+			var rsField = this.filterField(function (field) {
+				return $.inArray('rs', field.arRules)+1;
+			});
+			$(rsField).each(function (index,item) {
+				var rsFieldDouble = Object.create(item);
+				rsFieldDouble.arRules = ['rs'];
+				v.validateField(rsFieldDouble);
+			});
+		}
+
 		var errors = isValid ? "" : this.getMessage.call(Vfield,"bik");
 		callback(Vfield, errors);
 	},
 	"ogrnip": function(Vfield, callback){
 		var field = Vfield.$el;
 		if(!field.val()) {callback(Vfield); return true;};
-		var isValid = validateOgrnip(field.val());
+		var isValid = validateOgrnip(field.val(), {});
 		var errors = isValid ? "" : this.getMessage.call(Vfield,"ogrnip");
 		callback(Vfield, errors);
 	},
 	"ks": function(Vfield, callback){
-		var field = Vfield.$el;
-		if(!field.val()) {callback(Vfield); return true;};
-		var isValid = validateKs(field.val());
-		var errors = isValid ? "" : this.getMessage.call(Vfield,"ks");
+		var field = Vfield.$el,
+			val = field.val(),
+			bikField, bik, errors,
+			isBikValid = true;
+		if(!field.val()) {callback(Vfield); return true;}
+
+		var isValid = /\d/.test(val) && val.length === 20;
+		bikField = this.filterField(function (field) {
+			return $.inArray('bik', field.arRules)+1;
+		});
+		if (bikField.length) bik = bikField[0]['$el'].val();
+		if (isValid && bik && bikField.isValid) {
+			isBikValid = validateKs(val, bik, {});
+		}
+
+		errors = isValid ? "" : this.getMessage.call(Vfield,"ks");
+		if (!isBikValid) errors = this.getMessage.call(Vfield,"ks") +' '+ this.getMessage.call(Vfield,"bikBased",[bik]);
 		callback(Vfield, errors);
 	},
 	"rs": function(Vfield, callback){
-		var field = Vfield.$el;
-		if(!field.val()) {callback(Vfield); return true;};
-		var isValid = validateRs(field.val());
-		var errors = isValid ? "" : this.getMessage.call(Vfield,"rs");
+		var field = Vfield.$el,
+			val = field.val(),
+			bikField, bik, errors,
+			isBikValid = true;
+		if(!field.val()) {callback(Vfield); return true;}
+
+		var isValid = /\d/.test(val) && val.length === 20;
+		bikField = this.filterField(function (field) {
+			return $.inArray('bik', field.arRules)+1;
+		});
+		if (bikField.length) bik = bikField[0]['$el'].val();
+		if (isValid && bik && bikField.isValid) {
+			isBikValid = validateRs(val, bik, {});
+		}
+
+		errors = isValid ? "" : this.getMessage.call(Vfield,"rs");
+		if (!isBikValid) errors = this.getMessage.call(Vfield,"rs") +' '+ this.getMessage.call(Vfield,"bikBased",[bik]);
 		callback(Vfield, errors);
 	},
 	"snils": function(Vfield, callback){
-		var field = Vfield.$el;
-		if(!field.val()) {callback(Vfield); return true;};
-		var isValid = validateSnils(field.val());
+		var val = Vfield.$el.val();
+		val = clearString(val);
+		if(!val) {callback(Vfield); return true;}
+		var isValid = validateSnils(val, {});
 		var errors = isValid ? "" : this.getMessage.call(Vfield,"snils");
 		callback(Vfield, errors);
 	},
@@ -940,7 +992,7 @@ window.citrusValidator = function (form, options) {
 
 	//Vfield массив из функции getField
   	v.validateField = function(Vfield, action, callback){
-  		var Vfields = $.isArray(Vfield) ? Vfield : Array(Vfield),
+  		var Vfields = [].concat(Vfield),
   			action = action === undefined ? true : action,
   			callback = callback || function(){};
 
@@ -1117,13 +1169,12 @@ window.citrusValidator = function (form, options) {
 
 
 			//обрабатываются события change и keyup. По умолчанию change меняется на keyup после первой валидации. Можно установить через data-validate-trigger у каждого поля
-			$el.on('change keyup', function(event) {
-                
+			$el.on('change keyup validate', function(event) {
 				if( event.keyCode == 13 ) return;
 				var Vfield = v.getField($(this))[0] || false;
 				if(!Vfield) {console.error("Нет поля в массиве полей v.fields");return;}
 				var validateTrigger = Vfield["params"]["trigger"] || "change";
-				if( validateTrigger.indexOf(event.type) < 0  ) return;
+				if( validateTrigger.indexOf(event.type) < 0 && event.type !== 'validate'  ) return;
 
                 //validate filed requireGroup
                 if(Vfield.params.requireGroup)
@@ -1135,18 +1186,11 @@ window.citrusValidator = function (form, options) {
 					}
 				});
 			});
-			$el.on('validate', function () {
-				var Vfield = v.getField($(this));
-				v.validateField(Vfield, true, function(Vfield){
-					if(!!Vfield.params.important) {
-						v.callEvent(v.checkImportant() ? "unlockForm":"lockForm");
-					}
-				});
-			});
   		});
   		return $fields;
   	};
-  	/*v.destroy = function () {
+  	/* future
+  	v.destroy = function () {
 		v = undefined;
     };*/
   	//init
@@ -1187,10 +1231,14 @@ window.citrusValidator = function (form, options) {
   		});
 
 		//обрабаываем сабмит
-		v.$form.on('click', v.settings.submitBtn, function(event) {
-			event.preventDefault();
-			if(!$(this).attr("disabled")) v.validateForm();
-		});
+		v.$form
+			.on('click', v.settings.submitBtn, function(event) {
+				event.preventDefault();
+				if(!$(this).attr("disabled")) v.validateForm();
+			})
+			.on('validate', function () {
+				v.validateField(v.fields);
+			});
 		//обработка нажатий enter в форме
 		if (v.settings.submitBtn !== ":submit") {
 			v.$form.on('keypress' , function(event){

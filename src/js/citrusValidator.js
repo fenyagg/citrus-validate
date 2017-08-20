@@ -97,7 +97,7 @@ window.citrusValidator = function (form, options) {
 
 	//Vfield массив из функции getField
   	v.validateField = function(Vfield, action, callback){
-  		var Vfields = $.isArray(Vfield) ? Vfield : Array(Vfield),
+  		var Vfields = [].concat(Vfield),
   			action = action === undefined ? true : action,
   			callback = callback || function(){};
 
@@ -274,13 +274,12 @@ window.citrusValidator = function (form, options) {
 
 
 			//обрабатываются события change и keyup. По умолчанию change меняется на keyup после первой валидации. Можно установить через data-validate-trigger у каждого поля
-			$el.on('change keyup', function(event) {
-                
+			$el.on('change keyup validate', function(event) {
 				if( event.keyCode == 13 ) return;
 				var Vfield = v.getField($(this))[0] || false;
 				if(!Vfield) {console.error("Нет поля в массиве полей v.fields");return;}
 				var validateTrigger = Vfield["params"]["trigger"] || "change";
-				if( validateTrigger.indexOf(event.type) < 0  ) return;
+				if( validateTrigger.indexOf(event.type) < 0 && event.type !== 'validate'  ) return;
 
                 //validate filed requireGroup
                 if(Vfield.params.requireGroup)
@@ -292,18 +291,11 @@ window.citrusValidator = function (form, options) {
 					}
 				});
 			});
-			$el.on('validate', function () {
-				var Vfield = v.getField($(this));
-				v.validateField(Vfield, true, function(Vfield){
-					if(!!Vfield.params.important) {
-						v.callEvent(v.checkImportant() ? "unlockForm":"lockForm");
-					}
-				});
-			});
   		});
   		return $fields;
   	};
-  	/*v.destroy = function () {
+  	/* future
+  	v.destroy = function () {
 		v = undefined;
     };*/
   	//init
@@ -344,10 +336,14 @@ window.citrusValidator = function (form, options) {
   		});
 
 		//обрабаываем сабмит
-		v.$form.on('click', v.settings.submitBtn, function(event) {
-			event.preventDefault();
-			if(!$(this).attr("disabled")) v.validateForm();
-		});
+		v.$form
+			.on('click', v.settings.submitBtn, function(event) {
+				event.preventDefault();
+				if(!$(this).attr("disabled")) v.validateForm();
+			})
+			.on('validate', function () {
+				v.validateField(v.fields);
+			});
 		//обработка нажатий enter в форме
 		if (v.settings.submitBtn !== ":submit") {
 			v.$form.on('keypress' , function(event){

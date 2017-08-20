@@ -19,13 +19,21 @@
 			//вызов валидатора
 			window.form = new citrusValidator($("#signupForm1"));
 			$(".phone_mask").mask("+7 (999) 999-99-99");
+			$(".snils-mask").mask("999-999-999 99");
 
-			$("#custom-message-form").citrusValidator();
-			//удаление валидатора из массива
-			//citrusValidator.prototype._removeValidator(form);
-
+			//вызов через плагин с удалением объекта при совпадении
 			$("form").citrusValidator({checkInit:false});
+			//получение объекта валидатора через плагин
 			console.log($("form").citrusValidator('get'));
+
+			$('.js-form-fill').on('click', function (event) {
+				event.preventDefault();
+				var $form = $(this).parents('form');
+				$form.find('[type="text"], textarea').each(function (index, item) {
+					$(item).val($(item).attr('placeholder'));
+				});
+				$form.trigger('validate');
+			});
 		});
 	</script>
 </head>
@@ -36,14 +44,68 @@
 		<div class="row">
 			<div class="col-sm-12">
 
-				<form action="" id="custom-message-form">
+				<form action="" class="form-horizontal">
+					<h2>Оформление заказа</h2>
 					<div class="form-group">
-						<label class="col-sm-4 control-label" for="email">Проверка кастомных сообщений:</label>
+						<label class="col-sm-4 control-label" for="">ИНН</label>
 						<div class="col-sm-6 input-container">
-							<input data-valid="required" data-valid-param-important='1' data-valid-message-required='test' type="email" class="form-control" name="custom_message" id="custom_message" />
+							<input data-valid="inn" type="text" class="form-control" name="inn" placeholder="1234567894" />
 						</div>
 					</div>
-					<input type="submit" value="submit">
+					<div class="form-group">
+						<label class="col-sm-4 control-label" for="">ИНН юр лица</label>
+						<div class="col-sm-6 input-container">
+							<input data-valid="inn_u" type="text" class="form-control" name="inn_u" placeholder="1234567894" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label" for="">ИНН физ лица</label>
+						<div class="col-sm-6 input-container">
+							<input data-valid="inn_f" type="text" class="form-control" name="inn_f" placeholder="054302743481" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label" for="">ОГРН</label>
+						<div class="col-sm-6 input-container">
+							<input data-valid="ogrn" type="text" class="form-control" name="ogrn" placeholder="5077746887312" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label" for="">КПП</label>
+						<div class="col-sm-6 input-container">
+							<input data-valid="kpp" type="text" class="form-control" name="kpp" placeholder="773301001" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label" for="">Бик</label>
+						<div class="col-sm-6 input-container">
+							<input data-valid="bik" type="text" class="form-control" name="bik" placeholder="044525225" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label" for="">К/счет</label>
+						<div class="col-sm-6 input-container">
+							<input data-valid="ks" type="text" class="form-control" name="ks" placeholder="30101810400000000225" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label" for="">Р/счет</label>
+						<div class="col-sm-6 input-container">
+							<input data-valid="rs" type="text" class="form-control" name="rs" placeholder="40702810638050013199" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label" for="">Снилс</label>
+						<div class="col-sm-6 input-container">
+							<input data-valid="snils" type="text" class="form-control snils-mask" name="snils" placeholder="116-973-385 89" />
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-9 col-sm-offset-4">
+							<button type="submit" class="btn btn-primary" name="" value="" >Отправить</button>
+							<button type="button" class="btn btn-secondary js-form-fill" name="" value="" >Заполнить форму</button>
+						</div>
+					</div>
 				</form>
 
 				<h1>Валидация полей</h1>
@@ -118,36 +180,6 @@
 								<label class="col-sm-4 control-label " for="">URL</label>
 								<div class="col-sm-6 input-container">
 									<input data-valid="url" type="text" class="form-control" name="url" placeholder="http://example.ru" />
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-4 control-label" for="">ИНН</label>
-								<div class="col-sm-6 input-container">
-									<input data-valid="inn" type="text" class="form-control" name="inn" placeholder="1234567894" />
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-4 control-label" for="">ИНН юр лица</label>
-								<div class="col-sm-6 input-container">
-									<input data-valid="inn_u" type="text" class="form-control" name="inn_u" placeholder="1234567894" />
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-4 control-label" for="">ИНН физ лица</label>
-								<div class="col-sm-6 input-container">
-									<input data-valid="inn_f" type="text" class="form-control" name="inn_f" placeholder="054302743481" />
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-4 control-label" for="">ОГРН</label>
-								<div class="col-sm-6 input-container">
-									<input data-valid="ogrn" type="text" class="form-control" name="ogrn" placeholder="5077746887312" />
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-4 control-label" for="">КПП</label>
-								<div class="col-sm-6 input-container">
-									<input data-valid="kpp" type="text" class="form-control" name="kpp" placeholder="773301001" />
 								</div>
 							</div>
 							<div class="form-group">
