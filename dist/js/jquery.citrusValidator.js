@@ -625,6 +625,9 @@ var obRules = {
 		if(!field.val()) {callback(Vfield); return true;}
 		var isValid = validateBik(field.val(), {});
 
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"bik");
+		callback(Vfield, errors);
+
 		if (isValid) {
 			//validate ks and rs
 			var ksField = this.filterField(function (field) {
@@ -645,9 +648,6 @@ var obRules = {
 				v.validateField(rsFieldDouble);
 			});
 		}
-
-		var errors = isValid ? "" : this.getMessage.call(Vfield,"bik");
-		callback(Vfield, errors);
 	},
 	"ogrnip": function(Vfield, callback){
 		var field = Vfield.$el;
@@ -667,9 +667,10 @@ var obRules = {
 		bikField = this.filterField(function (field) {
 			return $.inArray('bik', field.arRules)+1;
 		});
-		if (bikField.length) bik = bikField[0]['$el'].val();
-		if (isValid && bik && bikField.isValid) {
-			isBikValid = validateKs(val, bik, {});
+		if (bikField.length) {
+			bikField = bikField[0];
+			bik = bikField.$el.val();
+			if (isValid && bik && bikField.isValid) isBikValid = validateKs(val, bik, {});
 		}
 
 		errors = isValid ? "" : this.getMessage.call(Vfield,"ks");
@@ -687,9 +688,10 @@ var obRules = {
 		bikField = this.filterField(function (field) {
 			return $.inArray('bik', field.arRules)+1;
 		});
-		if (bikField.length) bik = bikField[0]['$el'].val();
-		if (isValid && bik && bikField.isValid) {
-			isBikValid = validateRs(val, bik, {});
+		if (bikField.length) {
+			bikField = bikField[0];
+			bik = bikField.$el.val();
+			if (isValid && bik && bikField.isValid) isBikValid = validateRs(val, bik, {});
 		}
 
 		errors = isValid ? "" : this.getMessage.call(Vfield,"rs");
