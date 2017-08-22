@@ -38,7 +38,10 @@
 				})
 				.on('click','.js-attach-events', orderValidator.attachEvents)
 				.on('click','.js-detach-events', orderValidator.detachEvents)
-				.on('click','.js-destroy', orderValidator.destroy);
+				.on('click','.js-destroy', orderValidator.destroy)
+				.on('click','.js-init', orderValidator.init);
+
+			var registerValidator = new citrusValidator($('#register'));
 		});
 	</script>
 </head>
@@ -52,7 +55,7 @@
 				<form action="" class="form-horizontal" id="order-form">
 					<h2>Оформление заказа</h2>
 					<div class="form-group">
-						<label class="col-sm-4 control-label" for="">ИНН</label>
+						<label class="col-sm-4 control-label" for="">ИНН<span class="red">*</span></label>
 						<div class="col-sm-6 input-container">
 							<input data-valid="inn required" type="text" class="form-control" name="inn" placeholder="7750004305" id="inn" />
 						</div>
@@ -119,7 +122,35 @@
 					</div>
 					<div class="form-group">
 						<div class="col-sm-9 col-sm-offset-4">
+							<button type="button" class="btn btn-secondary js-init" name="" value="" >init()</button>
 							<button type="button" class="btn btn-secondary js-destroy" name="" value="" >destroy()</button>
+						</div>
+					</div>
+				</form>
+
+				<form action="" class="form-horizontal" id="register">
+					<h2>Регистрация</h2>
+					<div class="form-group">
+						<label class="col-sm-4 control-label" for="">Логин:<span class="red">*</span></label>
+						<div class="col-sm-6 input-container">
+							<input class="form-control" data-valid="login required length" data-valid-param-minlength="4" type="password" placeholder="Логин" name="pass" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label" for="">Пароль:<span class="red">*</span></label>
+						<div class="col-sm-6 input-container">
+							<input class="form-control" data-valid="main_password required length" data-valid-param-minlength="4" type="password" placeholder="Пароль" name="pass" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label" for="">Повтор пароля:<span class="red">*</span></label>
+						<div class="col-sm-6 input-container">
+							<input class="form-control" data-valid="confirm_password required" type="password" placeholder="Повторите пароль" name="pass_confirm" />
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-9 col-sm-offset-4">
+							<button type="submit" class="btn btn-primary" name="" value="" >Отправить</button>
 						</div>
 					</div>
 				</form>
@@ -179,18 +210,7 @@
 									<input data-valid="number" type="text" class="form-control" name="number1" data-valid-params='{"min": 100, "max":1000}'  placeholder="Число" />
 								</div>
 							</div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label" for="">Пароль</label>
-                                <div class="col-sm-6 input-container">
-                                    <input data-valid="main_password" type="password" placeholder="Повторите пароль" name="pass" />
-                                </div>
-                            </div>
-							<div class="form-group">
-								<label class="col-sm-4 control-label" for="">Повтор пароля</label>
-								<div class="col-sm-6 input-container">
-									<input data-valid="confirm_password" type="password" placeholder="Повторите пароль" name="pass_confirm" />
-								</div>
-							</div>
+
 
 							<div class="form-group">
 								<label class="col-sm-4 control-label " for="">URL</label>

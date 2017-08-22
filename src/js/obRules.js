@@ -448,6 +448,13 @@ var obRules = {
 		}
 		callback(Vfield, errors);
 	},
+	"login" : function (Vfield, callback) {
+		var field = Vfield.$el;
+		if(!field.val()) {callback(Vfield); return true;}
+		var isValid = /[a-zA-Z1-9]+$/.test(field.val()); // && /^[a-zA-z]{1}.?$/.test(field.val())
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"login");
+		callback(Vfield, errors);
+	},
 	"main_password": function(Vfield, callback){
 		var field = Vfield.$el;
 

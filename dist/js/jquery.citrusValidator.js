@@ -504,6 +504,13 @@ var obRules = {
 		}
 		callback(Vfield, errors);
 	},
+	"login" : function (Vfield, callback) {
+		var field = Vfield.$el;
+		if(!field.val()) {callback(Vfield); return true;}
+		var isValid = /[a-zA-Z1-9]+$/.test(field.val()); // && /^[a-zA-z]{1}.?$/.test(field.val())
+		var errors = isValid ? "" : this.getMessage.call(Vfield,"login");
+		callback(Vfield, errors);
+	},
 	"main_password": function(Vfield, callback){
 		var field = Vfield.$el;
 
@@ -1036,7 +1043,7 @@ window.citrusValidator = function (form, options) {
   			Vfield.arRules.forEach(function(rule) {
   				var fnRule = v.getRule(rule);
 	  			if(!fnRule || !$.isFunction(fnRule)) {
-	  				console.error("citrusValidator: Нет правила '"+rule+ "'");
+	  				console.warn("citrusValidator: Нет правила '"+rule+ "'");
 
 	  				if(!(--arRulesLength)) onComplete();
 	  				return true;
@@ -1224,7 +1231,7 @@ window.citrusValidator = function (form, options) {
   		if (ifAttached) console.warn('handler already attached');
 		return ifAttached;
     };
-  	v.attachEvents = function () {
+  	v.attachEvents = function (attacheFields) {
 	    if (!v.checkAttached(v.$form)) {
 	    	v.$form.on( v.handlers.form )
 			        .data('validator-handlers-attached', true);
@@ -1235,14 +1242,16 @@ window.citrusValidator = function (form, options) {
 			            .data('validator-handlers-attached', true);
 	    }
 
-	    $(v.fields).each(function (index, field) {
-	    	field.$el.each(function (index, el) {
-			    if (!v.checkAttached($(el))) {
-				    $(el).on( v.handlers.field )
-				        .data('validator-handlers-attached', true);
-			    }
+	    if (isset(attacheFields) && attacheFields !== false) {
+		    $(v.fields).each(function (index, field) {
+			    field.$el.each(function (index, el) {
+				    if (!v.checkAttached($(el))) {
+					    $(el).on( v.handlers.field )
+						    .data('validator-handlers-attached', true);
+				    }
+			    });
 		    });
-	    });
+	    }
     };
   	v.detachEvents = function () {
 	    v.$form.off( v.handlers.form )
@@ -1257,11 +1266,43 @@ window.citrusValidator = function (form, options) {
 		    });
 	    });
     };
-  	/* future*/
   	v.destroy = function () {
   		v.detachEvents();
   		v._removeValidator(v);
 		v.fields = [];
+    };
+  	v.init = function () {
+	    //add field by data params
+	    v.$form.find('[data-valid], [data-valid-params], [data-valid-messages]').each(function(index, el) {
+		    var allData = $(el).data();
+		    var arRules = allData["valid"] ? allData["valid"].split(" ") : [];
+		    var params = allData["validParams"] || {};
+		    var messages = allData["validMessages"] || {};
+
+		    for (var dataName in allData) {
+			    if (dataName.indexOf('validParam')+1) {
+				    var paramName = dataName.replace('validParam', '');
+				    if ( paramName[0] === paramName[0].toUpperCase()) {
+					    paramName = paramName.toLowerCase();
+					    params[paramName] = allData[dataName];
+				    }
+			    }
+			    if (dataName.indexOf('validMessage')+1) {
+				    var messageName = dataName.replace('validMessage', '');
+				    if ( messageName[0] === messageName[0].toUpperCase()) {
+					    messageName = messageName.toLowerCase();
+					    messages[messageName] = allData[dataName];
+				    }
+			    }
+		    }
+
+		    if ( arRules.length || !$.isEmptyObject(params) || !$.isEmptyObject(messages)) v.addField( $(el), arRules, params, messages );
+	    });
+
+	    //check important
+	    if(!v.checkImportant()) v.callEvent("lockForm");
+	    v.attachEvents(false);
+	    v._addValidator(v);
     };
   	;(function () {
 		//check init
@@ -1273,38 +1314,7 @@ window.citrusValidator = function (form, options) {
 				v._removeValidator(arValidator);
 			}
 		}
-
-		//add field by data params
-		v.$form.find('[data-valid], [data-valid-params], [data-valid-messages]').each(function(index, el) {
-			var allData = $(el).data();
-			var arRules = allData["valid"] ? allData["valid"].split(" ") : [];
-			var params = allData["validParams"] || {};
-			var messages = allData["validMessages"] || {};
-
-			for (var dataName in allData) {
-				if (dataName.indexOf('validParam')+1) {
-					var paramName = dataName.replace('validParam', '');
-					if ( paramName[0] === paramName[0].toUpperCase()) {
-						paramName = paramName.toLowerCase();
-						params[paramName] = allData[dataName];
-					}
-				}
-				if (dataName.indexOf('validMessage')+1) {
-					var messageName = dataName.replace('validMessage', '');
-					if ( messageName[0] === messageName[0].toUpperCase()) {
-						messageName = messageName.toLowerCase();
-						messages[messageName] = allData[dataName];
-					}
-				}
-			}
-
-			if ( arRules.length || !$.isEmptyObject(params) || !$.isEmptyObject(messages)) v.addField( $(el), arRules, params, messages );
-		});
-
-		//check important
-		if(!v.checkImportant()) v.callEvent("lockForm");
-		v.attachEvents();
-		v._addValidator(v);
+		v.init();
 	}());
 };
 
