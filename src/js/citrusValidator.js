@@ -17,6 +17,7 @@ window.citrusValidator = function (form, options) {
 			'checkInit': true
 	    }, options);
 	v.$form = form;
+	v.$submitBtn = v.$form.find(v.settings.submitBtn);
 	v.fields = [];
     v.requireGroup = {};
 	v.isLocked = false;
@@ -272,90 +273,137 @@ window.citrusValidator = function (form, options) {
             if(Vfield.params.requireGroup && !v.requireGroup[Vfield.params.requireGroup])
                 v.requireGroup[Vfield.params.requireGroup] = {"isValid": undefined, "error": ""};
 
-
-			//обрабатываются события change и keyup. По умолчанию change меняется на keyup после первой валидации. Можно установить через data-validate-trigger у каждого поля
-			$el.on('change keyup validate', function(event) {
-				if( event.keyCode == 13 ) return;
-				var Vfield = v.getField($(this))[0] || false;
-				if(!Vfield) {console.error("Нет поля в массиве полей v.fields");return;}
-				var validateTrigger = Vfield["params"]["trigger"] || "change";
-				if( validateTrigger.indexOf(event.type) < 0 && event.type !== 'validate'  ) return;
-
-                //validate filed requireGroup
-                if(Vfield.params.requireGroup)
-                    v.validateGroup(Vfield.params.requireGroup, true);
-
-				v.validateField(Vfield, true, function(Vfield){
-					if(!!Vfield.params.important) {
-						v.callEvent(v.checkImportant() ? "unlockForm":"lockForm");
-					}
-				});
-			});
+			//$el.on(v.handlers.field);
   		});
   		return $fields;
   	};
-  	/* future
-  	v.destroy = function () {
-		v = undefined;
-    };*/
-  	//init
-  	;(function(){
-		var arValidator = proto._getValidator(v.$form);
-  		if (arValidator.length) {
-		    if (v.settings.checkInit) {
-			    console.warn('Validator already init'); return;
-		    } else {
-			    v._removeValidator(arValidator);
+
+  	v.handlers = {
+  		field: {
+		    //обрабатываются события change и keyup. По умолчанию change меняется на keyup после первой валидации. Можно установить через data-validate-trigger у каждого поля
+		    'change keyup validate': function(event) {
+			    if( event.keyCode == 13 ) return;
+			    var Vfield = v.getField($(this))[0] || false;
+			    if(!Vfield) {console.error("Нет поля в массиве полей v.fields");return;}
+			    var validateTrigger = Vfield["params"]["trigger"] || "change";
+			    if( validateTrigger.indexOf(event.type) < 0 && event.type !== 'validate'  ) return;
+
+			    //validate filed requireGroup
+			    if(Vfield.params.requireGroup)
+				    v.validateGroup(Vfield.params.requireGroup, true);
+
+			    v.validateField(Vfield, true, function(Vfield){
+				    if(!!Vfield.params.important) {
+					    v.callEvent(v.checkImportant() ? "unlockForm":"lockForm");
+				    }
+			    });
 		    }
+	    },
+	    form: {
+  			//запуск валидации по триггеру
+		    'validate': v.validateForm,
+		    //обработка нажатий enter в форме
+		    'keypress': function(event){
+			    if( event.keyCode == 13 && event.target.type !== "textarea") {
+				    event.preventDefault();
+				    v.validateForm();
+			    }
+		    }
+	    },
+	    btn: {
+		    //обрабаываем клик на сабмит
+  			'click': function(event) {
+			    event.preventDefault();
+			    if(!$(this).attr("disabled")) v.validateForm();
+		    }
+	    }
+    };
+
+  	v.checkAttached = function ($el) {
+  		var ifAttached = $el.data('validator-handlers-attached') === true;
+  		if (ifAttached) console.warn('handler already attached');
+		return ifAttached;
+    };
+  	v.attachEvents = function () {
+	    if (!v.checkAttached(v.$form)) {
+	    	v.$form.on( v.handlers.form )
+			        .data('validator-handlers-attached', true);
+	    }
+
+	    if (!v.checkAttached(v.$submitBtn)) {
+		    v.$submitBtn.on( v.handlers.btn )
+			            .data('validator-handlers-attached', true);
+	    }
+
+	    $(v.fields).each(function (index, field) {
+	    	field.$el.each(function (index, el) {
+			    if (!v.checkAttached($(el))) {
+				    $(el).on( v.handlers.field )
+				        .data('validator-handlers-attached', true);
+			    }
+		    });
+	    });
+    };
+  	v.detachEvents = function () {
+	    v.$form.off( v.handlers.form )
+		    .data('validator-handlers-attached', false);
+	    v.$submitBtn.off(v.handlers.btn)
+		    .data('validator-handlers-attached', false);
+
+	    $(v.fields).each(function (index, field) {
+		    field.$el.each(function (index, el) {
+			    $(el).off( v.handlers.field )
+				    .data('validator-handlers-attached', false);
+		    });
+	    });
+    };
+  	/* future*/
+  	v.destroy = function () {
+  		v.detachEvents();
+  		v._removeValidator(v);
+		v.fields = [];
+    };
+  	;(function () {
+		//check init
+		var arValidator = proto._getValidator(v.$form);
+		if (arValidator.length) {
+			if (v.settings.checkInit) {
+				console.warn('Validator already init'); return;
+			} else {
+				v._removeValidator(arValidator);
+			}
 		}
 
-  		v.$form.find('[data-valid], [data-valid-params], [data-valid-messages]').each(function(index, el) {
-  			var allData = $(el).data();
-  			var arRules = allData["valid"] ? allData["valid"].split(" ") : [];
-  			var params = allData["validParams"] || {};
-  			var messages = allData["validMessages"] || {};
+		//add field by data params
+		v.$form.find('[data-valid], [data-valid-params], [data-valid-messages]').each(function(index, el) {
+			var allData = $(el).data();
+			var arRules = allData["valid"] ? allData["valid"].split(" ") : [];
+			var params = allData["validParams"] || {};
+			var messages = allData["validMessages"] || {};
 
-  			for (var dataName in allData) {
-			    if (dataName.indexOf('validParam')+1) {
-				    var paramName = dataName.replace('validParam', '');
-				    if ( paramName[0] === paramName[0].toUpperCase()) {
-					    paramName = paramName.toLowerCase();
-					    params[paramName] = allData[dataName];
-				    }
-			    }
-  				if (dataName.indexOf('validMessage')+1) {
-  					var messageName = dataName.replace('validMessage', '');
-  					if ( messageName[0] === messageName[0].toUpperCase()) {
-					    messageName = messageName.toLowerCase();
-					    messages[messageName] = allData[dataName];
-				    }
-			    }
-		    }
+			for (var dataName in allData) {
+				if (dataName.indexOf('validParam')+1) {
+					var paramName = dataName.replace('validParam', '');
+					if ( paramName[0] === paramName[0].toUpperCase()) {
+						paramName = paramName.toLowerCase();
+						params[paramName] = allData[dataName];
+					}
+				}
+				if (dataName.indexOf('validMessage')+1) {
+					var messageName = dataName.replace('validMessage', '');
+					if ( messageName[0] === messageName[0].toUpperCase()) {
+						messageName = messageName.toLowerCase();
+						messages[messageName] = allData[dataName];
+					}
+				}
+			}
 
 			if ( arRules.length || !$.isEmptyObject(params) || !$.isEmptyObject(messages)) v.addField( $(el), arRules, params, messages );
-  		});
+		});
 
-		//обрабаываем сабмит
-		v.$form
-			.on('click', v.settings.submitBtn, function(event) {
-				event.preventDefault();
-				if(!$(this).attr("disabled")) v.validateForm();
-			})
-			.on('validate', function () {
-				v.validateField(v.fields);
-			});
-		//обработка нажатий enter в форме
-		if (v.settings.submitBtn !== ":submit") {
-			v.$form.on('keypress' , function(event){
-				if( event.keyCode == 13 && event.target.type !== "textarea") {
-					event.preventDefault();
-					v.validateForm();
-				}
-			});
-		};
-		//проверка полей important
+		//check important
 		if(!v.checkImportant()) v.callEvent("lockForm");
-
-		arValidators.push(v);
-  	})();
-}
+		v.attachEvents();
+		v._addValidator(v);
+	}());
+};

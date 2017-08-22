@@ -75,6 +75,9 @@ var proto = new function(){
 			return $el.is(validator.$form);
 		});
 	};
+	this._addValidator = function (v) {
+		arValidators.push(v);
+	};
 	this._removeValidator = function (arV) {
 		var arV = [].concat(arV);
 		arValidators = arValidators.filter(function (v) {

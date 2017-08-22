@@ -16,24 +16,29 @@
 	<link rel="stylesheet" href="dist/css/jquery.citrusValidator.min.css">
 	<script>
 		$(function() {
-			//вызов валидатора
+			//Основная форма
 			window.form = new citrusValidator($("#signupForm1"));
 			$(".phone_mask").mask("+7 (999) 999-99-99");
 			$(".snils-mask").mask("999-999-999 99");
 
 			//вызов через плагин с удалением объекта при совпадении
-			$("form").citrusValidator({checkInit:false});
+			//$("form").citrusValidator({checkInit:false});
 			//получение объекта валидатора через плагин
-			console.log($("form").citrusValidator('get'));
+			//console.log($("form").citrusValidator('get'));
 
-			$('.js-form-fill').on('click', function (event) {
-				event.preventDefault();
-				var $form = $(this).parents('form');
-				$form.find('[type="text"], textarea').each(function (index, item) {
-					$(item).val($(item).attr('placeholder'));
-				});
-				$form.trigger('validate');
-			});
+			var $orderForm = $('#order-form');
+			window.orderValidator = new citrusValidator($orderForm);
+			$orderForm
+				.on('click', '.js-form-fill', function (event) {
+					event.preventDefault();
+					$orderForm.find('[type="text"], textarea').each(function (index, item) {
+						$(item).val($(item).attr('placeholder'));
+					});
+					orderValidator.validateField(orderValidator.fields);
+				})
+				.on('click','.js-attach-events', orderValidator.attachEvents)
+				.on('click','.js-detach-events', orderValidator.detachEvents)
+				.on('click','.js-destroy', orderValidator.destroy);
 		});
 	</script>
 </head>
@@ -44,12 +49,12 @@
 		<div class="row">
 			<div class="col-sm-12">
 
-				<form action="" class="form-horizontal">
+				<form action="" class="form-horizontal" id="order-form">
 					<h2>Оформление заказа</h2>
 					<div class="form-group">
 						<label class="col-sm-4 control-label" for="">ИНН</label>
 						<div class="col-sm-6 input-container">
-							<input data-valid="inn" type="text" class="form-control" name="inn" placeholder="7750004305" />
+							<input data-valid="inn required" type="text" class="form-control" name="inn" placeholder="7750004305" id="inn" />
 						</div>
 					</div>
 					<div class="form-group">
@@ -104,6 +109,17 @@
 						<div class="col-sm-9 col-sm-offset-4">
 							<button type="submit" class="btn btn-primary" name="" value="" >Отправить</button>
 							<button type="button" class="btn btn-secondary js-form-fill" name="" value="" >Заполнить форму</button>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-9 col-sm-offset-4">
+							<button type="button" class="btn btn-secondary js-attach-events" name="" value="" >attachEvents()</button>
+							<button type="button" class="btn btn-secondary js-detach-events" name="" value="" >detachEvents()</button>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-9 col-sm-offset-4">
+							<button type="button" class="btn btn-secondary js-destroy" name="" value="" >destroy()</button>
 						</div>
 					</div>
 				</form>
