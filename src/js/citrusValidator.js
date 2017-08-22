@@ -273,7 +273,8 @@ window.citrusValidator = function (form, options) {
             if(Vfield.params.requireGroup && !v.requireGroup[Vfield.params.requireGroup])
                 v.requireGroup[Vfield.params.requireGroup] = {"isValid": undefined, "error": ""};
 
-			//$el.on(v.handlers.field);
+		    $(el).on( v.handlers.field )
+			    .data('validator-handlers-attached', true);
   		});
   		return $fields;
   	};
@@ -318,7 +319,6 @@ window.citrusValidator = function (form, options) {
 		    }
 	    }
     };
-
   	v.checkAttached = function ($el) {
   		var ifAttached = $el.data('validator-handlers-attached') === true;
   		if (ifAttached) console.warn('handler already attached');
