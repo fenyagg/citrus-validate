@@ -156,7 +156,11 @@ window.citrusValidator = function (form, options) {
         var callback = callback || function () {};
         var action = typeof action === "undefined" ? true : !!action;
 
-        var isGroupValid = false;
+        var isGroupOrValid = false,
+	        isGroupAndValid = true,
+	        isGroupValid = false,
+	        logic = v.requireGroup[groupId]['logic'] || 'or';
+
         var VGroup = v.filterField(function(Vfield){ return Vfield.params.requireGroup == groupId});
         var arGroupNames = [];
         VGroup.forEach(function(Vfield, i, arr) {
@@ -168,14 +172,18 @@ window.citrusValidator = function (form, options) {
             copyVfield.params = [];
 
             v.validateField(copyVfield, false, function (field, arErrors) {
-                if(!arErrors.length) isGroupValid = true;
+                if(!arErrors.length) isGroupOrValid = true;
+	            if(arErrors.length) isGroupAndValid = false;
             });
         });
-        var msgSeparator = v.getMessage("list_separator");
+	    isGroupValid = logic === 'or' && isGroupOrValid || logic === 'and' && isGroupAndValid;
 
         if (action) {
             //устанавливаем сообщение если нет
-            if(!v.requireGroup[groupId]['error']) v.requireGroup[groupId]['error'] = [v.getMessage("group", [arGroupNames.join(msgSeparator)]) ];
+	        var names = arGroupNames.join(', ');
+	        var message = logic === 'or' ? v.getMessage("orGroup", [names]) : logic === 'and' ? v.getMessage("andGroup" , [names]): "";
+            if( !v.requireGroup[groupId]['error']) v.requireGroup[groupId]['error'] = message;
+
             v.requireGroup[groupId]['isValid'] = isGroupValid;
             v.callEvent(isGroupValid ? "removeGroupError" : "addGroupError", groupId, VGroup);
         }
@@ -270,8 +278,10 @@ window.citrusValidator = function (form, options) {
 			v.fields[v.fields.length] = Vfield;
 
 			//добавим группу в v.reqiureGroup
-            if(Vfield.params.requireGroup && !v.requireGroup[Vfield.params.requireGroup])
-                v.requireGroup[Vfield.params.requireGroup] = {"isValid": undefined, "error": ""};
+            if( Vfield.params.requireGroup ) {
+            	if (!v.requireGroup[Vfield.params.requireGroup]) v.requireGroup[Vfield.params.requireGroup] = {"isValid": undefined, "error": ""};
+            	if (Vfield.params.groupLogic) v.requireGroup[Vfield.params.requireGroup]['logic'] = Vfield.params.groupLogic;
+            }
 
 		    $el.on( v.handlers.field )
 			    .data('validator-handlers-attached', true);
