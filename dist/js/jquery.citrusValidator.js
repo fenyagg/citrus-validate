@@ -1222,7 +1222,9 @@ window.citrusValidator = function (form, options) {
 	    },
 	    form: {
   			//запуск валидации по триггеру
-		    'validate': v.validateForm,
+		    'validate': function(event){
+			    if($(event.target) == self.$form)  v.validateForm;
+		    },
 		    //обработка нажатий enter в форме
 		    'keypress': function(event){
 			    if( event.keyCode == 13 && event.target.type !== "textarea") {
