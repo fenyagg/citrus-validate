@@ -723,7 +723,7 @@ var obRules = {
 
 var obEvents = {
 	addFieldError: function($field, arErrors){
-		var $input_container = $field.parents(this.settings.input_container);
+		var $input_container = $field.closest(this.settings.input_container);
 		$input_container
             .addClass('has-error')
 			.removeClass('has-success');
@@ -737,7 +737,7 @@ var obEvents = {
 		}
 	},
     removeFieldError: function($field){
-        $field.parents(this.settings.input_container).removeClass('has-error')
+        $field.closest(this.settings.input_container).removeClass('has-error')
             .addClass('has-success');
     },
 	addGroupError: function (groupId, VGroup) {
@@ -745,7 +745,7 @@ var obEvents = {
         var v = this;
 
 		VGroup.forEach(function(Vfield){
-            var $input_container = Vfield.$el.parents(v.settings.input_container);
+            var $input_container = Vfield.$el.closest(v.settings.input_container);
 
             $input_container
                 .addClass('has-group-error')
@@ -765,7 +765,7 @@ var obEvents = {
         var v = this;
 
         VGroup.forEach(function(Vfield){
-            var $input_container = Vfield.$el.parents(v.settings.input_container);
+            var $input_container = Vfield.$el.closest(v.settings.input_container);
 
             $input_container
                 .addClass('has-group-success')
@@ -773,7 +773,7 @@ var obEvents = {
         });
     },
 	clearField: function($field) {
-		$field.parents(this.settings.input_container)
+		$field.closest(this.settings.input_container)
             .removeClass('has-error')
             .removeClass('has-success');
 	},
