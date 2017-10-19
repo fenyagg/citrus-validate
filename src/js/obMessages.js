@@ -37,4 +37,5 @@ var obMessages = {
 	ks: 'Wrong K/S',
 	rs: 'Wrong R/S',
 	snils: 'Wrong SNILS',
+	login: 'Wrong Login',
 };
