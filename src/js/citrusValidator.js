@@ -108,7 +108,7 @@ window.citrusValidator = function (form, options) {
 
 			var onComplete = function () {
                 Vfield.errors = arErrors;
-				if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file, :radio, select") ) Vfield.params.trigger = "keyup";
+				if(!Vfield.params.trigger && !Vfield.$el.is(":checkbox, :file, :radio, select") ) Vfield.params.trigger = "input";
 
 				if (arErrors.length > 0 ) {
 					if(action) v.callEvent("addFieldError", Vfield.$el, arErrors);
@@ -292,7 +292,7 @@ window.citrusValidator = function (form, options) {
   	v.handlers = {
   		field: {
 		    //обрабатываются события change и keyup. По умолчанию change меняется на keyup после первой валидации. Можно установить через data-validate-trigger у каждого поля
-		    'change keyup validate': function(event) {
+		    'change keyup validate input': function(event) {
 			    if( event.keyCode == 13 ) return;
 			    var Vfield = v.getField($(this))[0] || false;
 			    if(!Vfield) {console.error("Нет поля в массиве полей v.fields");return;}
