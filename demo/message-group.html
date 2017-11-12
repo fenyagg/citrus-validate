@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>JQuery-validation demo | Bootstrap</title>
+	<meta charset="UTF-8">
+
+	<!-- frameworks -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+	<!-- libs -->
+	<script src="../dist/libs/jquery.maskedinput.js"></script>
+
+	<script src="../dist/js/jquery.citrusValidator.js"></script>
+	<script src="../dist/js/lang/ru.js"></script>
+	<link rel="stylesheet" href="../dist/css/jquery.citrusValidator.css">
+
+	<style>
+
+	</style>
+</head>
+<body>
+
+
+<p><br></p>
+
+<h1>Валидация полей</h1>
+<div class="container">
+	<form action="/" id="form1" class="form-horizontal">
+		<div class="row">
+
+			<div class="form-group input-container">
+				<div class="col-sm-6">
+					<input type="text" class="form-control" name="firstname" placeholder="Число от" />
+				</div>
+				<div class="col-sm-6">
+					<input type="text" class="form-control" name="firstname" placeholder="Число до" />
+				</div>
+			</div>
+		</div>
+	</form>
+
+	<script>
+		$('#form1').citrusValidator();
+	</script>
+</div>

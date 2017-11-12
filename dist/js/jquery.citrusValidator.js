@@ -725,21 +725,29 @@ var obRules = {
 var obEvents = {
 	addFieldError: function($field, arErrors){
 		var $input_container = $field.closest(this.settings.input_container);
-		$input_container
-            .addClass('has-error')
-			.removeClass('has-success');
+
+		$input_container.addClass('_has-error')
+						.removeClass('_has-success');
+
+		$field.addClass('_has-error')
+				.removeClass('_has-success');
 
 		var messagesList = arErrors.join('<br>');
-		var $error_block = $input_container.find(".error.help-block");
-		if($error_block.length > 0) {
-			$error_block.html(messagesList);
-		} else {
-			$input_container.append('<div class="error help-block">'+messagesList+'</div>');
+
+		var $error_block = $input_container.find(".valid-error");
+		if (!$error_block.length) {
+			$error_block = $('<div class="valid-error"></div>');
+			$input_container.append($error_block);
 		}
+
+		$error_block.html(messagesList).addClass('_has-error');
 	},
     removeFieldError: function($field){
-        $field.closest(this.settings.input_container).removeClass('has-error')
-            .addClass('has-success');
+	    $field.closest(this.settings.input_container).removeClass('_has-error')
+                                                    .addClass('_has-success');
+
+	    $field.addClass('_has-success')
+		    .removeClass('_has-error');
     },
 	addGroupError: function (groupId, VGroup) {
         if(!groupId) return;
@@ -748,17 +756,21 @@ var obEvents = {
 		VGroup.forEach(function(Vfield){
             var $input_container = Vfield.$el.closest(v.settings.input_container);
 
-            $input_container
-                .addClass('has-group-error')
-                .removeClass('has-group-success');
+			Vfield.$el.addClass('_has-error')
+					.removeClass('_has-success');
 
-            var $error_block = $input_container.find(".group-error.help-block");
-            var messagesList = v.requireGroup[groupId]['error'];
-            if($error_block.length > 0) {
-                $error_block.html(messagesList);
-            } else {
-                $input_container.append('<div class="group-error help-block">'+messagesList+'</div>');
-            }
+            $input_container
+                .addClass('_has-group-error')
+                .removeClass('_has-group-success');
+
+			var messagesList = v.requireGroup[groupId]['error'];
+
+            var $error_block = $input_container.find(".group-valid-error");
+			if (!$error_block.length) {
+				$error_block = $('<div class="group-valid-error"></div>');
+				$input_container.append($error_block);
+			}
+			$error_block.html(messagesList).addClass('_has-error');
 		});
     },
     removeGroupError: function (groupId, VGroup) {
@@ -774,9 +786,9 @@ var obEvents = {
         });
     },
 	clearField: function($field) {
-		$field.closest(this.settings.input_container)
-            .removeClass('has-error')
-            .removeClass('has-success');
+		$field
+			.removeClass('_has-success _has-error')
+			.closest(this.settings.input_container).removeClass('_has-error _has-success');
 	},
 	lockField: function($field) {
 		this.callEvent("removeFieldError", $field);
